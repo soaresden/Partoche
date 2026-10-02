@@ -1,0 +1,14 @@
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+# clé de signature de l'APK : ne jamais la publier (garde une copie de côté !)
+android/keystore/
+*.apk
+*.mscz
+!web/demo/*.mscz
+!docs/demo/*.mscz
+upd.tgz
+
+# jeton GitHub pour tools/release.ps1 : ne jamais le publier
+mytoken.txt

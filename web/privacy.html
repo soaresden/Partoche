@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partoche — Confidentialité</title>
+<style>
+:root{--bg:#f7f7f9;--fg:#1d2027;--mut:#5d6472;--acc:#3f6fe0;--card:#fff}
+@media (prefers-color-scheme:dark){:root{--bg:#16181d;--fg:#e8eaf0;--mut:#9aa1ad;--acc:#7aa2ff;--card:#1f232b}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:32px 16px 60px}
+h1{font-size:28px;margin:0 0 4px} h2{font-size:19px;margin:28px 0 6px} p,li{color:var(--fg)} .mut{color:var(--mut)}
+section{background:var(--card);border-radius:14px;padding:4px 20px 14px;margin-top:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+a{color:var(--acc)}
+</style></head>
+<body><main>
+<h1>Politique de confidentialité</h1>
+<p class="mut">Partoche · dernière mise à jour : 2 octobre 2026</p>
+<section>
+<h2>En bref</h2>
+<p>Partoche ne collecte <b>aucune donnée personnelle</b>. Il n'y a ni compte, ni publicité, ni statistiques d'utilisation, ni serveur appartenant à l'éditeur.</p>
+<p>La page du prof garde sa liste d'élèves (liens et mots de passe) dans son navigateur ; le code et le fichier de sauvegarde ne sont créés que si elle le demande, et restent chez elle.</p>
+<h2>Ce qui reste sur ton appareil</h2>
+<ul>
+<li>Tes partitions sont lues dans le dossier que tu choisis ; elles ne sont envoyées nulle part.</li>
+<li>Tes annotations, réglages et ton historique sont enregistrés sur l'appareil et, si tu le choisis, dans un dossier de sauvegarde que tu désignes.</li>
+<li>Le micro n'est utilisé que pendant que l'accordeur est ouvert, pour mesurer la hauteur du son. Rien n'est enregistré ni transmis.</li>
+</ul>
+<h2>Partage avec un prof (facultatif)</h2>
+<p>Si tu actives le partage, l'appli utilise <b>tes propres liens pCloud</b> (lien public protégé par mot de passe, et lien de dépôt). Les échanges se font directement entre l'appareil et pCloud : lecture de tes partitions et annotations par ton prof, dépôt de ses annotations dans ton dossier. Ces liens et mots de passe sont stockés uniquement sur les appareils concernés. Le traitement par pCloud est régi par la <a href="https://www.pcloud.com/privacy_policy.html">politique de pCloud</a>.</p>
+<h2>Connexions réseau</h2>
+<ul>
+<li>Sons des instruments : téléchargés une fois depuis <i>gleitz.github.io</i> puis gardés en cache.</li>
+<li>pCloud : seulement si le partage est configuré.</li>
+<li>Présence (« … est en ligne ») : quand le partage est configuré, l'appli et la page du prof envoient toutes les ~75 s un petit signal au relais public <a href="https://ntfy.sh">ntfy.sh</a>, sur un canal au nom imprévisible tiré du lien de partage. Il contient seulement le prénom du prof, l'emoji, la couleur et une empreinte (illisible) du morceau ouvert ; ntfy.sh le garde 12 h au plus.</li>
+<li>Temps de travail : l'appli de l'élève note, par jour et par partition, le temps passé avec la partition ouverte (35 derniers jours), dans <code>Settings/!Travail.json</code> de son propre dossier. Seul son prof, qui a le lien de partage, peut le lire.</li>
+<li>LibreScore : les liens de téléchargement mènent à github.com ; Partoche ne transmet rien.</li>
+</ul>
+<h2>Contact</h2>
+<p>Pour toute question : <a href="https://github.com/soaresden/Partoche/issues">github.com/soaresden/Partoche</a>.</p>
+</section>
+</main></body></html>

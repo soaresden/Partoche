@@ -1,0 +1,1 @@
+window.PARTOCHE_VERSION = '1.0'
