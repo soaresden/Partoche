@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partoche — the guide</title>
+<link rel="icon" type="image/png" href="img/favicon.png">
+<meta name="description" content="Partoche: the student reads and annotates their MuseScore scores on a tablet, the teacher annotates them from a computer or iPad.">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbf8ff;--fg:#221b3a;--mut:#6b6488;--card:#ffffff;--line:#ece6fb;
+  --violet:#7a3cf0;--bleu:#4f6bff;--rose:#e83e8c;--orange:#ff8a3d;--jaune:#ffc93d;--vert:#20b47a;--code:#f3effd;
+}
+@media (prefers-color-scheme:dark){:root{--bg:#151226;--fg:#f1edff;--mut:#a9a2c8;--card:#201b38;--line:#2f2850;--code:#2a2348}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 Nunito,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background-image:repeating-linear-gradient(0deg,transparent 0 46px,rgba(122,60,240,.05) 46px 47px)}
+h1,h2,h3{font-family:Fredoka,Nunito,system-ui,sans-serif;line-height:1.15}
+a{color:var(--violet);font-weight:700}
+code{background:var(--code);border-radius:7px;padding:1px 7px;font:600 15px ui-monospace,Menlo,Consolas,monospace}
+.hero{background:linear-gradient(120deg,#4f6bff,#7a3cf0 50%,#e83e8c);color:#fff;padding:44px 18px 64px;position:relative;overflow:hidden}
+.hero .in{max-width:900px;margin:0 auto;display:flex;gap:22px;align-items:center;position:relative}
+.hero img{width:104px;height:104px;flex:none;filter:drop-shadow(0 14px 30px rgba(0,0,0,.3));animation:bob 3s ease-in-out infinite}
+.hero h1{font-size:46px;margin:0} .hero p{margin:6px 0 0;font-size:20px;opacity:.95}
+.notes{position:absolute;inset:0;pointer-events:none;font-size:34px;opacity:.22}
+.notes span{position:absolute;animation:float 7s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-3deg)}}
+@keyframes float{50%{transform:translateY(-14px) rotate(8deg)}}
+@media (prefers-reduced-motion:reduce){.hero img,.notes span{animation:none}}
+.wave{display:block;width:100%;height:40px;margin-top:-40px;position:relative}
+main{max-width:900px;margin:0 auto;padding:0 16px 70px}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:-6px 0 10px}
+.who a{display:block;text-decoration:none;color:#fff;border-radius:22px;padding:20px;box-shadow:0 10px 30px rgba(80,40,160,.18);transition:transform .15s}
+.who a:hover{transform:translateY(-3px)}
+.who .el{background:linear-gradient(135deg,#20b47a,#4f6bff)} .who .pr{background:linear-gradient(135deg,#ff8a3d,#e83e8c)}
+.who b{font:600 24px Fredoka,sans-serif;display:block} .who small{opacity:.95;font-size:15px}
+.who .ic{font-size:40px;line-height:1}
+.flow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin:26px 0 8px;font-weight:800}
+.flow span{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 16px}
+.flow i{font-style:normal;color:var(--rose);font-size:22px}
+h2{font-size:32px;margin:54px 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2 .tag{font:800 13px Nunito,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#fff;border-radius:999px;padding:4px 12px}
+.t-el{background:var(--vert)} .t-pr{background:var(--rose)} .t-tip{background:var(--orange)}
+.lead{color:var(--mut);margin:0 0 14px}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.step{min-width:0}
+.step{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:18px 20px 16px 84px;position:relative}
+.step:before{content:attr(data-n);position:absolute;left:18px;top:16px;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;
+  font:700 26px Fredoka,sans-serif;color:#fff;background:var(--c,var(--violet));box-shadow:0 6px 14px rgba(80,40,160,.25)}
+.step h3{margin:0 0 4px;font-size:21px}
+.step p{margin:4px 0}
+.c1{--c:#4f6bff}.c2{--c:#7a3cf0}.c3{--c:#e83e8c}.c4{--c:#ff8a3d}.c5{--c:#20b47a}
+.tree{background:var(--code);border-radius:16px;padding:12px 16px;margin:10px 0 2px;font:600 15px/1.8 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre}
+.tree .f{color:var(--violet)} .tree .m{color:var(--mut);font-family:Nunito,sans-serif;font-weight:600}
+.box{border-radius:18px;padding:12px 16px;margin:12px 0;font-size:16px}
+.box.tip{background:color-mix(in srgb,var(--jaune) 22%,var(--card));border:2px solid color-mix(in srgb,var(--jaune) 55%,transparent)}
+.box.info{background:color-mix(in srgb,var(--bleu) 12%,var(--card));border:2px solid color-mix(in srgb,var(--bleu) 35%,transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chips span{background:var(--code);border-radius:999px;padding:4px 12px;font-weight:700;font-size:15px}
+.big{display:inline-block;background:linear-gradient(135deg,#7a3cf0,#e83e8c);color:#fff;text-decoration:none;border-radius:16px;padding:12px 22px;font:600 19px Fredoka,sans-serif;margin:6px 0;box-shadow:0 8px 20px rgba(122,60,240,.3)}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.tips div{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px 16px}
+.tips b{font:600 18px Fredoka,sans-serif;display:block;margin-bottom:2px}
+.tips .e{font-size:30px}
+details{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 16px;margin:10px 0}
+summary{cursor:pointer;font-weight:800}
+pre{background:var(--code);border-radius:12px;padding:10px 12px;overflow-x:auto;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+footer{margin-top:60px;text-align:center;color:var(--mut);font-size:14px}
+.langs{position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:6px;max-width:calc(100% - 24px)}
+.langs a{color:#fff;text-decoration:none;font:800 13px/1.4 Nunito,system-ui,sans-serif;background:rgba(20,10,50,.35);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.langs a:hover{background:rgba(20,10,50,.55)}
+.langs a.on{background:#fff;color:#7a3cf0}
+@media (max-width:640px){.who{grid-template-columns:1fr}.hero h1{font-size:36px}.hero img{width:76px;height:76px}.step{padding-left:20px;padding-top:74px}.step:before{top:14px}}
+.startbtn{display:block;margin:0 auto 18px;max-width:420px;text-align:center;padding:14px 18px;border-radius:18px;background:linear-gradient(135deg,#3ecf6e,#2fa36b);color:#fff;font:700 18px Fredoka,sans-serif;text-decoration:none;box-shadow:0 8px 24px rgba(47,163,107,.3)}
+</style></head>
+<body>
+
+<header class="hero">
+  <nav class="langs"><a href="guide.html">FR</a><a href="guide-en.html" class="on">EN</a><a href="guide-ko.html">한국어</a></nav>
+  <div class="notes" aria-hidden="true"><span style="left:6%;top:18%">♪</span><span style="left:84%;top:12%;animation-delay:1s">♫</span><span style="left:70%;top:62%;animation-delay:2s">♬</span><span style="left:20%;top:70%;animation-delay:3s">♩</span><span style="left:48%;top:8%;animation-delay:1.5s">♪</span></div>
+  <div class="in">
+    <img src="img/logo.svg" alt="">
+    <div><h1>Partoche</h1><p>Your scores on the tablet, annotated with your teacher.<br>Simple, free, no account.</p></div>
+  </div>
+</header>
+<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40V18c120 18 240 18 360 4s240-26 360-8 240 26 480 4v22z" fill="var(--bg)"/></svg>
+
+<main>
+  <a class="startbtn" href="demarrer.html">🚀 Student: get started in 8 steps (French)</a>
+  <div class="who">
+    <a class="el" href="#eleve"><span class="ic">🎻</span><b>I'm a student</b><small>I install the app, organise my scores and share them with my teacher.</small></a>
+    <a class="pr" href="#prof"><span class="ic">🧑‍🏫</span><b>I'm a teacher</b><small>I open a web page, add my students and annotate their scores.</small></a>
+  </div>
+
+  <div class="flow"><span>🎻 Student's tablet</span><i>⇄</i><span>☁️ Their pCloud folder</span><i>⇄</i><span>🧑‍🏫 Teacher's page</span></div>
+
+  <h2 id="eleve"><span class="tag t-el">Student</span> In 5 steps</h2>
+  <p class="lead">You need an Android tablet and a <a href="https://www.pcloud.com">pCloud</a> account (free). The app guides you step by step (the app itself is in French; translations are given in brackets).</p>
+  <ol class="steps">
+    <li class="step c1" data-n="1"><h3>Install the app</h3>
+      <p>Download <b>Partoche</b> with <a href="https://github.com/soaresden/Partoche/releases/latest/download/Partoche.apk">⬇️ this direct link (Partoche.apk)</a> and open the file on the tablet (allow “unknown sources” if Android asks). On first launch, choose <b>Élève</b> (Student).</p></li>
+
+    <li class="step c2" data-n="2"><h3>Choose your Partoche folder</h3>
+      <p>The app offers 3 choices: <b>🆕 Nouvelle installation</b> (New installation: it creates the folder on your tablet), <b>📂 J'ai déjà un dossier Partoche</b> (I already have a Partoche folder: it finds it and detects what it contains), or <b>☁️ Directement dans mon pCloud</b> (Directly in my pCloud — <b>recommended</b>: sign in through the pCloud site, Google and two-factor included). It sets everything up there:</p>
+      <div class="tree"><span class="f">Partoche/</span>
+├── <span class="f">MSCZ/</span>    <span class="m">🎼 your scores</span>
+├── <span class="f">MesNotes/</span> <span class="m">✍️ your annotations, one per score</span>
+├── <span class="f">Settings/</span> <span class="m">⚙️ your settings, calendar, practice time</span>
+└── <span class="f">Prof/</span>    <span class="m">📬 what your teacher sends you</span></div>
+      <div class="box tip">☁️ <b>Folder on the tablet?</b> It must be <b>synced with your pCloud</b> (e.g. with the AutoSync app), otherwise your teacher sees nothing. Keep it synced both ways.<br>
+      🔑 <b>Directly in pCloud?</b> Nothing to sync: sign in with your pCloud email and password. <b>Google</b>, <b>Apple</b> or <b>Facebook</b> account? First add a password to your pCloud account (my.pcloud.com → Settings → Account → Password), then sign in with your email. Two-factor authentication works: the app asks for the code.</div></li>
+
+    <li class="step c3" data-n="3"><h3>Fill your library</h3>
+      <p>You choose your pieces: <b>copy your <code>.mscz</code> files into <code>MSCZ</code></b>. They show up in the app (⟳ Actualiser (Refresh) button).</p>
+      <div class="chips"><span>💻 From the computer: drag them into pCloud</span><span>📱 From the tablet: pCloud app → Upload</span><span>🗂️ Subfolders? No problem</span><span>🎁 Your teacher can also send you some (tag <b>Nouveau</b> (New))</span></div>
+      <div class="box info">🎼 Where do <code>.mscz</code> files come from? Tap <b>＋ Autres partitions</b> (More scores): the app points you to <b>LibreScore</b> (free, for PC, Mac or Android) to search for a piece and download it as <code>.mscz</code>. Or from <b>MuseScore</b> (File → Save as). Respect the rights of the scores you use.</div></li>
+
+    <li class="step c5" data-n="4"><h3>Share with your teacher</h3>
+      <p>On <a href="https://my.pcloud.com">pcloud.com</a>: on <code>Partoche</code>, <b>Share → Share link</b> with a <b>password</b>; on <code>Prof</code>, the three dots → <b>Request files</b> (that's the drop box, no account needed for your teacher).</p>
+      <p>Then in the app: <b>Options → Partager avec mon prof</b> (Options → Share with my teacher), paste both links: it <b>checks</b> them and prepares the message to send (WhatsApp, email…). When connected directly to pCloud, it even creates the links for you.</p>
+      <p>The message contains an <b>invitation link</b>: your teacher clicks it and you appear in their list, nothing to copy.</p>
+      <p>In <b>Options → Mon emoji et ma couleur</b> (Options → My emoji and my colour), choose how your teacher sees you.</p>
+      <div class="box tip">💡 Your teacher can't break anything: they read your scores, and only drop files into <code>Prof</code>. They don't need a pCloud account. You're notified of every new annotation or score received (<b>● Nouveau</b> (New) + notification).<br>⏱️ The app also records the <b>time spent on each score</b>: your teacher sees it in their <b>Attendance</b> view, to follow your week's practice.</div></li>
+
+    <li class="step c1" data-n="5"><h3>Your lessons</h3>
+      <p><b>📅 Mes cours</b> (My lessons): your upcoming lessons and pending requests. <b>📅 Voir ses disponibilités</b> (See their availability) shows your teacher's week: their hours, their days off and their <b>Occupé</b> (Busy) slots (you never see the other students). Tap a free slot to <b>propose a lesson</b>, once or every week.</p>
+      <p>A lesson is <b>confirmed once you have both accepted it</b>. To move it, propose another time. After each request, the app offers to <b>📨 prévenir ton prof</b> (let your teacher know) by message (WhatsApp, SMS, email).</p>
+      <div class="box info">📝 At the end of the lesson, your teacher writes down <b>what to work on</b>: a window opens on your tablet, and the scores concerned are tagged <b>À faire</b> (To do).</div></li>
+  </ol>
+
+  <h2 id="prof"><span class="tag t-pr">Teacher</span> In 6 steps</h2>
+  <p class="lead">A computer, an iPad or a tablet is enough. Nothing to install, no account. Each time you open the page, whatever is waiting for your answer (lesson requests, questions) shows up first.</p>
+  <ol class="steps">
+    <li class="step c3" data-n="1"><h3>Open the page</h3>
+      <a class="big" href="./">🎼 Open Partoche</a>
+      <p>On <b>iPad</b>: in Safari, <b>Share → Add to Home Screen</b>, then always open Partoche from that icon (your settings are kept safely there).</p>
+      <p>Tap the <b>Partoche logo</b> for <b>Settings</b>: language (FR / EN / 한국어) and browser notifications. The header takes the colour of your emoji.</p></li>
+    <li class="step c2" data-n="2"><h3>Your first name, your emoji, your colour</h3>
+      <p>At the top of <b>My students</b>. They are shown to your students, in a small bubble next to your annotations.</p></li>
+    <li class="step c1" data-n="3"><h3>Add your students</h3>
+      <p>Click the <b>invitation link</b> sent by your student: they are added automatically. Otherwise, <b>My students → Paste a code</b> (the text starting with <code>P1.</code>). Each student has their own tile, with the emoji and colour they chose; tap it to see their scores. Remember to <b>Copy my backup code</b> and keep it in a note: it contains all your students.</p></li>
+    <li class="step c5" data-n="4"><h3>Annotate!</h3>
+      <p>Open a piece: the student's annotations have a bubble with their first name. Switch to <b>Pen</b> and write: each stroke goes to the student <b>right away</b>, and Partoche checks that it arrived (“<b>Saved at …'s</b>” with the green check). The student sees it live.</p>
+      <p>You see your student's tags (<b>New</b> = score sent but not opened yet, To do, In progress, Mastered). A score to give them? <b>＋ Scores → Send a score to my student</b>, pick the <code>.mscz</code> file on your computer or iPad: it lands in their library.</p></li>
+    <li class="step c3" data-n="5"><h3>Follow the week's practice</h3>
+      <p>The <b>📊 Attendance</b> button (at the top) shows who is <b>online</b> right now, and for each student the time spent on their scores over the <b>last 7 days</b>. Tap a student: their last connection, their pieces <b>to work on</b> (New, To do, In progress) with the time spent on them, and the day-by-day detail.</p></li>
+    <li class="step c1" data-n="6"><h3>Plan the lessons</h3>
+      <p><b>📅 My calendar</b>: propose a time to a student (or accept theirs). A lesson is <b>confirmed once you have both accepted it</b>; to move it, either of you can propose another time. On the right of the list: the <b>upcoming lessons</b>. During the lesson a “Lesson in progress” banner appears; at the end, write down <b>what to work on</b> (text + scores): it shows up on the student's side and those scores are tagged <b>To do</b>.</p>
+      <p><b>Repeat</b>: every week or every 2 weeks, for a number of lessons or until a date (e.g. “every Thursday at 10:00 until 5 November”); the student can accept them all at once.</p>
+      <p><b>⚙️ My availability</b>: your hours (08:00 – 20:00 by default: the last one-hour lesson starts at 19:00), your days off (e.g. Saturday and Sunday) and your unavailable times (a slot or whole days, with a note for yourself). Your students see them as “Busy”, without the other students' names or your notes.</p></li>
+  </ol>
+
+  <h2><span class="tag t-tip">Tips</span> To play well</h2>
+  <div class="tips">
+    <div><span class="e">🔊</span><b>Volume</b>Tracks → Volume: up to 300 % (above 100 % it may distort), and the tablet volume right below. At the top of the score: ⏱ this session's time and the total on this piece.</div>
+    <div><span class="e">📘</span><b>Student guide (teacher)</b>At the top of the teacher page: the how-to for a new student, sent in one click (WhatsApp, email…).</div>
+    <div><span class="e">🎚️</span><b>Tracks</b>Show only your instrument, mute or lower the others.</div>
+    <div><span class="e">🔁</span><b>Loop</b>⟲, tap the start bar, then the end bar, then <b>▶ Loop</b>.</div>
+    <div><span class="e">↔️</span><b>Continuous line</b>Tablet in landscape: the score scrolls from left to right, with no line breaks.</div>
+    <div><span class="e">🎻</span><b>Bowing</b><b>⊓ down-bow</b> and <b>V up-bow</b> marks: one tap is enough.</div>
+    <div><span class="e">〰️</span><b>Emojis</b>Vibrato, breathe, let ring, tempo… placed with one tap.</div>
+    <div><span class="e">🔤</span><b>Note names</b>Do Ré Mi or A B C, written under each note.</div>
+    <div><span class="e">🐢</span><b>Speed</b>From 25 to 150 %, to practise slowly.</div>
+    <div><span class="e">🎯</span><b>Tuner</b>Violin, viola, cello, guitar, bass, ukulele…</div>
+    <div><span class="e">🟢</span><b>Online</b>“Your teacher is online · on this score”: you know when the other one is there, and on which piece.</div>
+    <div><span class="e">⚡</span><b>Live</b>The button for the other person's annotations says “live” or “modified 5 min ago”: you know who is up to date.</div>
+    <div><span class="e">🏷️</span><b>Your tags</b>To do, In progress, Mastered… plus your own labels: 🔥 L’enfer (hell), 😎 Easy, 🤭 Marrant (funny), 💪 Déjà bossé (already practised)… in your colours (Options → Mes tags).</div>
+    <div><span class="e">💬</span><b>Ask for advice</b>Long-press a score → « Demander l’avis de mon prof » (ask my teacher): the teacher answers from the web page (💬 Requests button).</div>
+    <div><span class="e">🎹</span><b>🎵 Change instruments</b>Tracks → Sound: any instrument for each part, and for piano the right and left hand separately.</div>
+    <div><span class="e">🤏</span><b>Two fingers</b>Zoom and scroll, in every layout, even in Pen mode. With a mouse: click and drag.</div>
+  </div>
+
+  <h2 style="font-size:24px">❓ Questions</h2>
+  <details><summary>The other person's annotations don't show up?</summary><p>They are tied to the tracks shown and to the note names. Tap the button with the other person's first name: Partoche offers to switch to their view.</p></details>
+  <details><summary>Where is my data?</summary><p>On your tablet and in your pCloud. There is no Partoche server, no account, no ads. Only the small “online” signal goes through a public relay (ntfy.sh). <a href="privacy.html">Privacy</a> (in French).</p></details>
+  <details><summary>Teacher: changing computer or browser?</summary><p>Your student list is kept in this browser. On the new one, open <b>My students → Paste a code</b> and paste your <b>backup code</b> (or <b>Restore a file</b>).</p></details>
+  <details><summary>What about my PDF scores?</summary><p>Partoche reads MuseScore files (<code>.mscz</code>). A PDF can be converted with music recognition software (Audiveris, free, or MuseScore's PDF import), but the result often needs corrections. The simplest: look for the piece with LibreScore.</p></details>
+  <details><summary>No sound on iPad?</summary><p>Check that the iPad isn't in silent mode, then press ▶.</p></details>
+
+
+  <footer>
+    <img src="img/logo.svg" alt="" width="40" height="40"><br>
+    Partoche · by Soaresden · free software (GPL v3) · <a href="https://github.com/soaresden/Partoche">source code</a><br>
+    Score rendering: webmscore (MuseScore's free engine). Sounds: FluidR3 GM (CC BY 3.0). MuseScore is a trademark of its owners; Partoche is not affiliated with it.
+  </footer>
+</main>
+</body></html>

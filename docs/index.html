@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#16181d">
+<title>Partoche</title>
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Partoche">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<script src="config.js"></script>
+<script src="version.js"></script>
+<div id="splash" class="splash">
+  <div class="spstage" aria-hidden="true">
+    <svg class="spviolin" viewBox="0 0 160 220">
+      <defs>
+        <linearGradient id="vwood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e08a3c"/><stop offset=".55" stop-color="#b8541c"/><stop offset="1" stop-color="#7a3010"/></linearGradient>
+        <linearGradient id="vneck" x1="0" x2="1"><stop offset="0" stop-color="#2a1a12"/><stop offset="1" stop-color="#4a2e1f"/></linearGradient>
+      </defs>
+      <g transform="rotate(-28 80 120)">
+        <path d="M80 70 C55 70 47 82 49 98 C50 106 59 110 59 118 C59 126 44 132 44 152 C44 180 61 194 80 194 C99 194 116 180 116 152 C116 132 101 126 101 118 C101 110 110 106 111 98 C113 82 105 70 80 70 Z" fill="url(#vwood)" stroke="#5a240c" stroke-width="2"/>
+        <path d="M80 76 C60 76 54 86 55 98 C56 105 64 110 64 118 C64 127 50 133 50 152 C50 175 64 188 80 188" fill="none" stroke="#f3b273" stroke-opacity=".35" stroke-width="2"/>
+        <path d="M66 128 c-4 8 4 14 0 22 M94 128 c4 8 -4 14 0 22" fill="none" stroke="#3a1606" stroke-width="2.4" stroke-linecap="round"/>
+        <rect x="76" y="22" width="8" height="58" rx="2" fill="url(#vneck)"/>
+        <rect x="74" y="90" width="12" height="62" rx="3" fill="#2a1a12"/>
+        <circle cx="80" cy="16" r="7" fill="url(#vneck)"/><circle cx="80" cy="16" r="3" fill="#7a3010"/>
+        <path d="M74 26 h-5 M86 26 h5 M74 34 h-5 M86 34 h5" stroke="#2a1a12" stroke-width="3" stroke-linecap="round"/>
+        <path d="M68 140 h24" stroke="#f1d6a8" stroke-width="3" stroke-linecap="round"/>
+        <path d="M72 168 l16 0 l-3 18 l-10 0 z" fill="#2a1a12"/>
+        <g stroke="#f5efe0" stroke-width=".8" opacity=".9"><path d="M77.5 22 V170"/><path d="M79.2 22 V170"/><path d="M80.8 22 V170"/><path d="M82.5 22 V170"/></g>
+      </g>
+      <g class="spbow"><g transform="rotate(14 80 120)">
+        <path d="M-6 132 L168 132" stroke="#3b2414" stroke-width="3" stroke-linecap="round"/>
+        <path d="M-2 137 L162 137" stroke="#f3ead2" stroke-width="1.6"/>
+        <rect x="-10" y="128" width="12" height="11" rx="2" fill="#1b1b1b"/>
+      </g></g>
+    </svg>
+    <span class="spnote n1">♪</span><span class="spnote n2">♫</span><span class="spnote n3">♬</span><span class="spnote n4">♩</span><span class="spnote n5">♪</span>
+  </div>
+  <div class="spname">Partoche</div>
+  <div class="spver">version 1.0</div>
+  <div class="spby">By Soaresden</div>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="6" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/><rect x="14" y="4.5" width="4" height="15" rx="1" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-start" viewBox="0 0 24 24"><path d="M6 5v14"/><path d="M19 5l-10 7 10 7z" fill="currentColor"/></symbol>
+    <symbol id="i-tracks" viewBox="0 0 24 24"><path d="M4 6h10M4 12h16M4 18h8"/><circle cx="18" cy="6" r="2"/><circle cx="16" cy="18" r="2"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></symbol>
+    <symbol id="i-hl" viewBox="0 0 24 24"><path d="M9 11l-5 5v4h4l5-5"/><path d="M9 11l6-6 4 4-6 6z"/></symbol>
+    <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M7 20h13"/><path d="M4 15l9-9 6 6-8 8H8z"/></symbol>
+    <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
+    <symbol id="i-redo" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5a1.5 1.5 0 0 1 3 0v6M11 11V4a1.5 1.5 0 0 1 3 0v7M14 11V5.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-.5a6 6 0 0 1-5-2.7L3 15.5a1.6 1.6 0 0 1 2.6-1.8L8 16"/></symbol>
+    <symbol id="i-zin" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M8 11h6M11 8v6"/></symbol>
+    <symbol id="i-zout" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5M8 11h6"/></symbol>
+    <symbol id="i-2up" viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16" rx="1"/><rect x="13" y="4" width="8" height="16" rx="1"/></symbol>
+    <symbol id="i-lineup" viewBox="0 0 24 24"><rect x="1.5" y="8" width="21" height="8" rx="1"/><path d="M5 12h14M16 10l3 2-3 2"/></symbol>
+    <symbol id="i-hup" viewBox="0 0 24 24"><rect x="1.5" y="6" width="6" height="12" rx="1"/><rect x="9" y="6" width="6" height="12" rx="1"/><rect x="16.5" y="6" width="6" height="12" rx="1"/></symbol>
+    <symbol id="i-1up" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="1"/></symbol>
+    <symbol id="i-loop" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol>
+    <symbol id="i-follow" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3 3.9M6.5 6.6C3.8 8.3 2 12 2 12s3.5 7 10 7a9.6 9.6 0 0 0 4.4-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+    <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M19 6a8 8 0 0 1 0 12"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></symbol>
+    <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/><circle cx="19" cy="12" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-fork" viewBox="0 0 24 24"><path d="M9 2v8a3 3 0 0 0 6 0V2"/><path d="M12 13v9"/><path d="M9 22h6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/></symbol>
+  </defs>
+</svg>
+
+<!-- ============ BIBLIOTHÈQUE ============ -->
+<section id="library" class="screen active">
+  <div id="demoBar" class="demobar" hidden>Mode démo · partitions d'exemple et annotations fictives <button id="demoQuit" class="btn chipbtn">Quitter la démo</button></div>
+  <header class="bar libbar">
+    <button class="brand" id="brandBtn" title="Options"><img class="blogo" src="img/logo.svg" alt=""><span class="bname"><span>Partoche</span><small><b id="appVer"></b> · options</small></span></button>
+    <span id="presLib" class="preslib" hidden><i></i><span></span></span>
+    <div class="search"><svg class="ic"><use href="#i-search"/></svg><input id="q" type="search" placeholder="Rechercher une partition…" autocomplete="off"></div>
+    <button id="btnStudent" class="btn student" hidden title="Choisir l'élève"><span class="udot"></span><span id="studentLbl">Élève</span><span class="caret">▾</span></button>
+    <div class="hgroup">
+      <button id="btnAgenda" class="btn hbtn" title="Cours et agenda"><span>📅</span><span class="lbl teacheronly">Mon agenda</span><span class="lbl eleveonly">Mes cours</span><i id="agendaCount" class="pcount warn" hidden></i></button>
+      <button id="btnAsks" class="btn hbtn" hidden title="Demandes d'avis"><span>💬</span><span class="lbl teacheronly">Demandes</span><i id="asksCount" class="pcount warn" hidden></i></button>
+      <button id="btnPres" class="btn hbtn pres" hidden title="Présences et temps de travail de mes élèves"><span>📊</span><span class="lbl">Présences</span><i id="presCount" class="pcount" hidden></i></button>
+      <button id="btnTuto" class="btn hbtn teacheronly" title="Le mode d'emploi pour tes élèves, à leur envoyer"><span>📘</span><span class="lbl">Tuto élève</span></button>
+      <button id="btnMore" class="btn hbtn more" title="Trouver et ajouter des partitions"><span class="plus">＋</span><span class="lbl">Partitions</span></button>
+    </div>
+    <div class="hgroup hend">
+      <button id="btnRefresh" class="btn hbtn icon" title="Actualiser"><svg class="ic"><use href="#i-refresh"/></svg></button>
+      <button id="btnTunerLib" class="btn hbtn icon" title="Accordeur"><svg class="ic"><use href="#i-fork"/></svg></button>
+    </div>
+    <span hidden><button id="btnFolder" class="btn"><span id="folderLabel"></span></button><button id="btnSettings" class="btn icon"></button></span>
+    <label id="btnFiles" class="btn" hidden><svg class="ic"><use href="#i-file"/></svg><span>Ouvrir</span><input id="fileInput" type="file" accept=".mscz,.mscx" multiple hidden></label>
+  </header>
+  <div id="libTools" class="libtools" hidden>
+    <span class="muted">Trier :</span>
+    <div class="seg small" id="sortSeg">
+      <button data-s="name">Nom<i></i></button>
+      <button data-s="date">Date<i></i></button>
+      <button data-s="edited">Annoté<i></i></button>
+      <button data-s="opened">Ouverture<i></i></button>
+      <button data-s="size">Taille<i></i></button>
+    </div>
+    <div class="seg small" id="tagSeg">
+      <button data-t="all">Toutes</button><button data-t="new">Nouveau</button><button data-t="todo">À faire</button><button data-t="wip">En cours</button><button data-t="done">Maîtrisé</button><button data-t="none">Sans tag</button>
+    </div>
+    <select id="labelSel" class="labelsel" title="Filtrer par étiquette"></select>
+    <span id="count" class="muted"></span>
+  </div>
+  <div id="liveBar" class="livebar" hidden><span id="liveTxt"></span><button id="liveEnd" class="btn chipbtn" hidden>📝 Fin du cours : noter le travail</button></div>
+  <div class="libwrap">
+  <main id="libBody">
+    <div id="grid" class="grid"></div>
+    <div id="empty" class="empty" hidden>
+      <svg class="ic big"><use href="#i-folder"/></svg>
+      <p>Choisis le dossier qui contient tes fichiers <b>.mscz</b>.</p>
+      <p class="muted">Tu peux aussi ouvrir un fichier .mscz depuis ton gestionnaire de fichiers avec Partoche.</p>
+    </div>
+  </main>
+  <aside id="agendaSide" class="agside" hidden>
+    <div class="sidehead"><b>Prochains cours</b><span><button id="sideNew" class="btn chipbtn" title="Proposer un cours">＋</button><button id="sideOpen" class="btn chipbtn">Agenda</button></span></div>
+    <div id="sideList" class="sidelist"></div>
+  </aside>
+  </div>
+</section>
+
+<!-- ============ LECTEUR ============ -->
+<section id="viewer" class="screen">
+  <header class="bar vbar">
+    <button id="btnBack" class="btn icon" title="Bibliothèque"><svg class="ic"><use href="#i-back"/></svg></button>
+    <span id="netState" class="netstate mute"><i></i><span></span></span>
+    <div id="title" class="title"></div>
+    <button id="vTag" class="tag vtag t-none" title="Tag : toucher pour changer">+ Tag</button>
+    <button id="btnUnder" class="btn chipbtn under" hidden title="Afficher / masquer ces annotations"><span class="udot"></span><span id="underLbl"></span></button>
+    <div class="tools">
+      <div class="seg mode" id="modeSeg">
+        <button data-m="hand" class="on" title="Mode main : défiler, toucher une mesure"><svg class="ic"><use href="#i-hand"/></svg><span class="lbl">Main</span></button>
+        <button data-m="pen" title="Mode stylo : écrire sur la partition"><svg class="ic"><use href="#i-pen"/></svg><span class="lbl">Stylo</span></button>
+      </div>
+      <span class="sep"></span>
+      <button id="btnTracks" class="btn" title="Pistes"><svg class="ic"><use href="#i-tracks"/></svg><span class="lbl">Pistes</span></button>
+      <button id="btnNames" class="btn" title="Noms des notes"><svg class="ic"><use href="#i-note"/></svg><span class="lbl" id="namesLbl">Notes</span></button>
+      <span class="sep"></span>
+      <button id="btnZout" class="btn icon" title="Dézoomer"><svg class="ic"><use href="#i-zout"/></svg></button>
+      <button id="btnZin" class="btn icon" title="Zoomer"><svg class="ic"><use href="#i-zin"/></svg></button>
+      <button id="btnLayout" class="btn icon" title="Mise en page"><svg class="ic"><use href="#i-2up"/></svg></button>
+    
+      <span class="sep"></span>
+      <button id="btnTuner" class="btn icon" title="Accordeur"><svg class="ic"><use href="#i-fork"/></svg></button>
+      <span id="wTime" class="wtime" hidden title="Temps passé sur ce morceau : cette séance, et au total"></span>
+</div>
+  </header>
+
+  <div id="inkbar" class="inkbar" hidden>
+    <button id="btnTool" class="btn tooltrig" title="Outil et épaisseur"><svg class="ic" id="toolSvg"><use id="toolIcon" href="#i-pen"/></svg><span id="toolEmo" class="emo" hidden></span><i id="toolDot"></i><span class="caret">▾</span></button>
+    <span class="sep"></span>
+    <div id="swatches" class="swatches"></div>
+    <span class="sep"></span>
+    <button id="btnUndo" class="btn icon" title="Défaire le dernier trait"><svg class="ic"><use href="#i-undo"/></svg></button>
+    <button id="btnRedo" class="btn icon" title="Rétablir"><svg class="ic"><use href="#i-redo"/></svg></button>
+    <button id="btnMore" class="btn icon" title="Plus"><svg class="ic"><use href="#i-more"/></svg></button>
+  </div>
+
+  <div id="toolPop" class="pop" hidden>
+    <div class="tools4">
+      <button data-tool="pen"><svg class="ic"><use href="#i-pen"/></svg>Stylo</button>
+      <button data-tool="hl"><svg class="ic"><use href="#i-hl"/></svg>Surligneur</button>
+      <button data-tool="text"><svg class="ic"><use href="#i-text"/></svg>Texte</button>
+      <button data-tool="emoji"><span class="emo">〰️</span>Emoji</button>
+      <button data-tool="eraser"><svg class="ic"><use href="#i-eraser"/></svg>Gomme</button>
+    </div>
+    <div id="shapeRow"><div class="row between"><span>Formes</span><span class="muted small">glisser pour dessiner · archet : un toucher suffit</span></div><div class="shapes"><button data-shape="downbow" title="Tiré (archet)"><svg viewBox="0 0 24 24" class="ic"><path d="M6 19V6h12v13" stroke-width="2.6"/></svg><small>Tiré</small></button><button data-shape="upbow" title="Poussé (archet)"><svg viewBox="0 0 24 24" class="ic"><path d="M6 5l6 14 6-14"/></svg><small>Poussé</small></button><button data-shape="ellipse" title="Rond"><svg viewBox="0 0 24 24" class="ic"><ellipse cx="12" cy="12" rx="9" ry="7"/></svg><small>Rond</small></button><button data-shape="rect" title="Carré"><svg viewBox="0 0 24 24" class="ic"><rect x="4" y="5" width="16" height="14" rx="1"/></svg><small>Carré</small></button><button data-shape="line" title="Trait"><svg viewBox="0 0 24 24" class="ic"><path d="M4 19L20 5"/></svg><small>Trait</small></button><button data-shape="arrow" title="Flèche"><svg viewBox="0 0 24 24" class="ic"><path d="M4 19L19 6M19 6h-7M19 6v7"/></svg><small>Flèche</small></button><button data-shape="cresc" title="Crescendo"><svg viewBox="0 0 24 24" class="ic"><path d="M21 6L3 12l18 6"/></svg><small>Crescendo</small></button><button data-shape="decresc" title="Decresc."><svg viewBox="0 0 24 24" class="ic"><path d="M3 6l18 6-18 6"/></svg><small>Decresc.</small></button></div></div>
+    <div id="sizeRow">
+      <div class="row between"><span>Épaisseur / taille</span></div>
+      <div class="seg sizes">
+        <button data-size="1"><i style="--s:4px"></i></button>
+        <button data-size="2"><i style="--s:7px"></i></button>
+        <button data-size="4"><i style="--s:11px"></i></button>
+        <button data-size="6"><i style="--s:15px"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="emojiPop" class="pop wide" hidden>
+    <div class="row between"><b>Emoji à poser</b><span class="muted small">touche puis pose-le sur la partition</span></div>
+    <div id="emojiGrid" class="emojigrid"></div>
+    <div class="dlg-btns"><button id="emojiAdd" class="btn chipbtn">＋ Autre emoji…</button><button id="emojiReset" class="btn chipbtn">Réinitialiser</button></div>
+  </div>
+
+  <div id="layoutPop" class="pop" hidden>
+    <div class="row between"><b>Mise en page</b></div>
+    <div class="layouts">
+      <button data-l="vertical"><span class="lic lv"><i></i><i></i></span>Vertical<small>une page sous l'autre</small></button>
+      <button data-l="two"><span class="lic l2"><i></i><i></i></span>Côte à côte<small>2 pages, défilement vertical</small></button>
+      <button data-l="horizontal"><span class="lic lh"><i></i><i></i><i></i></span>Horizontal<small>pages en ligne, glisser de côté</small></button>
+      <button data-l="line"><span class="lic ll"><i></i></span>Ligne continue<small>une seule ligne, défile vers la droite (idéal en paysage)</small></button>
+    </div>
+  </div>
+
+  <div id="loopBar" class="loopbar" hidden>
+    <span id="loopMsg">Touche la mesure de début</span>
+    <button id="loopGo" class="btn primary" disabled>▶ Boucler</button>
+    <button id="loopCancel" class="btn">Annuler</button>
+  </div>
+
+  <div id="morePop" class="pop" hidden>
+    <label class="row click"><svg class="ic"><use href="#i-plus"/></svg> Ajouter une couleur favorite<input id="colorPick" type="color" value="#7b3fbf" class="hiddenpick"></label>
+    <button id="btnEditColors" class="row click"><svg class="ic"><use href="#i-minus"/></svg> <span id="editColorsLbl">Retirer des couleurs</span></button>
+    <label class="row"><input type="checkbox" id="optFinger"> Stylet actif (S Pen…) : le doigt fait défiler au lieu d'écrire</label>
+    <button id="btnClearPage" class="row click danger"><svg class="ic"><use href="#i-trash"/></svg> Effacer la page affichée</button>
+  </div>
+
+  <div id="renderBar" class="renderbar" hidden><i></i><span>Chargement…</span></div>
+  <div id="scroller" class="scroller"><div id="pages" class="pages"></div></div>
+
+  <footer class="transport">
+    <button id="btnStart" class="btn icon" title="Début"><svg class="ic"><use href="#i-start"/></svg></button>
+    <button id="btnPlay" class="btn play" title="Lecture"><svg class="ic"><use href="#i-play"/></svg></button>
+    <span id="tCur" class="time">0:00</span>
+    <input id="seek" type="range" min="0" max="1000" value="0" step="1">
+    <span id="tDur" class="time">0:00</span>
+    <button id="btnSpeed" class="btn" title="Vitesse"><span id="speedLbl">100 %</span></button>
+    <button id="btnLoop" class="btn icon" title="Boucle : choisir début et fin"><svg class="ic"><use href="#i-loop"/></svg></button>
+    <button id="btnFollow" class="btn icon on" title="Suivre la lecture"><svg class="ic"><use href="#i-follow"/></svg></button>
+  </footer>
+
+  <!-- panneau pistes -->
+  <aside id="tracksPanel" class="panel">
+    <div class="panel-head"><h3>Pistes</h3><button class="btn icon" data-close><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="volbox">
+      <div class="vmrow"><span class="vmlbl">🔊 Volume</span><input id="masterVol" type="range" min="0" max="300" step="5" list="volTicks"><b id="masterVolLbl" class="vmval">100 %</b></div>
+      <datalist id="volTicks"><option value="100"></option><option value="200"></option></datalist>
+      <p id="masterWarn" class="volwarn" hidden>⚠️ Au-delà de 100 %, le son est poussé : il peut saturer (grésiller), surtout au casque ou sur un petit haut-parleur. Baisse si ça grésille.</p>
+      <div class="vmrow" id="devVolRow" hidden><span class="vmlbl">📱 Tablette</span><input id="devVol" type="range" min="0" max="15" step="1"><b id="devVolLbl" class="vmval"></b></div>
+    </div>
+    <div class="panel-sub">
+      <span class="plbl"><svg class="ic sm"><use href="#i-eye"/></svg> Affichage</span>
+      <button id="allShow" class="chip">Tout afficher</button>
+      <button id="allHide" class="chip">Tout masquer</button>
+    </div>
+    <div class="panel-sub">
+      <span class="plbl"><svg class="ic sm"><use href="#i-vol"/></svg> Son</span>
+      <button id="allSound" class="chip">Tout entendre</button>
+      <button id="allMute" class="chip">Tout couper</button>
+      <button id="soundVisible" class="chip">= affiché</button>
+    </div>
+    <div id="applyHint" class="warn info" hidden>Les changements d'affichage s'appliquent quand tu fermes ce panneau (✕).</div>
+    <div id="noneWarn" class="warn" hidden>Coche au moins une piste à afficher</div>
+    <div id="trackList"></div>
+    <p class="hint">Case cochée = affichée sur la partition · <svg class="ic sm"><use href="#i-vol"/></svg> son · <b>S</b> solo</p>
+  </aside>
+
+  <!-- popover noms de notes -->
+  <div id="namesPop" class="pop" hidden>
+    <div class="seg" id="namesSeg">
+      <button data-v="off">Aucun</button>
+      <button data-v="letter">A B C</button>
+      <button data-v="solfege">Do Ré Mi</button>
+    </div>
+    <label class="row"><input type="checkbox" id="optOctave"> Numéro d'octave (C4, Do4)</label>
+    <label class="row"><input type="checkbox" id="optAbove"> Au-dessus de la portée</label>
+    <label class="row" id="rowManual"><input type="checkbox" id="optHideManual" checked> Masquer les noms déjà écrits à la main</label>
+  </div>
+
+  <!-- popover vitesse -->
+  <div id="speedPop" class="pop" hidden>
+    <div class="row between"><span>Vitesse</span><b id="speedVal">100 %</b></div>
+    <input id="speed" type="range" min="25" max="150" step="5" value="100">
+    <div class="seg small">
+      <button data-s="50">50 %</button><button data-s="75">75 %</button><button data-s="90">90 %</button><button data-s="100">100 %</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+</section>
+
+<!-- ============ OPTIONS ============ -->
+<div id="settings" class="dlg settings" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3>Options</h3><button class="btn icon" id="setClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <h4>Profil</h4>
+    <div class="setrow"><div><b>Je suis</b><div class="muted" id="setRoleNote"></div></div>
+      <div class="seg small" id="setRole"><button data-v="eleve">Élève</button><button data-v="prof">Prof</button></div></div>
+    <label class="setrow" hidden><div><b>Mode démo</b><div class="muted">Partitions d'exemple (domaine public) avec des annotations de démonstration</div></div><input type="checkbox" id="setDemo"></label>
+    <div class="setrow" id="profRow"><div><b>Mon emoji et ma couleur</b><div class="muted" id="profNote">Ton prof les voit à côté de ton prénom et sur tes annotations</div><div class="profrow"><input id="profEmoIn" class="txt emoin" maxlength="12" placeholder="🎻" title="Tape ou colle ton emoji"><button class="btn chipbtn" id="profEmoAll">Tous les emojis</button><label class="colpick" title="Ta couleur"><input type="color" id="profColIn" value="#9b3fc0"><span>Ma couleur</span></label></div><div class="emoall" id="profEmoGrid" hidden></div></div></div>
+    <div class="setrow" id="profReset" hidden><div><b>Se déconnecter</b><div class="muted">Efface ton prénom, tes élèves et leurs mots de passe de ce navigateur, puis relance la configuration</div></div><button class="btn chipbtn danger" id="setProfReset">Se déconnecter</button></div>
+    <div class="setrow" id="notifRow" hidden><div><b>Notifications</b><div class="muted">Te prévenir quand un élève propose un cours ou arrive en ligne (garde l'onglet ouvert) <span id="notifState"></span></div></div><button class="btn chipbtn" id="setNotif">Activer</button></div>
+    <div class="setrow" id="langRow" hidden><div><b>Langue</b><div class="muted">Langue de cette page</div></div><select id="langSel" class="langsel"></select></div>
+    <div class="setrow eleveonly"><div><b>Mes tags</b><div class="muted">Crée tes étiquettes, avec emoji et couleur</div></div><button class="btn chipbtn" id="setLabels">🏷️ Gérer</button></div>
+    <div class="setrow"><div><b>Tuto</b><div class="muted">La visite guidée des fonctions</div></div><button class="btn chipbtn" id="setTuto">Revoir le tuto</button></div>
+    <div id="welcome" class="warn" hidden>Bienvenue ! Choisis ton <b>dossier Partoche</b> (par ex. un dossier pCloud) : l'appli y range tes partitions, tes annotations et celles de ton prof.</div>
+
+    <h4 class="eleveonly">Dossiers</h4>
+    <div class="setrow root eleveonly">
+      <div><b>Mon dossier Partoche</b><div class="muted" id="setRoot"></div></div>
+      <div class="btns"><button class="btn chipbtn primary" id="setWizard">Refaire la configuration</button><button class="btn chipbtn" id="setPcLogout" hidden>Déconnecter pCloud</button></div>
+    </div>
+    <details class="advdirs eleveonly"><summary class="muted small">Réglages avancés (dossiers de la tablette)</summary>
+    <div class="setrow">
+      <div><b>Dossier Partoche sur la tablette</b><div class="muted">Contient MSCZ, MesNotes, Settings et Prof (créés si besoin)</div></div>
+      <button class="btn chipbtn" id="setPickRoot">Choisir…</button>
+    </div>
+    <div class="setrow">
+      <div><b>Partitions</b><div class="muted" id="setScores">—</div></div>
+      <button class="btn chipbtn" id="setPickScores">Choisir…</button>
+    </div>
+    <div class="setrow">
+      <div><b>Sauvegarde</b> <span class="muted">(annotations, réglages par partition, préférences, historique)</span><div class="muted" id="setSave">—</div></div>
+      <div class="btns"><button class="btn chipbtn" id="setPickSave">Choisir…</button><button class="btn chipbtn" id="setResetSave">Par défaut</button></div>
+    </div>
+    </details>
+    <div id="cloudWarn" class="warn" hidden>⚠ Ce dossier de sauvegarde est sur <b>pCloud</b> : le connecteur Android de pCloud crée des copies « conflicted ». Choisis plutôt un <b>dossier de la tablette</b> (par ex. <i>Documents/Partoche</i> — tu peux le créer depuis le sélecteur), puis synchronise-le avec pCloud grâce à une appli de synchro (par ex. <i>Autosync for pCloud</i>, en synchro dans les deux sens). Toutes tes annotations y seront recopiées automatiquement.</div>
+    <div class="muted small" id="setWebNote" hidden>Le choix des dossiers est disponible dans l'appli Android. Ici, les données restent dans le navigateur.</div>
+
+    <div id="shareSec">
+    <h4>Partage avec mon prof</h4>
+    <div class="muted small" style="margin-bottom:6px">Ton prof voit tes partitions et t'envoie ses annotations : elles s'affichent dans leurs couleurs, avec une bulle à son nom, et tu peux les masquer. <a href="#" id="shHelp">Comment faire ?</a></div>
+    <div class="setrow"><div><b>Liens pour ton prof</b><div class="muted">Créés en un clic avec ton compte pCloud</div></div><button class="btn chipbtn primary" id="shWizard">Partager avec mon prof</button></div>
+    <details class="advdirs"><summary class="muted small">Saisir un lien à la main</summary>
+    <div class="setrow"><div><b>Ton lien de partage pCloud</b><div class="muted">Le dossier qui contient tes partitions et tes annotations</div></div><input id="shLink" class="txt" placeholder="https://e.pcloud.link/publink/show?code=…"></div>
+    <div class="setrow"><div><b>Mot de passe du lien</b></div><input id="shPwd" class="txt" type="password" autocomplete="off"></div>
+    <div class="setrow"><div class="muted" id="shState"></div><button class="btn chipbtn" id="shTest">Tester</button></div>
+    </details>
+    </div>
+
+    <h4>Affichage</h4>
+    <div class="setrow"><div><b>Noms des notes par défaut</b><div class="muted">Pour les partitions pas encore réglées (chaque partition garde son propre choix)</div></div>
+      <div class="seg small" id="setNames"><button data-v="off">Aucun</button><button data-v="letter">A B C</button><button data-v="solfege">Do Ré Mi</button></div></div>
+    <div class="setrow"><div><b>Disposition à l'ouverture</b></div>
+      <div class="seg small" id="setLayout"><button data-v="auto">Auto</button><button data-v="one">1 page</button><button data-v="two">Côte à côte</button><button data-v="horizontal">Horizontal</button><button data-v="line">Ligne</button></div></div>
+    <label class="setrow"><div><b>Suivre la lecture</b><div class="muted">La page défile toute seule avec le curseur</div></div><input type="checkbox" id="setFollow"></label>
+
+    <h4>Stylo</h4>
+    <label class="setrow"><div><b>Stylet actif (S Pen…)</b><div class="muted">En mode Stylo, le doigt fait défiler au lieu d'écrire</div></div><input type="checkbox" id="setFinger"></label>
+    <div class="setrow"><div><b>Couleurs favorites</b><div class="muted">Vert, rouge, bleu, marron</div></div><button class="btn chipbtn" id="setResetColors">Réinitialiser</button></div>
+
+    <h4>Données</h4>
+    <div class="setrow"><div><b>Historique</b><div class="muted" id="setHistCount"></div></div><button class="btn chipbtn" id="setClearHist">Effacer</button></div>
+    <div class="setrow"><div><b>Sons d'instruments</b><div class="muted">Téléchargés une fois puis gardés hors-ligne</div></div><button class="btn chipbtn" id="setClearSounds">Vider le cache</button></div>
+    <h4>Journal (diagnostic)</h4>
+    <div class="setrow"><div><b>Journal des enregistrements</b><div class="muted">Tout ce que fait l'appli pour écrire tes fichiers, avec les erreurs</div></div>
+      <div class="btns"><button class="btn chipbtn" id="logShow">Voir</button><button class="btn chipbtn" id="logClear">Effacer</button></div></div>
+    <label class="setrow"><div><b>Journal automatique</b><div class="muted">Recopié tout seul dans le dossier de sauvegarde (!Log.txt) après chaque enregistrement</div></div><input type="checkbox" id="setAutoLog"></label>
+    <div class="setrow"><div><b>Exporter le journal</b><div class="muted">Dans le dossier de sauvegarde (!Log.txt) ou où tu veux</div></div>
+      <div class="btns"><button class="btn chipbtn" id="logToSave">!Log.txt</button><button class="btn chipbtn" id="logExport">Enregistrer sous…</button></div></div>
+    <pre id="logView" class="logview" hidden></pre>
+    <h4>À propos</h4>
+    <div class="muted small credits">
+      Partoche — logiciel libre (licence GNU GPL v3), par Soaresden.<br>
+      Rendu des partitions : <b>webmscore</b> (moteur libre de MuseScore), GPL v3.<br>
+      Sons : banque <b>FluidR3 GM</b> (Frank Wen, licence CC BY 3.0) via midi-js-soundfonts (B. Gleitz).<br>
+      Partitions de démo : œuvres du domaine public.<br>
+      MuseScore est une marque de ses propriétaires ; cette appli n'y est pas affiliée.<br>
+      <a href="https://soaresden.github.io/Partoche/demarrer.html" target="_blank" rel="noopener">Démarrer en 8 étapes</a> · <a href="https://soaresden.github.io/Partoche/guide.html" target="_blank" rel="noopener">Guide d’installation</a> · <a href="https://soaresden.github.io/Partoche/privacy.html" target="_blank" rel="noopener">Politique de confidentialité</a> · <a href="https://github.com/soaresden/Partoche" target="_blank" rel="noopener">Code source</a>
+    </div>
+    <p class="muted small" id="setVersion"></p>
+  </div>
+</div>
+
+<!-- ============ ACCUEIL (1er lancement) ============ -->
+<div id="onboard" class="dlg onboard" hidden>
+  <div class="dlg-card big">
+    <div class="obhead"><img class="oblogo" src="img/logo.svg" alt="">
+      <div><h2>Bienvenue dans Partoche</h2><div class="muted">Tes partitions MuseScore sur tablette : lecture, pistes, annotations, et le lien avec ton prof.</div></div></div>
+    <h4>Tu es…</h4>
+    <div class="obroles">
+      <button data-role="eleve"><span class="obic">🎻</span><b>Élève / musicien</b><small>Je lis et j'annote mes partitions, et je les partage avec mon prof</small></button>
+      <button data-role="prof"><span class="obic">🧑‍🏫</span><b>Prof</b><small>Je vois les partitions de mes élèves et je leur envoie mes annotations</small></button>
+    </div>
+    <div class="dlg-btns obbtns">
+      <button id="obDemo" class="btn" disabled hidden>Essayer la démo</button>
+      <button id="obGo" class="btn primary" disabled>Commencer</button>
+    </div>
+    <p class="muted small">Tu pourras changer ça plus tard dans les Options.</p>
+  </div>
+</div>
+
+<!-- ============ CONFIGURATION (élève) ============ -->
+<div id="wiz" class="dlg wiz" hidden>
+  <div class="dlg-card big">
+    <div class="wizhead"><img src="img/logo.svg" alt=""><div><h2 id="wizTitle">Configuration</h2><div class="wizdots"><i></i><i></i><i></i></div></div><button class="btn icon" id="wizClose" hidden><svg class="ic"><use href="#i-close"/></svg></button></div>
+
+    <section data-step="start">
+      <p class="wizlead">Où sont (ou seront) tes partitions ?</p>
+      <div class="choices">
+        <button id="stCloud" class="reco"><span class="recotag">Recommandé</span><span class="ci">☁️</span><b>Directement dans mon pCloud</b><small>Connexion à ton compte (Google, Apple, double authentification…) : tout est rangé dans pCloud, sans appli de synchronisation.</small></button>
+        <button id="stNew"><span class="ci">🆕</span><b>Nouvelle installation</b><small>Choisis un emplacement sur ta tablette : j'y crée <b>Partoche</b> avec <b>MSCZ</b>, <b>MesNotes</b>, <b>Settings</b> et <b>Prof</b>.</small></button>
+        <button id="stExisting"><span class="ci">📂</span><b>J'ai déjà un dossier Partoche</b><small>Retrouve-le sur ta tablette : je détecte ce qu'il contient et je range l'ancien dossier Eleve / ApkSettings dans MesNotes et Settings.</small></button>
+      </div>
+      <p class="muted small">Un dossier de la tablette peut être synchronisé avec pCloud (par ex. AutoSync) pour que ton prof y ait accès.</p>
+    </section>
+
+    <section data-step="pc" hidden>
+      <p class="wizlead">Connecte ton compte <b>pCloud</b> : Partoche y lit tes partitions et y range tes annotations, directement.</p>
+      <button id="pcWeb" class="btn primary pcweb">🌐 Me connecter sur le site pCloud<small>Google, Apple, double authentification… tout marche</small></button>
+      <p class="muted small pcor">ou avec ton email et ton mot de passe pCloud :</p>
+      <label class="wizf">Email<input id="pcEmail" class="txt" type="email" autocomplete="username" placeholder="toi@exemple.fr"></label>
+      <label class="wizf">Mot de passe<input id="pcPwd" class="txt" type="password" autocomplete="current-password"></label>
+      <label class="wizf" id="pcTfaRow" hidden>Code de double authentification<input id="pcTfa" class="txt" inputmode="numeric" autocomplete="one-time-code"></label>
+      <p class="warnt" id="pcErr" hidden></p>
+      <div class="dlg-btns"><button id="pcGo" class="btn">Se connecter</button></div>
+      <div class="box tip pchelp">🔑 <b>Tu te connectes à pCloud avec Google, Apple ou Facebook ?</b> Ajoute d'abord un mot de passe à ton compte : sur <a href="https://my.pcloud.com" target="_blank" rel="noopener">my.pcloud.com</a> → <b>Paramètres → Compte → Mot de passe</b> (« Définir un mot de passe »). Ensuite, connecte-toi ici avec ton <b>email</b> et ce mot de passe. La double authentification marche aussi : l'appli te demandera le code.</div>
+      <p class="muted small">Pas de compte ? <a href="https://www.pcloud.com" target="_blank" rel="noopener">Crée-le gratuitement</a>. Ton mot de passe n'est pas gardé : seule une clé de connexion reste sur la tablette.<br>
+      <a href="#" id="pcBack">← Revenir au choix</a></p>
+    </section>
+
+    <section data-step="folder" hidden>
+      <p class="wizlead">Choisis ton dossier <b>Partoche</b>. Il contient (ou contiendra) <b>MSCZ</b>, <b>MesNotes</b>, <b>Settings</b> et <b>Prof</b> : je détecte ce qui existe et je crée le reste.</p>
+      <div class="fpath" id="fPath"></div>
+      <div class="flist" id="fList"></div>
+      <p class="warnt" id="fErr" hidden></p>
+      <div class="dlg-btns"><button id="fNew" class="btn">＋ Créer « Partoche » ici</button><button id="fUse" class="btn primary">Utiliser ce dossier</button></div>
+    </section>
+
+    <section data-step="done" hidden>
+      <div class="sumbox" id="sumBox"></div>
+      <h4>Partager avec ton prof <span class="muted small">(facultatif, faisable plus tard)</span></h4>
+      <div id="shPc">
+        <p class="muted small" id="shPcInfo">Je crée (ou retrouve) un lien protégé par mot de passe sur ton dossier Partoche, et un lien de dépôt sur Prof.</p>
+        <div class="sharerow"><input id="shMyName" class="txt" placeholder="Ton prénom"><input id="shNewPwd" class="txt" type="text" placeholder="Mot de passe (6 caractères min.)"><button id="shMake" class="btn chipbtn primary">Créer les liens</button></div>
+      </div>
+      <div id="shLocal" hidden>
+        <p class="muted small">Sur pcloud.com, crée sur ton dossier Partoche un <b>lien de partage</b> avec mot de passe, et sur Prof un lien <b>« Demander des fichiers »</b> (le dépôt sans compte). Colle-les ici, je les vérifie.</p>
+        <label class="wizf">Ton prénom<input id="shMyName2" class="txt" placeholder="Ton prénom"></label>
+        <label class="wizf">Lien de partage (dossier Partoche)<input id="lkShare" class="txt" placeholder="https://e.pcloud.link/publink/show?code=…"></label>
+        <label class="wizf">Mot de passe du lien<input id="lkPwd" class="txt" type="text"></label>
+        <label class="wizf">Lien de dépôt (« Demander des fichiers » sur Prof)<input id="lkUpload" class="txt" placeholder="https://e.pcloud.link/puplink/show?code=…"></label>
+        <div class="dlg-btns"><button id="lkCheck" class="btn chipbtn primary">Vérifier les liens</button></div>
+        <div class="sumbox small" id="lkState" hidden></div>
+      </div>
+      <p class="warnt" id="shErr" hidden></p>
+      <div id="shOut" hidden>
+        <pre class="shmsg" id="shMsg"></pre>
+        <div class="dlg-btns"><button id="shCopy" class="btn">Copier</button><button id="shSend" class="btn primary">Envoyer à mon prof…</button></div>
+      </div>
+      <div class="dlg-btns"><button id="wizDone" class="btn primary">Terminer</button></div>
+    </section>
+  </div>
+</div>
+
+<!-- ============ TUTO ÉLÈVE (prof) ============ -->
+<div id="tutoDlg" class="dlg" hidden>
+  <div class="dlg-card big tutocard">
+    <div class="panel-head"><h3>📘 Tuto pour mes élèves</h3><button class="btn icon" id="tutoClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="tutobar">
+      <p class="muted small">La page que suit un nouvel élève : compte pCloud, appli sur sa tablette, puis le lien qu'il t'envoie. Partage-la-lui.</p>
+      <div class="tutobtns">
+        <button id="tutoShare" class="btn primary">📤 Partager avec un élève</button>
+        <a id="tutoWa" class="btn" target="_blank" rel="noopener">WhatsApp</a>
+        <a id="tutoMail" class="btn">Email</a>
+        <button id="tutoCopy" class="btn">🔗 Copier le lien</button>
+        <a class="btn" href="https://github.com/soaresden/Partoche/releases/latest/download/Partoche.apk" title="Lien direct de l'appli Android de l'élève">⬇️ APK</a>
+        <a id="tutoOpen" class="btn" target="_blank" rel="noopener">↗ Ouvrir</a>
+      </div>
+    </div>
+    <iframe id="tutoFrame" class="tutoframe" title="Tuto élève" loading="lazy"></iframe>
+  </div>
+</div>
+
+<!-- ============ ÉLÈVES (prof) ============ -->
+<div id="studentsDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3>Mes élèves</h3><button class="btn icon" id="stClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div class="mecard" id="meCard">
+      <button class="meemo" id="meEmo" title="Choisir mon emoji"></button>
+      <div class="meinfo">
+        <input id="stMe" class="txt" placeholder="Ton prénom">
+        <div class="profrow"><input id="meEmoIn" class="txt emoin" maxlength="12" placeholder="🎼" title="Tape ou colle ton emoji"><button class="btn chipbtn" id="meEmoAll">Tous les emojis</button><label class="colpick" title="Ta couleur"><input type="color" id="meColIn" value="#2f7de1"><span>Ma couleur</span></label></div>
+        <div class="muted small">Ton prénom, ton emoji et ta couleur s'affichent chez tes élèves, sur tes annotations.</div>
+      </div>
+    </div>
+    <div class="emoall" id="meEmoGrid" hidden></div>
+    <div id="stList" class="stgrid"></div>
+    <div class="stbackup"><button class="btn chipbtn primary" id="stTuto">📘 Envoyer le tuto à un nouvel élève</button><button class="btn chipbtn" id="stPaste">📋 Coller un code</button><button class="btn chipbtn" id="stCopyCode">🔑 Copier mon code de sauvegarde</button><button class="btn chipbtn" id="stExport">💾 Fichier de sauvegarde</button><label class="btn chipbtn">📂 Restaurer un fichier<input id="stImport" type="file" accept=".json,.txt,application/json,text/plain" hidden></label><span class="muted small">Le code (texte « P1.… ») ou le fichier regroupent tes élèves, leurs liens et mots de passe : garde-les pour toi.</span></div>
+    <div id="stForm" class="stform" hidden>
+      <h4 id="stFormTitle">Ajouter un élève</h4>
+      <div class="setrow"><div><b>Prénom de l'élève</b></div><input id="stName" class="txt" placeholder="Ex. Camille"></div>
+      <div class="setrow"><div><b>Lien de partage</b><div class="muted">Lien pCloud du dossier de partitions de l'élève</div></div><input id="stLink" class="txt" placeholder="https://e.pcloud.link/publink/show?code=…"></div>
+      <div class="setrow"><div><b>Mot de passe</b></div><input id="stPwd" class="txt" type="password" autocomplete="off"></div>
+      <div class="setrow"><div><b>Lien de dépôt</b><div class="muted">Lien « Demander des fichiers » de l'élève, pour lui envoyer tes annotations et des partitions</div></div><input id="stUpload" class="txt" placeholder="https://e.pcloud.link/puplink/show?code=…"></div>
+      <div class="dlg-btns"><button id="stCancelEdit" class="btn">Annuler</button><button id="stSave" class="btn primary">Ajouter</button></div>
+      <p class="muted small">Ces liens, c'est ton élève qui te les donne : son appli les crée et prépare le message (Options → Partager avec mon prof).</p>
+    </div>
+  </div>
+</div>
+
+<div id="moreDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3>🎼 Obtenir d'autres partitions</h3><button class="btn icon" id="moreClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <p>Avec <b>LibreScore</b> (gratuit), cherche un morceau et télécharge-le au format <b>MuseScore (.mscz)</b>.</p>
+    <div class="moregrid">
+      <a class="morebtn" href="https://github.com/LibreScore/app-librescore/releases/latest/download/LibreScore.exe" target="_blank" rel="noopener"><span>🪟</span><b>PC Windows</b><small>LibreScore.exe</small></a>
+      <a class="morebtn" href="https://github.com/LibreScore/app-librescore/releases/latest/download/LibreScore.dmg" target="_blank" rel="noopener"><span>🍎</span><b>Mac</b><small>LibreScore.dmg</small></a>
+      <a class="morebtn" href="https://github.com/LibreScore/app-librescore/releases/latest/download/LibreScore.apk" target="_blank" rel="noopener"><span>🤖</span><b>Android</b><small>LibreScore.apk</small></a>
+    </div>
+    <p class="morewhere" id="moreWhere"></p>
+    <label id="moreSend" class="btn primary moresend" hidden>📤 Envoyer une partition à mon élève<input id="moreFile" type="file" accept=".mscz,.mscx" multiple hidden></label>
+  </div>
+</div>
+
+<div id="newDlg" class="dlg" hidden>
+  <div class="dlg-card newcard">
+    <div class="newburst">🎁</div>
+    <h3 id="newTitle">Nouvelle partition</h3>
+    <div id="newList" class="newlist"></div>
+    <div class="dlg-btns"><button id="newClose" class="btn">Plus tard</button></div>
+  </div>
+</div>
+
+<div id="presDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3>📊 Présences de mes élèves</h3><span><button class="btn icon" id="presRefresh" title="Relire"><svg class="ic"><use href="#i-refresh"/></svg></button><button class="btn icon" id="presClose"><svg class="ic"><use href="#i-close"/></svg></button></span></div>
+    <p class="muted small">En ligne maintenant, et temps passé sur les partitions ces 7 derniers jours. Touche un élève pour le détail.</p>
+    <div id="presList" class="preslist"></div>
+  </div>
+</div>
+
+<div id="agendaDlg" class="dlg settings" hidden>
+  <div class="dlg-card big agcard">
+    <div class="panel-head"><h3 id="agTitle">📅 Mon agenda</h3><span class="agnav"><button id="agDispo" class="btn chipbtn" hidden>⚙️ Mes disponibilités</button><button id="agToday" class="btn chipbtn">Aujourd'hui</button><button id="agPrev" class="btn icon" title="Semaine précédente">‹</button><span id="agRange"></span><button id="agNext" class="btn icon" title="Semaine suivante">›</button><button id="agNew" class="btn primary">＋ Proposer un cours</button><button class="btn icon" id="agClose"><svg class="ic"><use href="#i-close"/></svg></button></span></div>
+    <p class="muted small">Le planning de tous tes élèves. Touche une case vide pour proposer un cours ; un cours n'est confirmé que quand vous l'avez accepté tous les deux.</p>
+    <div id="agGrid" class="aggrid"></div>
+    <div class="aglegend"><span class="s-ok">Confirmé</span><span class="s-wait">En attente</span><span class="s-busy">Occupé / pas dispo</span></div>
+  </div>
+</div>
+
+<div id="myLessons" class="dlg" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3>📅 Mes cours</h3><button class="btn icon" id="mlClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div id="mlList" class="sidelist"></div>
+    <div class="dlg-btns"><button id="mlWeek" class="btn">📅 Voir ses disponibilités</button><button id="mlNew" class="btn primary">＋ Proposer un cours</button></div>
+  </div>
+</div>
+
+<div id="lessonDlg" class="dlg" hidden>
+  <div class="dlg-card">
+    <h3 id="lfTitle">Proposer un cours</h3>
+    <div class="setrow" id="lfStudentRow"><div><b>Élève</b></div><select id="lfStudent" class="txt"></select></div>
+    <div class="setrow"><div><b>Jour</b></div><input id="lfDate" type="date" class="txt"></div>
+    <div class="setrow"><div><b>Heure</b></div><input id="lfTime" type="time" class="txt" step="900"></div>
+    <div class="setrow"><div><b>Durée</b></div><select id="lfDur" class="txt"><option value="30">30 min</option><option value="45">45 min</option><option value="60">1 h</option><option value="90">1 h 30</option><option value="120">2 h</option></select></div>
+    <div class="setrow" id="lfRepRow"><div><b>Répéter</b></div><select id="lfRep" class="txt"><option value="0">Une seule fois</option><option value="7">Chaque semaine</option><option value="14">Toutes les 2 semaines</option></select></div>
+    <div class="setrow" id="lfEndRow" hidden><div><b>Combien ?</b><div class="muted">un nombre de cours, ou une date de fin</div></div><span class="lfend"><input id="lfCount" type="number" min="2" max="52" value="5" class="txt"> cours <span class="muted">ou jusqu'au</span> <input id="lfUntil" type="date" class="txt"></span></div>
+    <p class="muted small" id="lfSum"></p>
+    <p class="muted small">L'autre reçoit la demande et l'accepte ou propose un autre horaire.</p>
+    <div class="dlg-btns"><button id="lfBusy" class="btn" hidden>⛔ Plutôt : je ne suis pas dispo</button><button id="lfCancel" class="btn">Annuler</button><button id="lfOk" class="btn primary">Envoyer la demande</button></div>
+  </div>
+</div>
+
+<div id="lessonView" class="dlg" hidden>
+  <div class="dlg-card">
+    <div class="panel-head"><h3>Cours</h3><button class="btn icon" id="lvClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div id="lvBody"></div>
+    <div id="lvActs" class="lvacts"></div>
+  </div>
+</div>
+
+<div id="hwDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <h3 id="hwTitle">À bosser</h3>
+    <p class="muted small" id="hwSub"></p>
+    <textarea id="hwText" rows="4" placeholder="Ex. Mesures 12 à 24 lentement, travailler le détaché, gammes de ré majeur…"></textarea>
+    <h4>Partitions à travailler</h4>
+    <div id="hwScores" class="hwpicks"></div>
+    <div class="dlg-btns"><button id="hwCancel" class="btn">Annuler</button><button id="hwOk" class="btn primary">Envoyer à l'élève</button></div>
+  </div>
+</div>
+
+<div id="hwShow" class="dlg" hidden>
+  <div class="dlg-card newcard">
+    <div class="newburst">📝</div>
+    <h3 id="hsTitle">À bosser</h3>
+    <p class="muted small" id="hsSub"></p>
+    <div id="hsBody" class="hsbody"></div>
+    <div class="dlg-btns"><button id="hsOk" class="btn primary">C'est noté !</button></div>
+  </div>
+</div>
+
+<div id="ntDlg" class="dlg" hidden>
+  <div class="dlg-card">
+    <h3>📨 Prévenir ton prof ?</h3>
+    <p class="muted small">Sa page n'est peut-être pas ouverte : envoie-lui un petit message (WhatsApp, SMS, mail…).</p>
+    <p class="hwtext" id="ntTxt"></p>
+    <div class="dlg-btns"><button id="ntLater" class="btn">Plus tard</button><button id="ntSend" class="btn primary">📨 Envoyer un message</button></div>
+  </div>
+</div>
+
+<div id="dispoDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3>⚙️ Mes disponibilités</h3><button class="btn icon" id="dpClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <p class="muted small">Tes élèves voient ces créneaux comme « Occupé » ou « Pas dispo » : jamais les noms des autres élèves ni tes notes.</p>
+    <h4>Horaires de cours</h4>
+    <div class="setrow"><div><b>De</b> <input id="dpFrom" type="time" class="txt" step="1800"> <b>à</b> <input id="dpTo" type="time" class="txt" step="1800"></div><div class="muted small">ex. 08:00 – 20:00 : le dernier cours d'une heure commence à 19:00</div></div>
+    <h4>Jours où je ne donne pas cours</h4>
+    <div id="dpDays" class="hwpicks"></div>
+    <div class="dlg-btns"><button id="dpSave" class="btn primary">Enregistrer</button></div>
+    <h4>Indisponibilités</h4>
+    <div id="dpList" class="dplist"></div>
+    <div class="dpadd">
+      <label><input type="checkbox" id="dpAll"> Journée(s) entière(s)</label>
+      <span><input id="dpDate" type="date" class="txt"><span id="dpEndRow" hidden> au <input id="dpDateEnd" type="date" class="txt"></span></span>
+      <span id="dpTimes"><input id="dpA" type="time" class="txt" step="900"> – <input id="dpB" type="time" class="txt" step="900"></span>
+      <input id="dpNote" class="txt" placeholder="Note pour toi (ex. concert, vacances)">
+      <button id="dpAdd" class="btn">⛔ Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<div id="labelDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <h3>🏷️ Mes tags</h3>
+    <p class="muted small">Emoji, nom et couleur : tu en mets autant que tu veux sur chaque partition (appui long dans la liste). Ton prof les voit aussi.</p>
+    <div id="ldList" class="ldlist"></div>
+    <div class="dlg-btns"><button id="ldReset" class="btn">Tags proposés</button><button id="ldAdd" class="btn">＋ Nouveau tag</button><button id="ldCancel" class="btn">Annuler</button><button id="ldSave" class="btn primary">Enregistrer</button></div>
+  </div>
+</div>
+
+<div id="asksDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3>💬 Demandes d'avis</h3><button class="btn icon" id="asksClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div id="askList" class="asklist"></div>
+  </div>
+</div>
+
+<div id="todoDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <h3>📌 En attente de ta réponse</h3>
+    <div id="todoList" class="todolist"></div>
+    <div class="dlg-btns"><button id="todoLater" class="btn">Plus tard</button><button id="todoAgenda" class="btn">📅 Ouvrir mon agenda</button></div>
+  </div>
+</div>
+
+<!-- ============ CONNEXION (page de la prof) ============ -->
+<div id="loginDlg" class="dlg" hidden>
+  <div class="dlg-card">
+    <h3 id="loginTitle">Partitions</h3>
+    <p class="muted" id="loginMsg">Entre le mot de passe du dossier partagé.</p>
+    <input id="loginPwd" class="txt" type="password" autocomplete="current-password" placeholder="Mot de passe" style="width:100%">
+    <p class="warnt" id="loginErr" hidden></p>
+    <div class="dlg-btns"><button id="loginGo" class="btn primary">Ouvrir</button></div>
+  </div>
+</div>
+
+<!-- ============ ACCORDEUR ============ -->
+<div id="tuner" class="tuner" hidden>
+  <header class="bar">
+    <div class="brand"><svg class="ic"><use href="#i-fork"/></svg><span>Accordeur</span></div>
+    <button class="btn chipbtn tinst">Violon ▾</button>
+    <div style="flex:1"></div>
+    <button class="btn chipbtn tauto on">Auto</button>
+    <button class="btn chipbtn tref">La = 440 Hz</button>
+    <button class="btn chipbtn tplay" title="Jouer la note de référence"><svg class="ic sm"><use href="#i-play"/></svg> Référence</button>
+    <button class="btn chipbtn treset" title="Effacer les validations">↺</button>
+    <button class="btn icon" id="tunerClose"><svg class="ic"><use href="#i-close"/></svg></button>
+  </header>
+  <div class="tinstpop" hidden></div>
+  <div class="tfavs"></div>
+  <div class="tstrings"></div>
+  <div class="treadout"><div class="tnote">LA</div><div class="tcents"></div><div class="thz">Joue une corde…</div></div>
+  <div class="tgraph"><canvas></canvas><div class="tvalid" hidden>✓ Juste !</div></div>
+  <div class="terr warn" hidden></div>
+</div>
+
+<div id="scoreMenu" class="dlg" hidden>
+  <div class="dlg-card">
+    <h3 id="smTitle"></h3>
+    <p class="muted small" id="smSub"></p>
+    <div class="seg small" id="smTags"><button data-t="">Aucun tag</button><button data-t="todo">À faire</button><button data-t="wip">En cours</button><button data-t="done">Maîtrisé</button></div>
+    <div id="smLabelsRow"><h4>Étiquettes</h4><div id="smLabels" class="lblpicks"></div></div>
+    <div class="menu">
+      <button id="smOpen" class="row click"><svg class="ic"><use href="#i-note"/></svg> Ouvrir</button>
+      <button id="smAsk" class="row click">💬 Demander l'avis de mon prof…</button>
+      <button id="smRename" class="row click"><svg class="ic"><use href="#i-pen"/></svg> Renommer…</button>
+      <button id="smDelete" class="row click danger"><svg class="ic"><use href="#i-trash"/></svg> Supprimer…</button>
+    </div>
+    <div id="smDelConfirm" class="warn" hidden>
+      Supprimer définitivement ce fichier .mscz ?
+      <label class="row"><input type="checkbox" id="smDelAnnot"> Supprimer aussi mes annotations</label>
+      <div class="dlg-btns"><button id="smDelYes" class="btn danger-btn">Supprimer</button></div>
+    </div>
+    <div class="dlg-btns"><button id="smCancel" class="btn">Annuler</button></div>
+  </div>
+</div>
+
+<div id="textDlg" class="dlg" hidden>
+  <div class="dlg-card">
+    <h3>Texte</h3>
+    <textarea id="textIn" rows="3" placeholder="Écris ton annotation…"></textarea>
+    <div class="dlg-btns"><button id="textCancel" class="btn">Annuler</button><button id="textOk" class="btn primary">OK</button></div>
+  </div>
+</div>
+
+<div id="saveState" class="savestate" hidden><i></i><span></span></div>
+
+<div id="busy" class="busy" hidden><div class="spinner"></div><div id="busyMsg">Chargement…</div></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

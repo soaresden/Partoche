@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partoche — démarrer en 8 étapes</title>
+<link rel="icon" type="image/png" href="img/favicon.png">
+<meta name="description" content="Mode d'emploi pas à pas pour l'élève : compte pCloud, appli Partoche sur la tablette, lien envoyé au prof.">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbf8ff;--fg:#221b3a;--mut:#6b6488;--card:#ffffff;--line:#ece6fb;
+  --violet:#7a3cf0;--bleu:#4f6bff;--rose:#e83e8c;--orange:#ff8a3d;--jaune:#ffc93d;--vert:#20b47a;--code:#f3effd;
+}
+@media (prefers-color-scheme:dark){:root{--bg:#151226;--fg:#f1edff;--mut:#a9a2c8;--card:#201b38;--line:#2f2850;--code:#2a2348}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 Nunito,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background-image:repeating-linear-gradient(0deg,transparent 0 46px,rgba(122,60,240,.05) 46px 47px)}
+h1,h2,h3{font-family:Fredoka,Nunito,system-ui,sans-serif;line-height:1.15}
+a{color:var(--violet);font-weight:700}
+code{background:var(--code);border-radius:7px;padding:1px 7px;font:600 15px ui-monospace,Menlo,Consolas,monospace}
+.hero{background:linear-gradient(120deg,#4f6bff,#7a3cf0 50%,#e83e8c);color:#fff;padding:44px 18px 64px;position:relative;overflow:hidden}
+.hero .in{max-width:900px;margin:0 auto;display:flex;gap:22px;align-items:center;position:relative}
+.hero img{width:104px;height:104px;flex:none;filter:drop-shadow(0 14px 30px rgba(0,0,0,.3));animation:bob 3s ease-in-out infinite}
+.hero h1{font-size:46px;margin:0} .hero p{margin:6px 0 0;font-size:20px;opacity:.95}
+.notes{position:absolute;inset:0;pointer-events:none;font-size:34px;opacity:.22}
+.notes span{position:absolute;animation:float 7s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px) rotate(-3deg)}}
+@keyframes float{50%{transform:translateY(-14px) rotate(8deg)}}
+@media (prefers-reduced-motion:reduce){.hero img,.notes span{animation:none}}
+.wave{display:block;width:100%;height:40px;margin-top:-40px;position:relative}
+main{max-width:900px;margin:0 auto;padding:0 16px 70px}
+.who{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:-6px 0 10px}
+.who a{display:block;text-decoration:none;color:#fff;border-radius:22px;padding:20px;box-shadow:0 10px 30px rgba(80,40,160,.18);transition:transform .15s}
+.who a:hover{transform:translateY(-3px)}
+.who .el{background:linear-gradient(135deg,#20b47a,#4f6bff)} .who .pr{background:linear-gradient(135deg,#ff8a3d,#e83e8c)}
+.who b{font:600 24px Fredoka,sans-serif;display:block} .who small{opacity:.95;font-size:15px}
+.who .ic{font-size:40px;line-height:1}
+.flow{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin:26px 0 8px;font-weight:800}
+.flow span{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 16px}
+.flow i{font-style:normal;color:var(--rose);font-size:22px}
+h2{font-size:32px;margin:54px 0 6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+h2 .tag{font:800 13px Nunito,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:#fff;border-radius:999px;padding:4px 12px}
+.t-el{background:var(--vert)} .t-pr{background:var(--rose)} .t-tip{background:var(--orange)}
+.lead{color:var(--mut);margin:0 0 14px}
+.steps{list-style:none;padding:0;margin:0;display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.step{min-width:0}
+.step{background:var(--card);border:2px solid var(--line);border-radius:22px;padding:18px 20px 16px 84px;position:relative}
+.step:before{content:attr(data-n);position:absolute;left:18px;top:16px;width:48px;height:48px;border-radius:16px;display:grid;place-items:center;
+  font:700 26px Fredoka,sans-serif;color:#fff;background:var(--c,var(--violet));box-shadow:0 6px 14px rgba(80,40,160,.25)}
+.step h3{margin:0 0 4px;font-size:21px}
+.step p{margin:4px 0}
+.c1{--c:#4f6bff}.c2{--c:#7a3cf0}.c3{--c:#e83e8c}.c4{--c:#ff8a3d}.c5{--c:#20b47a}
+.tree{background:var(--code);border-radius:16px;padding:12px 16px;margin:10px 0 2px;font:600 15px/1.8 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;white-space:pre}
+.tree .f{color:var(--violet)} .tree .m{color:var(--mut);font-family:Nunito,sans-serif;font-weight:600}
+.box{border-radius:18px;padding:12px 16px;margin:12px 0;font-size:16px}
+.box.tip{background:color-mix(in srgb,var(--jaune) 22%,var(--card));border:2px solid color-mix(in srgb,var(--jaune) 55%,transparent)}
+.box.info{background:color-mix(in srgb,var(--bleu) 12%,var(--card));border:2px solid color-mix(in srgb,var(--bleu) 35%,transparent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chips span{background:var(--code);border-radius:999px;padding:4px 12px;font-weight:700;font-size:15px}
+.big{display:inline-block;background:linear-gradient(135deg,#7a3cf0,#e83e8c);color:#fff;text-decoration:none;border-radius:16px;padding:12px 22px;font:600 19px Fredoka,sans-serif;margin:6px 0;box-shadow:0 8px 20px rgba(122,60,240,.3)}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.tips div{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px 16px}
+.tips b{font:600 18px Fredoka,sans-serif;display:block;margin-bottom:2px}
+.tips .e{font-size:30px}
+details{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:12px 16px;margin:10px 0}
+summary{cursor:pointer;font-weight:800}
+pre{background:var(--code);border-radius:12px;padding:10px 12px;overflow-x:auto;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace}
+footer{margin-top:60px;text-align:center;color:var(--mut);font-size:14px}
+.langs{position:absolute;top:12px;right:12px;z-index:2;display:flex;gap:6px;max-width:calc(100% - 24px)}
+.langs a{color:#fff;text-decoration:none;font:800 13px/1.4 Nunito,system-ui,sans-serif;background:rgba(20,10,50,.35);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.langs a:hover{background:rgba(20,10,50,.55)}
+.langs a.on{background:#fff;color:#7a3cf0}
+@media (max-width:640px){.who{grid-template-columns:1fr}.hero h1{font-size:36px}.hero img{width:76px;height:76px}.step{padding-left:20px;padding-top:74px}.step:before{top:14px}}
+
+.ws{display:flex;flex-direction:column;gap:18px;margin:10px 0 30px}
+.w{position:relative;background:var(--card);border-radius:22px;padding:20px 22px 20px 88px;box-shadow:0 6px 24px rgba(80,40,160,.08);border:2px solid var(--line)}
+.w .n{position:absolute;left:20px;top:20px;width:50px;height:50px;border-radius:16px;display:grid;place-items:center;font:700 26px Fredoka,sans-serif;color:#fff}
+.w h3{margin:2px 0 8px;font:600 22px Fredoka,sans-serif}
+.w p,.w li{line-height:1.6}.w ol{margin:6px 0;padding-left:20px}
+.w .tap{display:inline-block;padding:2px 10px;border-radius:999px;background:#efe8ff;color:#5b2bd0;font-weight:800;white-space:nowrap}
+.w .ok{display:inline-block;margin-top:8px;padding:6px 12px;border-radius:12px;background:#e6f8ee;color:#1f7a47;font-weight:700}
+.w .warn{display:block;margin-top:8px;padding:10px 12px;border-radius:12px;background:#fff6e0;color:#7a5200}
+.w a.big{display:inline-block;margin:6px 0;padding:12px 18px;border-radius:14px;background:linear-gradient(135deg,#7a3cf0,#d14fd8);color:#fff;font-weight:800;text-decoration:none}
+.c1 .n{background:#3ecf6e}.c2 .n{background:#4f8cff}.c3 .n{background:#ff8a3d}.c4 .n{background:#d14fd8}.c5 .n{background:#ff5c8a}.c6 .n{background:#3fb0a8}.c7 .n{background:#7a3cf0}.c8 .n{background:#f5a623}
+.need{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 18px}.need span{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700}
+.prof{background:linear-gradient(135deg,#fff0f7,#f3ecff);border-radius:22px;padding:20px 22px;border:2px dashed #e6a8d6}
+.after{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:12px}.after div{background:var(--card);border-radius:16px;padding:14px;border:2px solid var(--line)}
+@media (max-width:640px){.w{padding:78px 18px 18px}.w .n{top:16px;left:18px}}
+.shot{margin:12px 0 4px;display:flex;flex-wrap:wrap;gap:12px}
+.shot figure{margin:0;flex:1 1 260px;max-width:460px}
+.shot img{display:block;width:100%;height:auto;border-radius:16px;border:2px solid var(--line);box-shadow:0 8px 24px rgba(30,20,70,.18);background:#1b1d24;cursor:zoom-in}
+.shot figcaption{font-size:14px;color:var(--mut);margin-top:6px;text-align:center}
+.shot.wide figure{max-width:none;flex-basis:100%}
+.zoom{position:fixed;inset:0;background:rgba(10,8,25,.85);display:grid;place-items:center;z-index:9;padding:16px;cursor:zoom-out}
+.zoom img{max-width:100%;max-height:100%;border-radius:14px}
+@media (prefers-color-scheme:dark){a{color:#bfa6ff}.prof{background:linear-gradient(135deg,#3a1d3a,#2a2150);border-color:#8a4f7e}.w .tap{background:#3a2d6b;color:#d9ccff}.w .ok{background:#183d2b;color:#9be5bb}.w .warn{background:#3d3115;color:#ffd98a}}
+@media print{.hero .notes,.langs{display:none}.w{break-inside:avoid;box-shadow:none}}
+</style></head>
+<body>
+<header class="hero">
+  <div class="notes" aria-hidden="true"><span style="left:6%;top:18%">♪</span><span style="left:84%;top:12%;animation-delay:1s">♫</span><span style="left:70%;top:62%;animation-delay:2s">♬</span><span style="left:20%;top:70%;animation-delay:3s">♩</span></div>
+  <div class="in">
+    <img src="img/logo.svg" alt="">
+    <div><h1>Démarrer avec Partoche</h1><p>Le mode d'emploi pas à pas, pour l'élève.<br>Compte <b>10 minutes</b>, une seule fois.</p></div>
+  </div>
+</header>
+<svg class="wave" viewBox="0 0 1200 40" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40V18c120 18 240 18 360 4s240-26 360-8 240 26 480 4v22z" fill="var(--bg)"/></svg>
+
+<main>
+  <h2>Il te faut</h2>
+  <div class="need"><span>📱 une tablette (ou un téléphone) Android</span><span>📧 une adresse email</span><span>📶 Internet</span><span>💻 un ordinateur, pour récupérer des partitions (facultatif)</span></div>
+
+  <div class="ws">
+    <div class="w c1"><div class="n">1</div><h3>Crée ton compte pCloud</h3>
+      <p>pCloud est un « disque dur sur Internet », gratuit (10 Go). C'est là que vont tes partitions et tes annotations : ton prof y aura accès, sans rien pouvoir abîmer.</p>
+      <ol><li>Va sur <a href="https://www.pcloud.com" target="_blank" rel="noopener">pcloud.com</a> et touche <span class="tap">S'inscrire</span>.</li>
+      <li>Entre ton <b>email</b> et choisis un <b>mot de passe</b> (ou « Continuer avec Google »).</li>
+      <li>Ouvre l'email de pCloud et confirme ton adresse.</li></ol>
+      <span class="ok">✓ Garde ton email et ton mot de passe pCloud sous la main.</span></div>
+
+    <div class="w c2"><div class="n">2</div><h3>Installe Partoche sur la tablette</h3>
+      <p>Sur la <b>tablette</b>, ouvre ce lien :</p>
+      <a class="big" href="https://github.com/soaresden/Partoche/releases/latest/download/Partoche.apk">⬇️ Télécharger Partoche</a>
+      <ol><li>Le fichier <b>Partoche.apk</b> se télécharge. Une fois fini, touche <span class="tap">Ouvrir</span> (ou ouvre-le depuis les téléchargements).</li>
+      <li>Android te prévient (« source inconnue ») : touche <span class="tap">Paramètres</span> → active <span class="tap">Autoriser depuis cette source</span> → reviens en arrière.</li>
+      <li>Touche <span class="tap">Installer</span>, puis <span class="tap">Ouvrir</span>.</li></ol>
+      <span class="warn">⚠️ C'est normal : Partoche n'est pas sur le Play Store, Android demande donc ton accord une fois.</span></div>
+
+    <div class="w c3"><div class="n">3</div><h3>Ouvre Partoche et choisis « Élève »</h3>
+      <p>Au premier lancement : <span class="tap">🎻 Élève / musicien</span> → <span class="tap">Commencer</span>.</p>
+      <div class="shot"><figure><img src="img/tuto/3-role.webp" alt="Touche « Élève / musicien » puis « Commencer »" loading="lazy"><figcaption>Touche « Élève / musicien » puis « Commencer »</figcaption></figure></div></div>
+
+    <div class="w c4"><div class="n">4</div><h3>Connecte ton pCloud</h3>
+      <ol><li>Touche <span class="tap">☁️ Directement dans mon pCloud</span> (celle marquée <b>Recommandé</b>).</li>
+      <li>Touche <span class="tap">🌐 Me connecter sur le site pCloud</span>.</li>
+      <li>La page de pCloud s'ouvre : connecte-toi comme sur l'ordinateur (email + mot de passe, ou Google). Si pCloud te demande un code, mets-le.</li>
+      <li>C'est tout : Partoche revient tout seul à l'écran suivant.</li></ol>
+      <div class="shot"><figure><img src="img/tuto/4a-pcloud.webp" alt="Le choix vert « Recommandé »" loading="lazy"><figcaption>Le choix vert « Recommandé »</figcaption></figure><figure><img src="img/tuto/4b-connexion.webp" alt="« Me connecter sur le site pCloud »" loading="lazy"><figcaption>« Me connecter sur le site pCloud »</figcaption></figure></div></div>
+
+    <div class="w c5"><div class="n">5</div><h3>Crée ton dossier Partoche</h3>
+      <p>Partoche te montre ton pCloud. Touche <span class="tap">＋ Créer « Partoche » ici</span> puis <span class="tap">Utiliser ce dossier</span>.</p>
+      <p>L'appli prépare tout toute seule : <b>MSCZ</b> (tes partitions), <b>MesNotes</b> (tes annotations), <b>Settings</b> (tes réglages) et <b>Prof</b> (ce que ton prof t'envoie). Tu n'as rien à toucher dedans.</p>
+      <div class="shot"><figure><img src="img/tuto/5-dossier.webp" alt="« ＋ Créer « Partoche » ici »" loading="lazy"><figcaption>« ＋ Créer « Partoche » ici »</figcaption></figure></div></div>
+
+    <div class="w c6"><div class="n">6</div><h3>Relie-toi à ton prof</h3>
+      <p>Toujours dans l'assistant (ou plus tard : touche le <b>logo Partoche</b> → <span class="tap">Partager avec mon prof</span>) :</p>
+      <ol><li>Écris ton <b>prénom</b> et invente un <b>mot de passe</b> (6 caractères ou plus, pas celui de pCloud).</li>
+      <li>Touche <span class="tap">Créer les liens</span>.</li>
+      <li>Touche <span class="tap">Envoyer à mon prof…</span> et choisis <b>WhatsApp</b>, SMS ou email → ton prof.</li></ol>
+      <span class="ok">✓ Ton prof clique sur le lien du message : tu apparais dans sa liste. Il n'a rien d'autre à faire.</span>
+      <div class="shot"><figure><img src="img/tuto/6-partage.webp" alt="Prénom + mot de passe → « Créer les liens » → « Envoyer à mon prof… »" loading="lazy"><figcaption>Prénom + mot de passe → « Créer les liens » → « Envoyer à mon prof… »</figcaption></figure></div></div>
+
+    <div class="w c7"><div class="n">7</div><h3>Ajoute tes partitions</h3>
+      <p>Partoche lit les fichiers <b>MuseScore (.mscz)</b>. Pour en trouver :</p>
+      <ol><li>Dans Partoche, touche <span class="tap">＋ Partitions</span> : installe <b>LibreScore</b> (sur l'ordinateur c'est le plus simple), cherche ton morceau et télécharge-le en <b>.mscz</b>.</li>
+      <li>Mets le fichier dans ton pCloud, dossier <b>Partoche → MSCZ</b> : sur <a href="https://my.pcloud.com" target="_blank" rel="noopener">my.pcloud.com</a>, glisse-le dans le dossier.</li>
+      <li>Dans Partoche, touche <span class="tap">⟳</span> : la partition apparaît.</li></ol>
+      <span class="ok">🎁 Ton prof peut aussi t'envoyer des partitions : elles arrivent toutes seules, avec le tag « Nouveau ».</span>
+      <div class="shot"><figure><img src="img/tuto/7b-partitions.webp" alt="« ＋ Partitions » : télécharger LibreScore" loading="lazy"><figcaption>« ＋ Partitions » : télécharger LibreScore</figcaption></figure><figure><img src="img/tuto/7a-liste.webp" alt="Tes partitions apparaissent dans la liste" loading="lazy"><figcaption>Tes partitions apparaissent dans la liste</figcaption></figure></div></div>
+
+    <div class="w c8"><div class="n">8</div><h3>Choisis ton emoji et ta couleur</h3>
+      <p>Touche le <b>logo Partoche</b> (en haut à gauche) → <span class="tap">Mon emoji et ma couleur</span>. Ton prof te reconnaîtra dans sa liste d'élèves.</p>
+      <div class="shot wide"><figure><img src="img/tuto/8-emoji.webp" alt="Ton emoji et ta couleur, dans les Options" loading="lazy"><figcaption>Ton emoji et ta couleur, dans les Options</figcaption></figure></div></div>
+  </div>
+
+  <h2>🎉 C'est prêt ! Et ensuite ?</h2>
+  <div class="after">
+    <div><b>✍️ Annoter</b><br>Ouvre un morceau, passe en <b>Stylo</b>, écris. Les annotations de ton prof apparaissent en couleur, avec son prénom.</div>
+    <div><b>📅 Les cours</b><br><b>Mes cours</b> → propose un horaire (ou accepte le sien). Tu peux voir quand ton prof est disponible.</div>
+    <div><b>💬 Une question ?</b><br>Appui long sur une partition → <b>Demander l'avis de mon prof</b>.</div>
+    <div><b>🏷️ Range tes morceaux</b><br>Appui long → À faire, En cours, Maîtrisé, 🔥 L'enfer, 😎 Easy…</div>
+  </div>
+
+  <h2>🧑‍🏫 Et le prof ?</h2>
+  <div class="prof">
+    <p><b>Rien à installer, pas de compte.</b> Quand il reçoit ton message :</p>
+    <ol><li>il clique sur le lien (sur son ordinateur ou son iPad) ;</li>
+    <li>la première fois, il écrit son prénom ;</li>
+    <li>tu apparais dans <b>Mes élèves</b>, avec ton emoji : il voit tes partitions, annote, propose des cours.</li></ol>
+    <p>Tout le reste est dans le <a href="guide.html">guide complet</a> (<a href="guide-en.html">EN</a> · <a href="guide-ko.html">한국어</a>).</p>
+  </div>
+
+  <footer>
+    <img src="img/logo.svg" alt="" width="40" height="40"><br>
+    Partoche · par Soaresden · logiciel libre (GPL v3) · <a href="https://github.com/soaresden/Partoche">code source</a>
+  </footer>
+</main>
+<script>
+document.addEventListener('click',e=>{const i=e.target.closest('.shot img');if(!i)return;const z=document.createElement('div');z.className='zoom';z.innerHTML='<img alt="">';z.firstChild.src=i.src;z.onclick=()=>z.remove();document.body.appendChild(z)})
+</script>
+</body></html>
