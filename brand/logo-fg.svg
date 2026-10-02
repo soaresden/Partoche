@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4f6bff"/><stop offset=".55" stop-color="#7a3cf0"/><stop offset="1" stop-color="#d0368f"/>
+    </linearGradient>
+    <linearGradient id="pen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffd84a"/><stop offset="1" stop-color="#ff8a3d"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#1a0b46" flood-opacity=".38"/></filter>
+  </defs><g transform="translate(216 216) scale(0.58) translate(-285 -258)">
+  
+  <g transform="rotate(-7 256 256)" filter="url(#sh)">
+    <rect x="132" y="92" width="248" height="318" rx="28" fill="#fff"/>
+  </g>
+  <g transform="rotate(-7 256 256)">
+    <g stroke="#c9cdf2" stroke-width="7" stroke-linecap="round">
+      <path d="M168 168h176M168 204h176M168 240h176M168 276h176M168 312h176"/>
+    </g>
+    <!-- croche -->
+    <ellipse cx="222" cy="312" rx="38" ry="28" transform="rotate(-22 222 312)" fill="#24185f"/>
+    <path d="M254 300V150" stroke="#24185f" stroke-width="15" stroke-linecap="round"/>
+    <path d="M254 150c10 34 56 42 58 92" fill="none" stroke="#24185f" stroke-width="15" stroke-linecap="round"/>
+  </g>
+  <!-- annotation : vibrato tracé au stylo -->
+  <g transform="rotate(-7 256 256)">
+    <path d="M222 372c12-14 22-14 32 0s20 14 32 0 20-14 32 0 20-14 32 0" fill="none" stroke="#ff5f7a" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- stylo -->
+  <g transform="rotate(42 380 330)">
+    <rect x="352" y="196" width="50" height="172" rx="12" fill="url(#pen)"/>
+    <rect x="352" y="196" width="50" height="34" rx="12" fill="#ff6a3d"/>
+    <path d="M352 362h50l-25 46z" fill="#ffe7b3"/>
+    <path d="M369 392h16l-8 16z" fill="#24185f"/>
+  </g>
+</g></svg>
