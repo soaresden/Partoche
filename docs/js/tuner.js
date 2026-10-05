@@ -136,7 +136,7 @@ export class Tuner {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } })
     } catch (e) {
-      this.err('Micro inaccessible : autorise le micro pour Partoche (' + (e.name || e.message) + ')')
+      this.err('Micro inaccessible : autorise le micro pour Partoche And Prof (' + (e.name || e.message) + ')')
       return
     }
     this.ctx = new (window.AudioContext || window.webkitAudioContext)()

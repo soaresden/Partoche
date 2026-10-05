@@ -35,7 +35,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Partoche : une WebView qui embarque l'appli web (assets/www) + le moteur MuseScore (webmscore).
+ * Partoche And Prof : une WebView qui embarque l'appli web (assets/www) + le moteur MuseScore (webmscore).
  * Les fichiers de l'utilisateur sont servis via https://appassets.androidplatform.net/doc/<uri>
  */
 public class MainActivity extends Activity {
@@ -278,7 +278,7 @@ public class MainActivity extends Activity {
                 new Thread(() -> {
                     String top = DocumentsContract.getTreeDocumentId(tree);
                     if (!fresh) { setupRoot(tree, top, treeLabel(tree)); return; }
-                    // nouvelle installation : on crée « Partoche » dans le dossier choisi (sauf s'il s'appelle déjà Partoche)
+                    // nouvelle installation : on crée « Partoche » dans le dossier choisi (sauf s'il s'appelle déjà Partoche And Prof)
                     if ("partoche".equalsIgnoreCase(treeLabel(tree))) { setupRoot(tree, top, treeLabel(tree)); return; }
                     String id = findChild(tree, top, "Partoche");
                     if (id == null) id = mkdir(tree, top, "Partoche");
@@ -441,7 +441,7 @@ public class MainActivity extends Activity {
             android.widget.LinearLayout top = new android.widget.LinearLayout(this);
             top.setPadding(24, 18, 24, 18); top.setGravity(android.view.Gravity.CENTER_VERTICAL);
             android.widget.TextView tv = new android.widget.TextView(this);
-            tv.setText("Connecte-toi à pCloud : Partoche récupère la connexion tout seul.");
+            tv.setText("Connecte-toi à pCloud : Partoche And Prof récupère la connexion tout seul.");
             tv.setTextColor(0xffe8ebf0); tv.setTextSize(15);
             top.addView(tv, new android.widget.LinearLayout.LayoutParams(0, -2, 1));
             android.widget.Button close = new android.widget.Button(this); close.setText("Fermer");
@@ -1308,7 +1308,7 @@ public class MainActivity extends Activity {
 
     void logEnvironment() {
         try {
-            log("===== Partoche " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName
+            log("===== Partoche And Prof " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName
                     + " · Android " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ") · " + Build.MANUFACTURER + " " + Build.MODEL);
             log("dossier partitions : " + treeUri() + (treeUri() != null ? " écriture=" + canWrite(treeUri()) : ""));
             log("dossier sauvegarde : " + (saveTreeUri() == null ? "(par défaut : partitions/" + DATA_DIR + ")" : saveTreeUri() + " écriture=" + canWrite(saveTreeUri())));
@@ -1635,7 +1635,7 @@ public class MainActivity extends Activity {
                 Intent i = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 i.addCategory(Intent.CATEGORY_OPENABLE);
                 i.setType("text/plain");
-                i.putExtra(Intent.EXTRA_TITLE, "Partoche - journal.txt");
+                i.putExtra(Intent.EXTRA_TITLE, "Partoche And Prof - journal.txt");
                 try { startActivityForResult(i, REQ_EXPORT_LOG); } catch (Exception ignored) { }
             });
         }

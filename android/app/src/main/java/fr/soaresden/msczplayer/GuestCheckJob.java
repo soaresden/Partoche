@@ -102,8 +102,8 @@ public class GuestCheckJob extends JobService {
         // agenda des cours (« <Prof> - !Cours.mscz - … ») : notification à part
         for (java.util.Iterator<String> it = fresh.iterator(); it.hasNext(); ) {
             String d = it.next();
-            if (d.startsWith("!Avis")) { it.remove(); notified.put(d, latest.get(d).substring(0, 15)); sp.edit().putString("guestNotified", notified.toString()).apply(); notify(ctx, latest.get(d).substring(16) + " t'a répondu", "Ta demande d'avis a une réponse — ouvre Partoche"); continue; }
-            if (d.startsWith("!Cours") || d.startsWith("!Agenda")) { it.remove(); notified.put(d, latest.get(d).substring(0, 15)); sp.edit().putString("guestNotified", notified.toString()).apply(); notify(ctx, latest.get(d).substring(16) + " : agenda des cours", "Nouvelle demande ou réponse pour un cours — ouvre Partoche"); }
+            if (d.startsWith("!Avis")) { it.remove(); notified.put(d, latest.get(d).substring(0, 15)); sp.edit().putString("guestNotified", notified.toString()).apply(); notify(ctx, latest.get(d).substring(16) + " t'a répondu", "Ta demande d'avis a une réponse — ouvre Partoche And Prof"); continue; }
+            if (d.startsWith("!Cours") || d.startsWith("!Agenda")) { it.remove(); notified.put(d, latest.get(d).substring(0, 15)); sp.edit().putString("guestNotified", notified.toString()).apply(); notify(ctx, latest.get(d).substring(16) + " : agenda des cours", "Nouvelle demande ou réponse pour un cours — ouvre Partoche And Prof"); }
         }
         who.clear(); for (String d : fresh) who.add(latest.get(d).substring(16));
         if (fresh.isEmpty()) return;

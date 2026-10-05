@@ -427,7 +427,7 @@ function paintStudentBtn() {
   $('#studentLbl').textContent = st ? (st.emoji ? st.emoji + ' ' : '') + st.name : 'Ajouter un élève'
   $('#btnStudent .udot').style.background = (st && st.color) || ''
   const b = document.querySelector('#library .bname > span')
-  if (b && TEACHER) b.textContent = st ? 'Partitions de ' + st.name : 'Partoche — Prof'
+  if (b && TEACHER) b.textContent = st ? 'Partitions de ' + st.name : 'Partoche And Prof'
 }
 let stEdit = null
 function openStudents(addFirst) {
@@ -2350,7 +2350,7 @@ $('#lkCheck').onclick = async () => {
 function showShareMessage(me, link, pwd, upload) {
   const pr = G.profile || {}
   const code = packCode({ k: 'e', n: me || '', l: link, p: pwd, u: upload || '', e: pr.emoji, c: pr.color })
-  $('#shMsg').textContent = `Bonjour ! Voici mes partitions sur Partoche 🎻
+  $('#shMsg').textContent = `Bonjour ! Voici mes partitions sur Partoche And Prof 🎻
 Ouvre ce lien sur ton ordi ou ton iPad, tout se règle tout seul :
 ${PAGE_URL}#${code}
 
@@ -2365,7 +2365,7 @@ $('#shSend').onclick = () => { try { native.shareText($('#shMsg').textContent) }
 $('#wizDone').onclick = () => { lsSet('mcsz:setupDone', true); closeWizard(); try { native.requestFiles() } catch { } }
 $('#setWizard').onclick = () => openWizard(false)
 $('#shWizard').onclick = () => openWizard(false, 'done')
-$('#setPcLogout').onclick = async () => { if (!confirm('Déconnecter ton compte pCloud de Partoche ?')) return; await pcCall('logout'); lsSet('mcsz:setupDone', false); location.reload() }
+$('#setPcLogout').onclick = async () => { if (!confirm('Déconnecter ton compte pCloud de Partoche And Prof ?')) return; await pcCall('logout'); lsSet('mcsz:setupDone', false); location.reload() }
 // dossier de la tablette choisi depuis l'assistant
 const _onInfoWiz = () => { }
 
@@ -2386,7 +2386,7 @@ function paintSettings(info) {
     $('#setResetSave').hidden = !info.saveCustom
     $('#cloudWarn').hidden = !(info.saveProvider && !info.saveLocal)
     if (info.saveLocal) $('#setSave').textContent += '  ·  📱 dossier de la tablette'
-    $('#setVersion').textContent = 'Partoche ' + (info.version || '')
+    $('#setVersion').textContent = 'Partoche And Prof ' + (info.version || '')
   } else {
     $('#setScores').textContent = folderName || 'Fichiers ouverts à la main'
     $('#setSave').textContent = 'Dans le navigateur'
@@ -2715,7 +2715,7 @@ $('#stImport').onchange = async e => {
       toast(`✓ ${r.add} élève(s) ajouté(s), ${r.upd} mis à jour`, 4000); renderStudents(); paintStudentBtn(); refreshStudentCards(); return
     }
     const d = JSON.parse(txt)
-    if (!d || !Array.isArray(d.students)) throw new Error('ce n’est pas une sauvegarde Partoche')
+    if (!d || !Array.isArray(d.students)) throw new Error('ce n’est pas une sauvegarde Partoche And Prof')
     const l = students(); let add = 0, upd = 0
     for (const s of d.students) {
       if (!s || !s.link) continue
@@ -3125,9 +3125,9 @@ function lessonForm({ st, lesson, start }) {
     if (lesson) lessonAct(st, lesson.id, l => { l.from = l.start; l.start = iso; l.dur = dur; l.ok = { [ME]: true, [OTHER]: false }; l.by = ME; l.cancel = false })
     else if (ds.length > 1) proposeSeries(s2, ds.map(isoOf), dur, +$('#lfRep').value)
     else proposeLesson(s2, iso, dur)
-    if (!lesson && ds.length > 1) { offerNotify(`Bonjour ${profName()} ! Je te propose ${ds.length} cours, ${fmtLTime(ds[0])}, du ${fmtLDay(ds[0])} au ${fmtLDay(ds[ds.length - 1])}. Tu peux accepter dans Partoche (Mon agenda) :`); return }
+    if (!lesson && ds.length > 1) { offerNotify(`Bonjour ${profName()} ! Je te propose ${ds.length} cours, ${fmtLTime(ds[0])}, du ${fmtLDay(ds[0])} au ${fmtLDay(ds[ds.length - 1])}. Tu peux accepter dans Partoche And Prof (Mon agenda) :`); return }
     const L = { start: iso, dur }
-    offerNotify(lesson ? `Bonjour ${profName()} ! Je te propose de déplacer notre cours au ${fmtLesson(L)}. Tu peux accepter dans Partoche (Mon agenda) :` : `Bonjour ${profName()} ! Je te propose un cours le ${fmtLesson(L)}. Tu peux accepter dans Partoche (Mon agenda) :`)
+    offerNotify(lesson ? `Bonjour ${profName()} ! Je te propose de déplacer notre cours au ${fmtLesson(L)}. Tu peux accepter dans Partoche And Prof (Mon agenda) :` : `Bonjour ${profName()} ! Je te propose un cours le ${fmtLesson(L)}. Tu peux accepter dans Partoche And Prof (Mon agenda) :`)
   }
 }
 
@@ -3362,13 +3362,13 @@ function profWatch() {
   if (!TEACHER) return
   const pend = upcoming().filter(x => lStatus(x.l) === 'wait' && !x.l.ok[ME])
   for (const { l, st } of pend) notifyProf('📅 ' + st.name + ' propose un cours', fmtLesson(l), 'c:' + l.id + ':' + l.upd)
-  document.title = (pend.length ? '(' + pend.length + ') ' : '') + 'Partoche'
+  document.title = (pend.length ? '(' + pend.length + ') ' : '') + 'Partoche And Prof'
 }
 if (TEACHER) {
   setInterval(profWatch, 30000); setTimeout(profWatch, 5000)
   // élève qui arrive en ligne
   const wasOn = new Set()
-  setInterval(() => { for (const st of students()) { const on = presOf.has(st.id); if (on && !wasOn.has(st.id)) notifyProf((st.emoji ? st.emoji + ' ' : '') + st.name + ' est en ligne', 'sur Partoche', 'on:' + st.id + ':' + Math.floor(Date.now() / 1800000)); on ? wasOn.add(st.id) : wasOn.delete(st.id) } }, 20000)
+  setInterval(() => { for (const st of students()) { const on = presOf.has(st.id); if (on && !wasOn.has(st.id)) notifyProf((st.emoji ? st.emoji + ' ' : '') + st.name + ' est en ligne', 'sur Partoche And Prof', 'on:' + st.id + ':' + Math.floor(Date.now() / 1800000)); on ? wasOn.add(st.id) : wasOn.delete(st.id) } }, 20000)
   $('#notifRow').hidden = !canNotif()
   const paintNotif = () => { const p = canNotif() ? Notification.permission : 'denied'; $('#notifState').textContent = p === 'granted' ? '✓ activées' : p === 'denied' ? 'bloquées par le navigateur' : ''; $('#setNotif').hidden = p !== 'default' }
   if (canNotif()) { paintNotif(); $('#setNotif').onclick = () => Notification.requestPermission().then(paintNotif) }
@@ -3692,7 +3692,7 @@ $('#todoLater').onclick = () => { $('#todoDlg').hidden = true }
 
 // ---------- Tuto pour les élèves (prof) : la page « démarrer », à partager ----------
 const TUTO_URL = PAGE_URL + 'demarrer.html'
-const tutoMsg = () => `Bonjour ! Pour nos cours, installe Partoche sur ta tablette 🎻
+const tutoMsg = () => `Bonjour ! Pour nos cours, installe Partoche And Prof sur ta tablette 🎻
 Tout est expliqué ici, étape par étape (10 minutes) :
 ${TUTO_URL}
 
@@ -3701,14 +3701,14 @@ function openTuto() {
   const f = $('#tutoFrame')
   if (!f.src) f.src = 'demarrer.html'
   $('#tutoWa').href = 'https://wa.me/?text=' + encodeURIComponent(tutoMsg())
-  $('#tutoMail').href = 'mailto:?subject=' + encodeURIComponent('Partoche : pour nos cours de musique') + '&body=' + encodeURIComponent(tutoMsg())
+  $('#tutoMail').href = 'mailto:?subject=' + encodeURIComponent('Partoche And Prof : pour nos cours de musique') + '&body=' + encodeURIComponent(tutoMsg())
   $('#tutoOpen').href = 'demarrer.html'
   $('#tutoDlg').hidden = false
 }
 $('#btnTuto').onclick = openTuto
 $('#tutoClose').onclick = () => { $('#tutoDlg').hidden = true }
 $('#tutoShare').onclick = async () => {
-  if (navigator.share) { try { await navigator.share({ title: 'Partoche', text: tutoMsg() }); return } catch (e) { if (e && e.name === 'AbortError') return } }
+  if (navigator.share) { try { await navigator.share({ title: 'Partoche And Prof', text: tutoMsg() }); return } catch (e) { if (e && e.name === 'AbortError') return } }
   try { await navigator.clipboard.writeText(tutoMsg()); toast('Message copié : colle-le à ton élève (WhatsApp, SMS, email…)', 4000) } catch { toast('Utilise WhatsApp ou Email ci-dessous') }
 }
 $('#tutoCopy').onclick = async () => { try { await navigator.clipboard.writeText(TUTO_URL); toast('Lien copié') } catch { prompt('Lien du tuto :', TUTO_URL) } }

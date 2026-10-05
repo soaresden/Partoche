@@ -1,4 +1,4 @@
-# Tuto — Partoche
+# Tuto — Partoche And Prof
 
 ## Premier lancement
 
@@ -14,7 +14,7 @@ L'appli demande si tu es **Élève / musicien** ou **Prof**. Une visite guidée 
 
 6. **📅 Mes cours** : tes cours et demandes ; **Voir ses disponibilités** (semaine du prof, créneaux « Occupé ») ; touche un créneau libre pour proposer un cours (une fois ou chaque semaine). Confirmé quand vous avez accepté tous les deux ; après chaque demande, **📨 prévenir ton prof** par message. À la fin du cours, la fenêtre **À bosser** s'ouvre.
 
-Pour tout refaire : **Options → Refaire la configuration** (le logo Partoche ouvre les Options).
+Pour tout refaire : **Options → Refaire la configuration** (le logo Partoche And Prof ouvre les Options).
 
 ## Prof : voir et annoter les partitions de tes élèves
 

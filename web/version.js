@@ -1,1 +1,1 @@
-window.PARTOCHE_VERSION = '1.0.4'
+window.PARTOCHE_VERSION = '1.0.5'

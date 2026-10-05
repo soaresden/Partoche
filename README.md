@@ -1,6 +1,6 @@
-<p align="center"><img src="brand/logo-512.png" width="130" alt="Partoche"></p>
+<p align="center"><img src="brand/logo-512.png" width="130" alt="Partoche And Prof"></p>
 
-<h1 align="center">Partoche 1.0</h1>
+<h1 align="center">Partoche And Prof 1.0</h1>
 <p align="center"><b>Mes partitions MuseScore sur tablette, annotées avec ma prof de violon.</b></p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 - **L'élève** lit, joue et annote ses partitions sur la tablette. Tout est enregistré dans **son** pCloud (connexion directe, ou dossier de la tablette synchronisé).
 - **La prof** ouvre la page web : elle lit le dossier de l'élève par un **lien de partage** (mot de passe) et y dépose ses annotations, son agenda et des partitions par un **lien de dépôt** (« Demander des fichiers »), sans compte pCloud.
-- Pas de serveur Partoche : chacun écrit ses fichiers, lit ceux de l'autre. Seul un petit signal « en ligne / nouveau trait » passe par le relais public ntfy.sh (canal tiré du lien de partage).
+- Pas de serveur Partoche And Prof : chacun écrit ses fichiers, lit ceux de l'autre. Seul un petit signal « en ligne / nouveau trait » passe par le relais public ntfy.sh (canal tiré du lien de partage).
 
 ## Le dossier pCloud de l'élève
 
@@ -36,7 +36,7 @@ pCloud range chaque dépôt dans un dossier « Files from <Prof> on … » : l'a
 
 ## Mise en place
 
-1. **Tablette** : installer l'APK, choisir *Élève*. L'assistant propose ☁️ *Directement dans mon pCloud* (recommandé : connexion par le site pCloud, Google et double authentification compris), 🆕 *Nouvelle installation* ou 📂 *J'ai déjà un dossier Partoche*. *Options → Refaire la configuration* pour recommencer (le logo Partoche ouvre les Options).
+1. **Tablette** : installer l'APK, choisir *Élève*. L'assistant propose ☁️ *Directement dans mon pCloud* (recommandé : connexion par le site pCloud, Google et double authentification compris), 🆕 *Nouvelle installation* ou 📂 *J'ai déjà un dossier Partoche*. *Options → Refaire la configuration* pour recommencer (le logo Partoche And Prof ouvre les Options).
 2. **Partage** : *Options → Partager avec mon prof* → l'appli crée (ou vérifie) le lien de partage et le lien de dépôt et prépare un message avec un **lien d'invitation**.
 3. **Prof** : elle clique sur le lien d'invitation, l'élève s'ajoute tout seul (sinon *Mes élèves → Coller un code* `P1.…`). Sur iPad : Partager → Sur l'écran d'accueil. Elle garde son **code de sauvegarde** (tous ses élèves, liens et mots de passe).
 
@@ -66,6 +66,8 @@ pCloud range chaque dépôt dans un dossier « Files from <Prof> on … » : l'a
 - `brand/` : logo.
 
 Tester sur PC : `python -m http.server` dans `web/`, puis http://localhost:8000.
+
+Compiler et publier (Windows, JDK 17 + Gradle 8.11.1 + SDK Android dans `C:\Android`) : `powershell -ExecutionPolicy Bypass -File tools\build-apk.ps1 -Version 1.0.6 -Publish` (régénère `docs/`, compile l'APK signé dans `release\`, puis `tools\release.ps1`).
 
 ## Licence
 

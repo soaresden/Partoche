@@ -1,4 +1,4 @@
-﻿# Publie une release GitHub de Partoche avec l'APK, sans outil à installer (API GitHub).
+﻿# Publie une release GitHub de Partoche And Prof avec l'APK, sans outil à installer (API GitHub).
 #   powershell -ExecutionPolicy Bypass -File tools\release.ps1            -> version lue dans android\app\build.gradle
 #   powershell -ExecutionPolicy Bypass -File tools\release.ps1 -Clean     -> supprime d'abord toutes les anciennes releases
 # Il faut un jeton GitHub (une fois) : github.com/settings/personal-access-tokens -> « Generate new token »
@@ -14,7 +14,7 @@ if (-not $Version) {
   $Version = $m.Matches[0].Groups[1].Value
 }
 # APK : dossier release\ du dépôt (ignoré par git, comme tous les .apk)
-$apk = Join-Path $root "release\Partoche $Version.apk"
+$apk = Join-Path $root "release\Partoche And Prof $Version.apk"
 if (-not (Test-Path $apk)) { $apk = Read-Host "APK introuvable ($apk). Chemin de l'APK" }
 # jeton : mytoken.txt à la racine du dépôt (jamais publié, voir .gitignore), sinon GITHUB_TOKEN, sinon on le demande
 $token = ''
@@ -54,7 +54,7 @@ https://soaresden.github.io/Partoche/demarrer.html
 ## 🧑‍🏫 Page du prof (ordinateur ou iPad, rien à installer)
 https://soaresden.github.io/Partoche/
 "@
-$body = @{ tag_name = "v$Version"; target_commitish = 'main'; name = "Partoche $Version"; body = $notes; make_latest = 'true' } | ConvertTo-Json
+$body = @{ tag_name = "v$Version"; target_commitish = 'main'; name = "Partoche And Prof $Version"; body = $notes; make_latest = 'true' } | ConvertTo-Json
 $rel = Invoke-RestMethod -Method Post "$api/releases" -Headers $h -Body ([Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'application/json; charset=utf-8'
 Write-Host "Release créée : $($rel.html_url)"
 # nom fixe « Partoche.apk » : le lien …/releases/latest/download/Partoche.apk marche toujours
