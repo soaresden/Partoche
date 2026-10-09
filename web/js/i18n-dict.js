@@ -806,5 +806,4 @@ export const DICT = {
   "Tes outils les plus utilisés": ["Your most used tools", "자주 쓰는 도구"],
   "📴 Hors ligne : dernière liste connue": ["📴 Offline: last known list", "📴 오프라인: 마지막으로 불러온 목록"],
   "📲 Astuce : touche Partager ⬆️ puis « Sur l’écran d’accueil » : Partoche And Prof s’ouvre alors comme une appli, même sans réseau.": ["📲 Tip: tap Share ⬆️ then “Add to Home Screen”: Partoche And Prof then opens like an app, even offline.", "📲 팁: 공유 ⬆️ → '홈 화면에 추가'를 누르면 Partoche And Prof가 앱처럼 열려요. 인터넷이 없어도 돼요."],
-  "Ton élève voit tes visites sur sa page (heure, partitions ouvertes, annotations envoyées), comme tu vois son temps de travail.": ["Your student sees your visits to their page (time, scores opened, annotations sent), just as you see their practice time.", "학생도 선생님의 방문 기록(시간, 연 악보, 보낸 메모)을 볼 수 있어요. 선생님이 학생의 연습 시간을 보는 것처럼요."],
 }
