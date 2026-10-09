@@ -126,6 +126,6 @@ export function parseDropName(who, name) {
 
 // n'importe quel auteur : { who, doc, stamp }
 export function parseAnyDrop(name) {
-  const m = name.match(/^(.+?) - (.+\.(?:mscz|mscx)|!Agenda|!Avis) - (\d{8}-\d{6})(?: ?\(\d+\))?\.json$/i)
+  const m = name.match(/^(.+?) - (.+\.(?:mscz|mscx)|!Agenda|!Avis|!Activite) - (\d{8}-\d{6})(?: ?\(\d+\))?\.json$/i)
   return m ? { who: m[1], doc: m[2] + '.json', stamp: m[3] } : null
 }

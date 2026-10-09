@@ -99,6 +99,7 @@
     <span id="presLib" class="preslib" hidden><i></i><span></span></span>
     <div class="search"><svg class="ic"><use href="#i-search"/></svg><input id="q" type="search" placeholder="Rechercher une partition…" autocomplete="off"></div>
     <button id="btnStudent" class="btn student" hidden title="Choisir l'élève"><span class="udot"></span><span id="studentLbl">Élève</span><span class="caret">▾</span></button>
+    <label id="btnSendScore" class="btn hbtn" hidden title="Envoyer une partition à mon élève"><span>📤</span><span class="lbl">Envoyer une partition</span><input id="sendFile" type="file" accept=".mscz,.mscx" multiple hidden></label>
     <div class="hgroup">
       <button id="btnAgenda" class="btn hbtn" title="Cours et agenda"><span>📅</span><span class="lbl teacheronly">Mon agenda</span><span class="lbl eleveonly">Mes cours</span><i id="agendaCount" class="pcount warn" hidden></i></button>
       <button id="btnAsks" class="btn hbtn" hidden title="Demandes d'avis"><span>💬</span><span class="lbl teacheronly">Demandes</span><i id="asksCount" class="pcount warn" hidden></i></button>
@@ -174,6 +175,7 @@
 
   <div id="inkbar" class="inkbar" hidden>
     <button id="btnTool" class="btn tooltrig" title="Outil et épaisseur"><svg class="ic" id="toolSvg"><use id="toolIcon" href="#i-pen"/></svg><span id="toolEmo" class="emo" hidden></span><i id="toolDot"></i><span class="caret">▾</span></button>
+    <div id="favs" class="favs" title="Tes outils les plus utilisés"></div>
     <span class="sep"></span>
     <div id="swatches" class="swatches"></div>
     <span class="sep"></span>
@@ -337,6 +339,7 @@
     <h4>Partage avec mon prof</h4>
     <div class="muted small" style="margin-bottom:6px">Ton prof voit tes partitions et t'envoie ses annotations : elles s'affichent dans leurs couleurs, avec une bulle à son nom, et tu peux les masquer. <a href="#" id="shHelp">Comment faire ?</a></div>
     <div class="setrow"><div><b>Liens pour ton prof</b><div class="muted">Créés en un clic avec ton compte pCloud</div></div><button class="btn chipbtn primary" id="shWizard">Partager avec mon prof</button></div>
+    <div class="setrow"><div><b>Activité de mon prof</b><div class="muted">Quand il ouvre ta page, tes partitions, ses annotations</div></div><button class="btn chipbtn" id="actOpen">👀 Voir</button></div>
     <details class="advdirs"><summary class="muted small">Saisir un lien à la main</summary>
     <div class="setrow"><div><b>Ton lien de partage pCloud</b><div class="muted">Le dossier qui contient tes partitions et tes annotations</div></div><input id="shLink" class="txt" placeholder="https://e.pcloud.link/publink/show?code=…"></div>
     <div class="setrow"><div><b>Mot de passe du lien</b></div><input id="shPwd" class="txt" type="password" autocomplete="off"></div>
@@ -501,6 +504,7 @@
       <div class="setrow"><div><b>Lien de dépôt</b><div class="muted">Lien « Demander des fichiers » de l'élève, pour lui envoyer tes annotations et des partitions</div></div><input id="stUpload" class="txt" placeholder="https://e.pcloud.link/puplink/show?code=…"></div>
       <div class="dlg-btns"><button id="stCancelEdit" class="btn">Annuler</button><button id="stSave" class="btn primary">Ajouter</button></div>
       <p class="muted small">Ces liens, c'est ton élève qui te les donne : son appli les crée et prépare le message (Options → Partager avec mon prof).</p>
+      <p class="muted small">Ton élève voit tes visites sur sa page (heure, partitions ouvertes, annotations envoyées), comme tu vois son temps de travail.</p>
     </div>
   </div>
 </div>
@@ -525,6 +529,13 @@
     <h3 id="newTitle">Nouvelle partition</h3>
     <div id="newList" class="newlist"></div>
     <div class="dlg-btns"><button id="newClose" class="btn">Plus tard</button></div>
+  </div>
+</div>
+
+<div id="actDlg" class="dlg" hidden>
+  <div class="dlg-card big">
+    <div class="panel-head"><h3 id="actTitle">👀 Activité de mon prof</h3><button class="btn icon" id="actClose"><svg class="ic"><use href="#i-close"/></svg></button></div>
+    <div id="actBody"></div>
   </div>
 </div>
 
@@ -583,6 +594,7 @@
     <textarea id="hwText" rows="4" placeholder="Ex. Mesures 12 à 24 lentement, travailler le détaché, gammes de ré majeur…"></textarea>
     <h4>Partitions à travailler</h4>
     <div id="hwScores" class="hwpicks"></div>
+    <select id="hwAdd" class="txt hwadd" hidden></select>
     <div class="dlg-btns"><button id="hwCancel" class="btn">Annuler</button><button id="hwOk" class="btn primary">Envoyer à l'élève</button></div>
   </div>
 </div>

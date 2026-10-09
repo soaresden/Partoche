@@ -12,3 +12,4 @@ upd.tgz
 
 # jeton GitHub pour tools/release.ps1 : ne jamais le publier
 mytoken.txt
+.claude/

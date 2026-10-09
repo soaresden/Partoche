@@ -695,7 +695,7 @@ public class MainActivity extends Activity {
     // ---------- rangement des envois du prof ----------
     // Un lien « Demander des fichiers » range chaque envoi dans un dossier « Files from <Prof> on <date> ».
     // On remet ces fichiers dans Prof/, on ne garde que le plus récent par partition et par prof, et on supprime les dossiers vides.
-    static final java.util.regex.Pattern DROP = java.util.regex.Pattern.compile("^(.+?) - (.+\\.(?:mscz|mscx)|!Agenda|!Avis) - (\\d{8}-\\d{6})(?: ?\\(\\d+\\))?\\.json$", java.util.regex.Pattern.CASE_INSENSITIVE);
+    static final java.util.regex.Pattern DROP = java.util.regex.Pattern.compile("^(.+?) - (.+\\.(?:mscz|mscx)|!Agenda|!Avis|!Activite) - (\\d{8}-\\d{6})(?: ?\\(\\d+\\))?\\.json$", java.util.regex.Pattern.CASE_INSENSITIVE);
     static final java.util.regex.Pattern SCORE = java.util.regex.Pattern.compile("(?i)^.+\\.(mscz|mscx)$");
     /** « Files from Marie on 2026-10-02 … » -> « Marie » */
     static String dropAuthor(String folder) {

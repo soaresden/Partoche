@@ -242,8 +242,7 @@ async function commitDoc(d = V && V.doc) {
   if (!d) return
   // annotations les plus récentes (sans attendre le délai d'enregistrement automatique)
   if (V && d === V.doc && V.key && ink.pages && ink.pages.length) {
-    const pages = serializeInk()
-    if (pages.some(p => p.length)) d.ink[V.key] = pages; else delete d.ink[V.key]
+    storeInk(serializeInk())
     d._pending = true
   }
   markDirty(false)
@@ -290,7 +289,14 @@ async function connectShare(pwd) {
   if (pwd != null) c.pwd = pwd
   if (!c.link) throw new Error('aucun lien pCloud')
   const pf = new PublicFolder(c.link, c.pwd)
-  await pf.list()
+  const tk = 'mcsz:tree:' + pf.code
+  try { await pf.list(); try { lsSet(tk, pf.root) } catch { } }
+  catch (e) {   // hors ligne : la dernière liste connue (partitions déjà ouvertes, annotations déjà lues)
+    const old = (e instanceof TypeError || navigator.onLine === false) && lsGet(tk, null)
+    if (!old) throw e
+    pf.root = old; pf.offline = true
+    if (!connectShare.warned) { connectShare.warned = true; toast('📴 Hors ligne : dernière liste connue', 3500) }
+  }
   pf.cfg = c; pf.t = Date.now()
   share = pf
   indexShare()
@@ -324,12 +330,15 @@ function scoresRoot() {
   return { folder }
 }
 async function shareJson(meta) {
-  try { return parseJ(await share.text(meta.fileid)) } catch (e) { nlog('pCloud, lecture impossible : ' + meta.name + ' — ' + e.message); return null }
+  const k = 'mcsz:pct:' + (share && share.code) + ':' + meta.name   // dernière version lue : relue hors ligne
+  try { const t = await share.text(meta.fileid); idbSet(k, t); return parseJ(t) }
+  catch (e) { const t = await idbGet(k); if (t) return parseJ(t); nlog('pCloud, lecture impossible : ' + meta.name + ' — ' + e.message); return null }
 }
 async function sendToOwner(d) {
   while (d._sending) await d._sending          // un seul envoi à la fois
   const key = JSON.stringify(d.ink)
   if (key === d._body) return
+  actTouch({ ink: 1 })
   let done; d._sending = new Promise(r => done = r)
   try { await sendToOwnerNow(d, key) } finally { d._sending = null; done() }
 }
@@ -424,6 +433,8 @@ const parseLinkCode = l => { const m = String(l || '').match(/code=([A-Za-z0-9]+
 function paintStudentBtn() {
   const st = curStudent()
   $('#btnStudent').hidden = !TEACHER
+  $('#btnSendScore').hidden = !TEACHER || !st
+  if (st) $('#btnSendScore').title = 'Envoyer une partition (.mscz) à ' + st.name
   $('#studentLbl').textContent = st ? (st.emoji ? st.emoji + ' ' : '') + st.name : 'Ajouter un élève'
   $('#btnStudent .udot').style.background = (st && st.color) || ''
   const b = document.querySelector('#library .bname > span')
@@ -574,7 +585,10 @@ async function loadGuestLayer(force) {
     if (/^#[0-9a-f]{6}$/i.test(gp.color || '')) V.doc._underColor = gp.color
     ink.underWho = V.doc._underWho; ink.underColor = V.doc._underColor || '#9b3fc0'
     setGuestSeen(myV.doc._file, g.stamp)
-    if (V.key) ink.setUnder(toView(gd.ink[V.key] || null), V.doc._underWho)
+    if (V.key) {
+      const k = V.key, r = await viewInk(gd.ink)
+      if (V === myV && V.key === k) { V.viewUnder = r.pages; ink.setUnder(toView(r.pages), V.doc._underWho) }
+    }
     paintUnder()
   } catch (e) { net.ok = false; paintNet(); nlog('annotations du prof : ' + e.message) }
 }
@@ -682,7 +696,7 @@ function paintUnder() {
   if (!has) return
   const on = G.showUnder !== false
   $('#btnUnder').classList.toggle('off', !on)
-  const here = !!(U[V.key] && U[V.key].some(p => p && p.length))
+  const here = inkCount(V.viewUnder) > 0
   const live = !!(pres.other && pres.other.d && V.doc._file && pres.other.d === presDocOf(V.doc._file))
   $('#underLbl').textContent = V.doc._underWho + (here ? '' : ' (autre vue)') + (live ? ' · en direct' : V.doc._underStamp ? ' · ' + stampAgo(V.doc._underStamp) : '')
   $('#btnUnder .udot').style.background = V.doc._underColor || ''
@@ -704,7 +718,7 @@ async function switchToView(k) {
 }
 $('#btnUnder').onclick = async () => {
   const U = V.doc._under
-  const here = inkCount(U[V.key]) > 0
+  const here = inkCount(V.viewUnder) > 0
   if (!here) {   // l'autre a annoté avec une autre vue : on propose d'y passer
     const k = bestKey(U)
     if (k && confirm(V.doc._underWho + ' a annoté avec d’autres pistes / noms de notes. Passer à sa vue ?')) { G.showUnder = true; saveGlobal(); await switchToView(k); return }
@@ -1183,10 +1197,11 @@ const player = new Player()
 const scroller = $('#scroller')
 const pagesEl = $('#pages')
 let V = null   // état de la partition ouverte
-const ink = new Ink(scroller, () => saveInk())
+const ink = new Ink(scroller, () => { inkUsed(); saveInk() })
 
 async function openScore(entry) {
   if (!TEACHER && tagOf(entry) === 'new') setTag(entry, '')
+  if (TEACHER && !entry.demo) actTouch({ score: entry.name })
   stopPreview()
   closePops()
   busy('Ouverture…')
@@ -1271,7 +1286,10 @@ async function renderVariant(first) {
   if (V.score) { try { V.score.destroy() } catch { } }
   for (const u of V.svg.values()) URL.revokeObjectURL(u)
   V.svg = new Map()
+  if (V.key && V.inkReady) { storeInk(serializeInk()); saveDoc(V.doc) }   // traits de la vue qu'on quitte
+  V.inkReady = false
   V.score = sc; V.key = variantKey(opts); V.npages = npages
+  ;(V.geo = V.geo || new Map()).set(V.key, geoOf(pos))
   V.renderedVisible = opts.visible.slice()
   V.pos = pos
   V.events = pos.events.slice().sort((a, b) => a.position - b.position)
@@ -1313,6 +1331,16 @@ const pageObserver = new IntersectionObserver(ents => {
 }, { root: scroller, rootMargin: '120% 120%' })
 
 async function buildPages() {
+  V.inkReady = false
+  if (!V.doc.ink[V.key] && V.doc.legacyKey) {
+    const data = await idbGet('mcsz:ink:' + V.doc.legacyKey + ':' + V.key)
+    if (data && data.some(p => p.length)) { V.doc.ink[V.key] = data; saveDoc(V.doc) }
+  }
+  // annotations de toutes les vues (pistes affichées, noms des notes), recalées sur cette mise en page
+  const key = V.key
+  const own = await viewInk(V.doc.ink), und = await viewInk(V.doc._under)
+  if (!V || V.key !== key) return
+  V.viewOwn = own.pages; V.inkMerged = own.keys; V.viewUnder = und.pages
   pageObserver.disconnect()
   renderQ.length = 0
   pagesEl.innerHTML = ''
@@ -1345,13 +1373,9 @@ async function buildPages() {
     V.pageEls = els; V.pageTiles = null
   }
   V.cursorEl = document.createElement('div'); V.cursorEl.className = 'cursor'; V.cursorEl.innerHTML = '<i></i>'
-  let data = V.doc.ink[V.key]
-  if (!data && V.doc.legacyKey) {
-    data = await idbGet('mcsz:ink:' + V.doc.legacyKey + ':' + V.key)
-    if (data && data.some(p => p.length)) { V.doc.ink[V.key] = data; saveDoc(V.doc) }
-  }
   ink.underWho = V.doc._underWho || ''; ink.underColor = V.doc._underColor || '#9b3fc0'
-  ink.attach(els, toView(data, true), toView(V.doc._under ? (V.doc._under[V.key] || null) : null), V.tiles ? V.tiles.map(t => ({ y0: t.y0, y1: t.y1 })) : undefined)
+  ink.attach(els, toView(V.viewOwn, true), toView(V.viewUnder), V.tiles ? V.tiles.map(t => ({ y0: t.y0, y1: t.y1 })) : undefined)
+  V.inkReady = true
   paintUnder()
   ink.setEnabled(inkOn)
 }
@@ -1376,7 +1400,7 @@ function computeTiles() {
   })
   // la fenêtre de chaque ligne s'agrandit pour montrer toutes les annotations qui lui appartiennent
   // (notes écrites entre deux systèmes, au-dessus, en dessous…)
-  const own = (V.doc && V.doc.ink && V.doc.ink[V.key]) || [], und = (V.doc && V.doc._under && V.doc._under[V.key]) || []
+  const own = V.viewOwn || [], und = V.viewUnder || []
   for (const src of [own, und]) (src || []).forEach((pg, p) => {
     for (const o of pg || []) {
       const ys = o.t === 'text' ? [o.y - 0.03, o.y + 0.01] : (o.p || []).map(q => q[1])
@@ -1408,6 +1432,83 @@ function toView(data, own) {
     return own ? pg.filter(o => { const y = objY(o); return y >= t.o0 && y < t.o1 }) : pg
   })
 }
+// ---- annotations indépendantes des pistes affichées ----
+// Les traits sont rangés par « vue » (pistes, noms des notes) en coordonnées de page. Afficher ou cacher une piste
+// change la mise en page : on recale chaque trait sur SA mesure (même place dans la mesure, même hauteur sous le haut
+// de la ligne), puis, dès qu'on annote, tout est rangé dans la vue courante.
+const geoOf = pos => ({ W: pos.pageSize.width, H: pos.pageSize.height, m: new Map(pos.elements.map(e => [e.id, e])) })
+function geoFor(k) {
+  if (!V.geo) V.geo = new Map()
+  if (V.geo.has(k)) return V.geo.get(k)
+  const v = parseViewKey(k); if (!v || !V.mf || v.visible.length !== V.visible.length) return null
+  const mf = V.mf
+  const p = (async () => {   // mise en page de cette vue, sans dessiner les pages : juste la place des mesures
+    try {
+      const W = await engine()
+      const sc = await W.load('mscz', mf.build({ visible: v.visible, names: v.notes.names, octave: v.notes.octave, above: v.notes.above, hideManual: v.notes.names !== 'off' && v.notes.hideManual }), [], true)
+      try { return geoOf(await sc.measurePositions()) } finally { try { sc.destroy() } catch { } }
+    } catch (e) { nlog('annotations de la vue ' + k + ' : ' + (e.message || e)); return null }
+  })()
+  V.geo.set(k, p); return p
+}
+function inkAnchor(o) {
+  if (o.t === 'text') return [o.x, o.y]
+  const p = o.p || []; if (!p.length) return null
+  let x = 0, y = 0; for (const q of p) { x += q[0]; y += q[1] }
+  return [x / p.length, y / p.length]
+}
+function nearestMeasure(g, page, x, y) {
+  let best = null, bd = Infinity
+  for (const e of g.m.values()) {
+    if (e.page !== page) continue
+    const dx = Math.max(0, e.x - x, x - e.x - e.sx), dy = Math.max(0, e.y - y, y - e.y - e.sy)
+    const d = dx * dx + 4 * dy * dy   // on préfère la mesure de la même ligne
+    if (d < bd) { bd = d; best = e }
+  }
+  return best
+}
+function projectInk(pages, src, dst, n) {
+  const out = Array.from({ length: n }, () => [])
+  const r4 = v => Math.round(v * 10000) / 10000
+  ;(pages || []).forEach((list, pg) => {
+    for (const o of list || []) {
+      const a = inkAnchor(o), c = JSON.parse(JSON.stringify(o))
+      let to = Math.min(pg, n - 1)
+      const m = a && nearestMeasure(src, pg, a[0] * src.W, a[1] * src.H), t = m && dst.m.get(m.id)
+      if (t) {
+        const nx = t.x + (a[0] * src.W - m.x) * (t.sx / (m.sx || 1)), ny = t.y + (a[1] * src.H - m.y)
+        const dx = nx / dst.W - a[0], dy = ny / dst.H - a[1]
+        if (c.t === 'text') { c.x = r4(c.x + dx); c.y = r4(c.y + dy) }
+        else c.p = c.p.map(q => [r4(q[0] + dx), r4(q[1] + dy), ...q.slice(2)])
+        to = Math.min(t.page, n - 1)
+      }
+      out[to].push(c)
+    }
+  })
+  return out
+}
+// { vue: pages } -> pages de la vue courante (toutes les vues réunies) + les vues reprises
+async function viewInk(map) {
+  const keys = Object.keys(map || {}).filter(k => inkCount(map[k]) > 0)
+  if (!keys.length) return { pages: null, keys: [] }
+  if (keys.length === 1 && keys[0] === V.key) return { pages: map[V.key], keys }
+  const n = V.npages, dst = await geoFor(V.key)
+  const pages = Array.from({ length: n }, () => []), used = []
+  for (const k of keys) {
+    if (k === V.key) { map[k].forEach((l, i) => pages[Math.min(i, n - 1)].push(...(l || []))); used.push(k); continue }
+    const src = dst && await geoFor(k); if (!src) continue
+    projectInk(map[k], src, dst, n).forEach((l, i) => pages[i].push(...l)); used.push(k)
+  }
+  return { pages: used.length ? pages : null, keys: used }
+}
+// range les traits affichés dans la vue courante ; les vues reprises (déjà affichées ici) disparaissent
+function storeInk(pages) {
+  const d = V && V.doc; if (!d || !V.key || !V.inkReady) return false
+  for (const k of V.inkMerged || []) if (k !== V.key) delete d.ink[k]
+  V.inkMerged = [V.key]
+  if (pages.some(p => p.length)) d.ink[V.key] = pages; else delete d.ink[V.key]
+  return true
+}
 function serializeInk() {
   const arr = ink.serialize()
   if (!V.tiles) return arr
@@ -1424,8 +1525,7 @@ function pageElFor(el) {
 }
 async function relayoutPages() {
   if (!V || !V.score) return
-  const pages = serializeInk()
-  if (pages.some(p => p.length)) V.doc.ink[V.key] = pages
+  storeInk(serializeInk())
   await buildPages()
   for (const i of V.svg.keys()) setImg(i)
   drawLoopMarks(); updateCursor(true)
@@ -1979,7 +2079,11 @@ function togglePop(sel, anchor, dir) {
   const r = anchor.getBoundingClientRect(), pw = pop.offsetWidth, ph = pop.offsetHeight
   let left = Math.min(innerWidth - pw - 8, Math.max(8, r.left + r.width / 2 - pw / 2))
   pop.style.left = left + 'px'
-  pop.style.top = (dir === 'up' ? r.top - ph - 8 : r.bottom + 8) + 'px'
+  // jamais hors de l'écran (iPad) : la fenêtre défile si elle est plus haute que la place disponible
+  const vh = (window.visualViewport && visualViewport.height) || innerHeight
+  const room = dir === 'up' ? r.top - 16 : vh - r.bottom - 16
+  pop.style.maxHeight = Math.max(160, room) + 'px'; pop.style.overflowY = 'auto'
+  pop.style.top = (dir === 'up' ? Math.max(8, r.top - Math.min(ph, room) - 8) : Math.min(r.bottom + 8, vh - 168)) + 'px'
   anchor.classList.add('popopen')
 }
 function closePops() { $$('.pop').forEach(p => p.hidden = true); $$('.popopen').forEach(b => b.classList.remove('popopen')) }
@@ -2024,7 +2128,58 @@ function renderSwatches() {
   }
 }
 const TOOL_ICON = { pen: '#i-pen', hl: '#i-hl', text: '#i-text', eraser: '#i-eraser' }
+// ---- raccourcis : les outils, formes et emojis les plus utilisés, directement dans la barre ----
+const FAV_DEFAULT = ['pen', 'hl', 'shape:downbow', 'shape:upbow', 'eraser', 'text']
+const favKey = () => ink.tool === 'shape' ? 'shape:' + ink.shape : ink.tool === 'emoji' ? 'emoji:' + ink.emoji : ink.tool
+const counted = new WeakSet()
+function favCount(k) { if (!k) return; G.inkUse = G.inkUse || {}; G.inkUse[k] = (G.inkUse[k] || 0) + 1 }
+function inkUsed() {   // un trait / une forme / un emoji vient d'être posé : on le compte
+  const op = ink.undoStack && ink.undoStack[ink.undoStack.length - 1]
+  if (!op || op.op !== 'add' || !op.s || counted.has(op.s)) return
+  counted.add(op.s); const o = op.s
+  favCount(o.t === 'text' ? (o.emoji ? 'emoji:' + o.text : 'text') : o.sh ? 'shape:' + o.sh : o.t)
+  saveGlobalLater(); paintFavs()
+}
+const saveGlobalLater = debounce(() => saveGlobal(), 3000)
+function favList() {
+  const use = G.inkUse || {}
+  const top = Object.keys(use).filter(k => use[k] >= 2).sort((a, b) => use[b] - use[a])
+  const out = []
+  for (const k of [...top, ...FAV_DEFAULT]) { if (!out.includes(k)) out.push(k); if (out.length >= 7) break }
+  if (!out.includes('eraser')) out[out.length - 1] = 'eraser'   // la gomme reste toujours à portée
+  return out
+}
+function favIcon(k) {
+  const [t, v] = [k.split(':')[0], k.slice(k.indexOf(':') + 1)]
+  if (t === 'emoji') return `<span class="emo">${esc(v)}</span>`
+  if (t === 'shape') { const sb = $(`#shapeRow [data-shape="${v}"] svg`); return sb ? sb.outerHTML : '?' }
+  const ic = TOOL_ICON[t]; return ic ? `<svg class="ic"><use href="${ic}"/></svg>` : esc(t)
+}
+const FAV_NAME = { pen: 'Stylo', hl: 'Surligneur', text: 'Texte', eraser: 'Gomme' }
+function paintFavs() {
+  const box = $('#favs'); if (!box) return
+  const cur = favKey()
+  box.innerHTML = ''
+  for (const k of favList()) {
+    const b = document.createElement('button'); b.className = 'btn icon fav' + (k === cur ? ' on' : '')
+    const v = k.slice(k.indexOf(':') + 1)
+    b.title = k.startsWith('shape:') ? (($(`#shapeRow [data-shape="${v}"]`) || {}).title || v) : k.startsWith('emoji:') ? v : (FAV_NAME[k] || k)
+    b.innerHTML = favIcon(k)
+    b.onclick = () => useFav(k)
+    box.appendChild(b)
+  }
+}
+function useFav(k) {
+  closePops()
+  const t = k.split(':')[0], v = k.slice(k.indexOf(':') + 1)
+  if (t === 'shape') { ink.setTool('shape'); ink.shape = G.shape = v; G.tool = 'shape' }
+  else if (t === 'emoji') { ink.emoji = G.emoji = v; ink.setTool('emoji'); G.tool = 'emoji' }
+  else { ink.setTool(t); G.tool = t }
+  if (t === 'eraser') favCount('eraser')
+  saveGlobal(); paintInkbar()
+}
 function paintInkbar() {
+  paintFavs()
   $('#toolIcon').setAttribute('href', TOOL_ICON[ink.tool] || '#i-pen')
   const emo = ink.tool === 'emoji', shp = ink.tool === 'shape'
   $('#toolSvg').style.display = emo || shp ? 'none' : ''
@@ -2133,9 +2288,7 @@ ink.onEditText = (init, cb) => promptText('Texte', init, cb, 'Écris ton annotat
 
 const saveInk = debounce(() => {
   if (!V || !V.key || !V.doc) return
-  const pages = serializeInk()
-  if (pages.some(p => p.length)) V.doc.ink[V.key] = pages
-  else delete V.doc.ink[V.key]
+  if (!storeInk(serializeInk())) return
   saveDoc(V.doc)
   if (TEACHER && !V.doc._demo) teacherAutoSend()
 }, 500)
@@ -2679,8 +2832,9 @@ function openMore() {
 }
 $('#btnMore').onclick = openMore
 $('#moreClose').onclick = () => { $('#moreDlg').hidden = true }
-$('#moreFile').onchange = async e => {
-  const list = [...e.target.files]; e.target.value = ''
+$('#moreFile').onchange = e => { const list = [...e.target.files]; e.target.value = ''; sendScores(list) }
+$('#sendFile').onchange = e => { const list = [...e.target.files]; e.target.value = ''; sendScores(list) }
+async function sendScores(list) {
   const st = curStudent(); if (!list.length || !st) return
   if (!st.upload) { toast('Il faut le lien de dépôt de ' + st.name + ' (Mes élèves → ✎)', 5000); return }
   let ok = 0
@@ -2963,7 +3117,8 @@ const lEnd = l => new Date(dOf(l.start).getTime() + (l.dur || 60) * 60000)
 const lStatus = l => l.cancel ? 'cancel' : (l.ok && l.ok.e && l.ok.p) ? 'ok' : 'wait'
 const ME = TEACHER ? 'p' : 'e', OTHER = TEACHER ? 'e' : 'p'
 // fusion prof / élève avec « propriétaires » : l'acceptation de l'élève vient de son fichier, celle du prof
-// et le travail à faire (hw) viennent du fichier du prof ; si l'horaire a changé, la version la plus récente gagne
+// du fichier du prof ; si l'horaire a changé, la version la plus récente gagne.
+// Le travail à faire (hw) peut être noté des deux côtés (cours sur la tablette de l'élève) : le plus récent gagne.
 const lKey = l => l.start + '|' + (l.dur || 60) + '|' + !!l.cancel
 function coursMergeOwned(profList, eleveList) {
   const P = new Map((profList || []).map(x => [x.id, x])), E = new Map((eleveList || []).map(x => [x.id, x]))
@@ -2974,7 +3129,8 @@ function coursMergeOwned(profList, eleveList) {
     let r
     if (lKey(p) !== lKey(e)) r = { ...((e.upd || 0) > (p.upd || 0) ? e : p) }
     else r = { ...p, ok: { e: !!(e.ok && e.ok.e), p: !!(p.ok && p.ok.p) }, upd: Math.max(p.upd || 0, e.upd || 0) }
-    if (p.hw && (!r.hw || (p.hw.at || 0) >= (r.hw.at || 0))) r.hw = p.hw   // le travail à faire : c'est le prof qui a raison
+    const hw = [p.hw, e.hw].filter(Boolean).sort((a, b) => (b.at || 0) - (a.at || 0))[0]
+    if (hw) r.hw = hw; else delete r.hw
     out.push(r)
   }
   return out.sort((a, b) => a.start.localeCompare(b.start))
@@ -3154,46 +3310,90 @@ function lessonCard(st, l) {
   if (s === 'wait' && !l.ok[ME]) btn(ser.length > 1 ? '✓ Seulement celui-ci' : '✓ Accepter', ser.length > 1 ? '' : 'primary', () => { lessonAct(st, l.id, x => { x.ok[ME] = true }); offerNotify(`Bonjour ${profName()} ! C’est d’accord pour le cours du ${fmtLesson(l)} 👍`) })
   if (s !== 'cancel' && lEnd(l) > new Date()) btn('🔁 Proposer un autre horaire', '', () => lessonForm({ st, lesson: l }))
   if (s !== 'cancel' && lEnd(l) > new Date()) btn('✕ Annuler le cours', 'danger', () => { if (confirm('Annuler ce cours ?')) { lessonAct(st, l.id, x => { x.cancel = true }); offerNotify(`Bonjour ${profName()} ! Je dois annuler le cours du ${fmtLesson(l)}, désolé. Je te propose un autre horaire dès que possible.`) } })
-  if (TEACHER && s === 'ok') btn('📝 À bosser', '', () => hwForm(st, l))
+  if (s === 'ok') btn('📝 À bosser', '', () => hwForm(st, l))
   if (TEACHER) btn('🎼 Ses partitions', '', () => { if (!curStudent() || curStudent().id !== st.id) { lsSet('mcsz:student', st.id); share = null; presAfterSwitch(); teacherLibrary() } $('#agendaDlg').hidden = true })
   btn('Fermer', '', () => { })
   dlg.hidden = false
 }
 const hwHtml = hw => (hw.text ? `<p class="hwtext">${esc(hw.text).replace(/\n/g, '<br>')}</p>` : '') + ((hw.scores || []).length ? '<div class="hwscores">' + hw.scores.map(r => `<span class="hwchip" data-rel="${esc(r)}">🎼 ${esc(baseName(r.split('/').pop()))}</span>`).join('') + '</div>' : '')
 
-// ---------- « À bosser » (prof : saisie ; élève : affichage à la fin du cours) ----------
+// ---------- « À bosser » (saisie : prof, ou élève quand le cours se fait sur sa tablette ; élève : affichage à la fin du cours) ----------
+// dernière fois que chaque partition a été jouée (temps de travail de l'élève) : rel -> horodatage
+function lastPlayed(w) {
+  const m = {}, see = (r, t) => { if (r && t > (m[r] || 0)) m[r] = t }
+  for (const [day, per] of Object.entries((w && w.days) || {})) { const t = Date.parse(day + 'T12:00') || 0; for (const r of Object.keys(per || {})) see(r, t) }
+  for (const x of (w && w.sessions) || []) see(x.s, x.b || x.a || 0)
+  if (w && w.last) see(w.last.s, w.last.t || 0)
+  return m
+}
 async function hwForm(st, l) {
   const dlg = $('#hwDlg')
-  $('#hwTitle').textContent = 'À bosser pour ' + st.name
+  $('#hwTitle').textContent = TEACHER ? 'À bosser pour ' + st.name : '📝 À bosser pour le prochain cours'
   $('#hwSub').textContent = 'Cours du ' + fmtLesson(l)
+  $('#hwOk').textContent = TEACHER ? "Envoyer à l'élève" : 'Enregistrer'
   $('#hwText').value = (l.hw && l.hw.text) || ''
   const box = $('#hwScores'); box.innerHTML = '<span class="muted small">…</span>'
+  const sel = $('#hwAdd'); sel.hidden = true
   dlg.hidden = false
-  const data = studentData.get(st.id) || await loadStudentData(st)
-  const chosen = new Set((l.hw && l.hw.scores) || [])
-  box.innerHTML = ''
-  for (const r of (data.scores || []).sort((a, b) => a.localeCompare(b, 'fr'))) {
-    const b = document.createElement('button'); b.className = 'hwpick' + (chosen.has(r) ? ' on' : '')
-    b.textContent = baseName(r.split('/').pop())
-    b.onclick = () => { chosen.has(r) ? chosen.delete(r) : chosen.add(r); b.classList.toggle('on') }
-    box.appendChild(b)
+  let all, w
+  if (TEACHER) { const data = studentData.get(st.id) || await loadStudentData(st); all = data.scores || []; w = data.work }
+  else { all = files.filter(f => !f.demo).map(f => f.rel || f.name); w = work }
+  if (dlg.hidden) return
+  const when = lastPlayed(w)
+  // la partition ouverte en ce moment compte comme « jouée à l'instant »
+  if (V && V.entry && !V.entry.demo) when[V.entry.rel || V.entry.name] = Date.now()
+  const recent = all.filter(r => when[r]).sort((a, b) => when[b] - when[a])
+  const rest = all.filter(r => !when[r]).sort((a, b) => a.localeCompare(b, 'fr'))
+  // déjà noté : on reprend ; sinon on propose ce qui a été joué pendant le cours (ou, à défaut, la dernière jouée)
+  let chosen = (l.hw && l.hw.scores) ? l.hw.scores.slice() : null
+  if (!chosen) {
+    const a = dOf(l.start).getTime() - 15 * 60000, z = lEnd(l).getTime() + 30 * 60000
+    const during = ((w && w.sessions) || []).filter(x => x.b >= a && x.a <= z).map(x => x.s)
+    if (V && V.entry && !V.entry.demo && Date.now() >= a && Date.now() <= z) during.push(V.entry.rel || V.entry.name)
+    chosen = [...new Set(during)].filter(r => all.includes(r))
+    if (!chosen.length && recent[0]) chosen = [recent[0]]
   }
-  if (!box.childElementCount) box.innerHTML = '<span class="muted small">Aucune partition trouvée chez ' + esc(st.name) + '</span>'
+  const name = r => baseName(r.split('/').pop())
+  const T = x => (window.__t ? window.__t(x) : x)   // <select> : pas traduit automatiquement
+  const since = r => { if (!when[r]) return ''; const d = Math.round((Date.now() - when[r]) / 86400000); return ' · ' + T(d <= 0 ? 'aujourd’hui' : d === 1 ? 'hier' : 'il y a ' + d + ' j') }
+  const paint = () => {
+    box.innerHTML = chosen.length ? '' : '<span class="muted small">Aucune partition choisie</span>'
+    for (const r of chosen) {
+      const b = document.createElement('button'); b.className = 'hwpick on'; b.innerHTML = '🎼 ' + esc(name(r)) + ' <b>✕</b>'; b.title = 'Retirer'
+      b.onclick = () => { chosen = chosen.filter(x => x !== r); paint() }
+      box.appendChild(b)
+    }
+    const opt = r => `<option value="${esc(r)}">${esc(name(r) + since(r))}</option>`
+    const left = r => !chosen.includes(r)
+    sel.innerHTML = `<option value="">${esc(T('＋ Ajouter une partition…'))}</option>`
+      + (recent.some(left) ? `<optgroup label="${esc(T('Jouées récemment'))}">` + recent.filter(left).map(opt).join('') + '</optgroup>' : '')
+      + (rest.some(left) ? `<optgroup label="${esc(T('Les autres (A → Z)'))}">` + rest.filter(left).map(opt).join('') + '</optgroup>' : '')
+    sel.hidden = !all.some(left)
+  }
+  sel.onchange = () => { if (sel.value) { chosen.push(sel.value); paint() } }
+  paint()
+  if (!all.length) box.innerHTML = '<span class="muted small">Aucune partition trouvée' + (TEACHER ? ' chez ' + esc(st.name) : '') + '</span>'
   $('#hwCancel').onclick = () => { dlg.hidden = true }
   $('#hwOk').onclick = () => {
     dlg.hidden = true
-    lessonAct(st, l.id, x => { x.hw = { text: $('#hwText').value.trim(), scores: [...chosen], at: Date.now(), by: myName() } })
+    const hw = { text: $('#hwText').value.trim(), scores: chosen.slice(), at: Date.now(), by: myName() || (TEACHER ? 'Prof' : '') }
+    if (!TEACHER) { const s = lsGet('mcsz:hwSeen', {}); s[l.id] = hw.at; lsSet('mcsz:hwSeen', s); hwApplyTags(hw) }
+    lessonAct(st, l.id, x => { x.hw = hw })
+    toast(TEACHER ? '📝 Envoyé à ' + st.name + ' ✓' : '📝 Noté pour le prochain cours ✓', 2500)
   }
+}
+// élève : les partitions à bosser passent en « À faire »
+function hwApplyTags(hw) {
+  G.tags = G.tags || {}
+  for (const r of hw.scores || []) if (!G.tags[r] || G.tags[r] === 'done') G.tags[r] = 'todo'
+  saveGlobal(); writeSettings(); if ($('#library').classList.contains('active')) renderLibrary()
 }
 function coursHomework() {
   if (TEACHER || !coursMine) return
   const seen = lsGet('mcsz:hwSeen', {})
   const l = coursMine.filter(x => x.hw && x.hw.at && (seen[x.id] || 0) < x.hw.at).sort((a, b) => b.hw.at - a.hw.at)[0]
   if (!l || !$('#hwShow').hidden) return
-  // les partitions à bosser passent en « À faire »
-  G.tags = G.tags || {}
-  for (const r of l.hw.scores || []) if (!G.tags[r] || G.tags[r] === 'done') G.tags[r] = 'todo'
-  saveGlobal(); writeSettings(); if ($('#library').classList.contains('active')) renderLibrary()
+  hwApplyTags(l.hw)
   $('#hsTitle').textContent = '📝 À bosser pour le prochain cours'
   $('#hsSub').textContent = (l.hw.by || coursWho()) + ' · cours du ' + fmtLesson(l)
   $('#hsBody').innerHTML = hwHtml(l.hw)
@@ -3215,11 +3415,11 @@ function paintLive() {
   const el = $('#liveBar'); if (!el) return
   const n = lessonNow()
   const otherOn = TEACHER ? (n && presOf.has(n.st.id)) || !!pres.other : !!pres.other
-  if (n && otherOn) {
+  if (n && (otherOn || !TEACHER)) {   // élève : le cours peut se faire sur sa tablette, prof présent ou non
     liveLesson = n
     el.hidden = false
     $('#liveTxt').textContent = '🎻 Cours en cours avec ' + (TEACHER ? n.st.name : coursWho()) + ' · jusqu’à ' + fmtLTime(lEnd(n.l))
-    $('#liveEnd').hidden = !TEACHER
+    $('#liveEnd').hidden = false
     $('#liveEnd').onclick = () => hwForm(n.st, n.l)
   } else {
     // fin de cours (prof) : on propose de noter le travail
@@ -3754,3 +3954,89 @@ function paintDevVol() {
 $('#devVol').addEventListener('input', e => { try { native.setMediaVolume(+e.target.value) } catch { } paintDevVol() })
 $('#btnTracks').addEventListener('click', () => { paintVol(); paintDevVol() })
 document.addEventListener('visibilitychange', () => { if (!document.hidden) paintDevVol() })
+
+// =====================================================================
+//  ACTIVITÉ DU PROF, vue par l'élève : visites sur la page, partitions ouvertes, annotations envoyées.
+//  Page du prof : « <Prof> - !Activite - AAAAMMJJ-HHMMSS.json » déposé dans le dossier Prof de l'élève
+//  (seulement ce qui concerne CET élève). Appli de l'élève : Options → Activité de mon prof.
+// =====================================================================
+const ACT_DOC = '!Activite'
+const actDirty = new Set()
+let actLast = Date.now()
+function actTouch(what) {
+  if (!TEACHER || DEMO) return
+  const st = curStudent(); if (!st) return
+  const key = 'mcsz:act:' + st.id, a = lsGet(key, null) || { sessions: [] }, now = Date.now()
+  let s = a.sessions[a.sessions.length - 1]
+  const fresh = !s || now - s.b > 10 * 60000
+  if (fresh) { s = { a: now, b: now, sc: [], n: 0 }; a.sessions.push(s); a.sessions = a.sessions.slice(-120) }
+  s.b = now
+  if (what && what.score && !s.sc.includes(what.score)) s.sc.push(what.score)
+  if (what && what.ink) s.n++
+  lsSet(key, a); actDirty.add(st.id)
+  if (fresh) setTimeout(actFlush, 8000)   // nouvelle visite : l'élève le voit vite
+}
+async function actFlush() {
+  for (const id of [...actDirty]) {
+    actDirty.delete(id)
+    const st = students().find(x => x.id === id); if (!st || !st.upload) continue
+    const since = Date.now() - 60 * 86400000
+    const sessions = ((lsGet('mcsz:act:' + id, null) || {}).sessions || []).filter(x => x.b >= since)
+    try { await uploadToLink(st.upload, myName(), dropName(myName(), ACT_DOC + '.json'), pretty({ app: 'Partoche', kind: 'activite', author: myName(), updated: Date.now(), sessions })) }
+    catch (e) { actDirty.add(id) }
+  }
+}
+if (TEACHER && !DEMO) {
+  ;['pointerdown', 'keydown', 'wheel'].forEach(ev => addEventListener(ev, () => { actLast = Date.now() }, { passive: true, capture: true }))
+  setInterval(() => { if (!document.hidden && Date.now() - actLast < 5 * 60000) actTouch() }, 60000)
+  setInterval(actFlush, 10 * 60000)
+  document.addEventListener('visibilitychange', () => { if (document.hidden) actFlush(); else actTouch() })
+  setTimeout(() => actTouch(), 4000)
+}
+const agoLong = t => { const h = (Date.now() - t) / 3600000; return h < 24 ? ago(t) : h < 48 ? 'hier' : 'il y a ' + Math.round(h / 24) + ' jours' }
+async function actShow() {
+  const dlg = $('#actDlg'), box = $('#actBody')
+  $('#settings').hidden = true; dlg.hidden = false
+  box.innerHTML = '<p class="muted">Lecture de ton pCloud…</p>'
+  try { if (!share || Date.now() - share.t > 30000) await connectShare() } catch (e) { box.innerHTML = '<p class="muted">pCloud injoignable : ' + esc(e.message) + '</p>'; return }
+  const g = guestDocs.get(ACT_DOC + '.json'), d = g && await shareJson(g.meta)
+  const who = (g && g.who) || coursWho()
+  $('#actTitle').textContent = '👀 Activité de ' + who
+  const ss = ((d && d.sessions) || []).slice().sort((a, b) => b.a - a.a)
+  const live = pres.other ? `<p class="actlive">🟢 ${esc(who)} est sur la page en ce moment</p>` : ''
+  if (!ss.length) { box.innerHTML = live + `<p class="muted">Rien pour l’instant : ${esc(who)} n’a pas encore ouvert la page Partoche And Prof depuis cette mise à jour. Ça s’affichera dès sa prochaine visite.</p>`; return }
+  const mins = x => Math.max(1, Math.round((x.b - x.a) / 60000))
+  const wk = ss.filter(x => x.b > Date.now() - 7 * 86400000), wm = wk.reduce((n, x) => n + mins(x), 0)
+  const day = t => fmtLDay(new Date(t)), hm = t => fmtLTime(new Date(t))
+  let h = live + `<div class="actsum"><div><b>${esc(agoLong(ss[0].b))}</b><span>dernière visite</span></div><div><b>${wk.length}</b><span>visite(s) en 7 jours</span></div><div><b>${wm < 60 ? wm + ' min' : Math.floor(wm / 60) + ' h ' + String(wm % 60).padStart(2, '0')}</b><span>sur ta page en 7 jours</span></div></div>`
+  let lastDay = ''
+  for (const x of ss.slice(0, 40)) {
+    const dd = day(x.a); if (dd !== lastDay) { h += `<h4>${esc(dd)}</h4>`; lastDay = dd }
+    h += `<div class="actrow"><b>${hm(x.a)}–${hm(x.b)}</b> <span class="muted">(${mins(x)} min)</span>`
+      + (x.sc && x.sc.length ? '<div>' + x.sc.map(n => '<span class="hwchip">🎼 ' + esc(baseName(n)) + '</span>').join(' ') + '</div>' : '<div class="muted small">a regardé ta bibliothèque</div>')
+      + (x.n ? `<div class="small">✍️ ${x.n} envoi(s) d’annotations</div>` : '') + '</div>'
+  }
+  box.innerHTML = h
+}
+$('#actOpen').onclick = actShow
+$('#actClose').onclick = () => { $('#actDlg').hidden = true }
+
+// =====================================================================
+//  HORS LIGNE (page web) : l'appli est gardée par un service worker (sw.js) ; on peut l'ouvrir sans réseau,
+//  avec les partitions déjà ouvertes. Les envois repartent dès que le réseau revient.
+// =====================================================================
+if (!native && 'serviceWorker' in navigator && location.protocol === 'https:') {
+  addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(e => console.warn('sw', e)))
+}
+addEventListener('online', () => {
+  if (TEACHER) { actFlush(); if (V && V.doc && !V.doc._demo) commitDoc(V.doc); if (share && share.offline) { share = null; if ($('#library').classList.contains('active')) teacherLibrary() } }
+})
+// iPad / iPhone (Safari) : proposer une fois l'icône sur l'écran d'accueil (seul moyen d'avoir l'appli hors ligne)
+{
+  const ios = /iP(ad|hone|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches
+  if (TEACHER && !DEMO && ios && !standalone && !lsGet('mcsz:a2hs', false)) setTimeout(() => {
+    lsSet('mcsz:a2hs', true)
+    toast('📲 Astuce : touche Partager ⬆️ puis « Sur l’écran d’accueil » : Partoche And Prof s’ouvre alors comme une appli, même sans réseau.', 12000)
+  }, 6000)
+}
