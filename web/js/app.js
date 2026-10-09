@@ -3428,6 +3428,19 @@ function paintLive() {
   }
 }
 setInterval(paintLive, 30000)
+// prof : un cours fini ces 7 derniers jours, sans « À bosser » -> sa page lui propose de le noter (une fois par cours)
+async function hwAskMissing() {
+  if (!TEACHER || DEMO || !$('#hwDlg').hidden || !$('#hwShow').hidden) return
+  const asked = lsGet('mcsz:hwAsked', {}), now = Date.now()
+  const todo = allLessons().filter(({ l }) => lStatus(l) === 'ok' && !l.hw && !asked[l.id] && lEnd(l).getTime() < now && now - lEnd(l).getTime() < 7 * 86400000)
+  const x = todo[todo.length - 1]; if (!x) return
+  asked[x.l.id] = now; lsSet('mcsz:hwAsked', asked)
+  await loadStudentData(x.st)   // l'élève l'a peut-être déjà noté sur sa tablette
+  const l = lessonsFor(x.st).find(y => y.id === x.l.id)
+  if (!l || l.hw || !$('#hwDlg').hidden) return
+  hwForm(x.st, l)
+}
+if (TEACHER && !DEMO) { setTimeout(hwAskMissing, 9000); setInterval(hwAskMissing, 120000) }
 
 // ---------- affichage : panneau « Prochains cours », agenda semaine, « Mes cours » ----------
 let agWeek = (() => { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d })()
