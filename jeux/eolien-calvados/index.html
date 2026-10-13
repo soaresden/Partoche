@@ -154,28 +154,6 @@ canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:poi
 </style>
 </head>
 <body>
-<div id="spWarn" style="position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:24px;background:#001a70;color:#ffffff;font-family:Arial,sans-serif;text-align:center">
-  <div style="max-width:520px">
-    <p style="font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:#ffd100;font-weight:bold;margin:0 0 10px">SharePoint détecté · SharePoint detected</p>
-    <p style="font-size:20px;font-weight:bold;line-height:1.35;margin:0 0 12px">Il faut ouvrir cette page dans l'application et non dans SharePoint.</p>
-    <p style="font-size:15px;line-height:1.5;margin:0 0 18px;opacity:.9">Le jeu ne peut pas se lancer dans l'aperçu SharePoint. Utilisez « Ouvrir dans l'application », ou téléchargez le fichier puis ouvrez-le dans votre navigateur.</p>
-    <p style="font-size:17px;font-weight:bold;line-height:1.35;margin:0 0 8px">Please open this page in the app, not in SharePoint.</p>
-    <p style="font-size:14px;line-height:1.5;margin:0;opacity:.9">The game cannot run in the SharePoint preview. Use “Open in app”, or download the file and open it in your browser.</p>
-  </div>
-</div>
-<script>
-(function () {
-  var sp = false;
-  try {
-    var h = location.hostname + ' ' + document.referrer;
-    if (/sharepoint\.|sharepoint-df|officeapps\.live\.com|microsoftonline|onedrive\.live/i.test(h)) sp = true;
-    var ao = location.ancestorOrigins;
-    if (ao) for (var i = 0; i < ao.length; i++) if (/sharepoint|officeapps|onedrive/i.test(ao[i])) sp = true;
-  } catch (e) {}
-  if (!sp) { var el = document.getElementById('spWarn'); if (el) el.parentNode.removeChild(el); }
-})();
-</script>
-
 <div id="splash" role="button" tabindex="0" aria-label="Commencer">
   <button class="ghost langBtn" type="button">EN</button>
   <div class="sLogo">
