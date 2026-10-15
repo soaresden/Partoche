@@ -290,7 +290,7 @@ async function connectShare(pwd) {
   if (!c.link) throw new Error('aucun lien pCloud')
   const pf = new PublicFolder(c.link, c.pwd)
   const tk = 'mcsz:tree:' + pf.code
-  try { await pf.list(); try { lsSet(tk, pf.root) } catch { } }
+  try { await pf.list(); if (TEACHER && Date.now() - (connectShare.saved || 0) > 300000) { connectShare.saved = Date.now(); try { lsSet(tk, pf.root) } catch { } } }
   catch (e) {   // hors ligne : la dernière liste connue (partitions déjà ouvertes, annotations déjà lues)
     const old = (e instanceof TypeError || navigator.onLine === false) && lsGet(tk, null)
     if (!old) throw e
@@ -331,7 +331,7 @@ function scoresRoot() {
 }
 async function shareJson(meta) {
   const k = 'mcsz:pct:' + (share && share.code) + ':' + meta.name   // dernière version lue : relue hors ligne
-  try { const t = await share.text(meta.fileid); idbSet(k, t); return parseJ(t) }
+  try { const t = await share.text(meta.fileid); if (TEACHER) idbSet(k, t); return parseJ(t) }
   catch (e) { const t = await idbGet(k); if (t) return parseJ(t); nlog('pCloud, lecture impossible : ' + meta.name + ' — ' + e.message); return null }
 }
 async function sendToOwner(d) {
@@ -566,6 +566,18 @@ async function refreshGuest(force) {
   if (!force && share && Date.now() - share.t < 60000) return
   try { await connectShare(); renderLibrary() } catch (e) { nlog('partage : ' + e.message) }
 }
+// le prof annote / gomme beaucoup : une seule relecture toutes les 4 s au plus, jamais deux en même temps
+let glBusy = false, glAgain = false, glTimer = 0, glLast = 0
+function guestLayerSoon() {
+  if (glTimer) return
+  glTimer = setTimeout(async () => {
+    glTimer = 0
+    if (glBusy) { glAgain = true; return }
+    glBusy = true; glLast = Date.now()
+    try { await loadGuestLayer(true) } finally { glBusy = false }
+    if (glAgain) { glAgain = false; guestLayerSoon() }
+  }, Math.max(600, 4000 - (Date.now() - glLast)))
+}
 // appli de l'élève : calque des annotations du prof
 async function loadGuestLayer(force) {
   if (TEACHER || !V) return
@@ -687,7 +699,7 @@ const ago = t => { const s = Math.round((Date.now() - t) / 1000); return s < 60 
 addEventListener('online', paintNet); addEventListener('offline', paintNet)
 setInterval(() => {
   paintNet()
-  if (!TEACHER && V && $('#viewer').classList.contains('active') && !document.hidden) loadGuestLayer(true)
+  if (!TEACHER && V && $('#viewer').classList.contains('active') && !document.hidden) loadGuestLayer(false)   // relit pCloud au plus 1 fois / min ; en direct, c'est le signal du prof qui déclenche
 }, 20000)
 function paintUnder() {
   const U = V && V.doc && V.doc._under
@@ -798,7 +810,10 @@ function setupLibrary() {
     $('#btnFiles').hidden = true
     $('#btnFolder').onclick = () => native.pickFolder()
     $('#btnRefresh').onclick = () => { busy('Actualisation du dossier pCloud…'); native.requestFiles() }
-    bridge.onTidy = () => { try { native.requestFiles() } catch { } }
+    bridge.onTidy = () => {   // pendant la lecture d'une partition, on attend le retour à la bibliothèque (pas de saccade)
+      if ($('#viewer').classList.contains('active')) { bridge._tidyLater = true; return }
+      try { native.requestFiles() } catch { }
+    }
     // range les dossiers « Files from … » dès qu'ils apparaissent (pas seulement au démarrage)
     if (native.tidyNow) { setInterval(() => { if (!document.hidden) native.tidyNow() }, 90000); document.addEventListener('visibilitychange', () => { if (!document.hidden) native.tidyNow() }) }
     bridge.onFiles = json => {
@@ -2303,6 +2318,7 @@ function backToLibrary() {
   flushDoc()
   setInk(false); closePops(); $('#tracksPanel').classList.remove('open')
   show('library'); renderLibrary(); refreshGuest(); setTimeout(() => presTick(true), 300)
+  if (bridge._tidyLater && native) { bridge._tidyLater = false; try { native.requestFiles() } catch { } }
 }
 $('#btnBack').onclick = backToLibrary
 $('#vTag').onclick = () => {
@@ -3560,7 +3576,14 @@ paintAgenda()
 // logo = options (sur tablette, l'engrenage peut être hors de l'écran)
 $('#brandBtn').onclick = () => openSettings(false)
 // hauteur réelle de l'en-tête du lecteur (sur deux lignes sur tablette) pour placer les panneaux en dessous
-try { new ResizeObserver(() => { const h = $('#viewer .bar').offsetHeight; if (h) document.documentElement.style.setProperty('--bar-h', (h - (parseFloat(getComputedStyle($('#viewer .bar')).paddingTop) || 0)) + 'px') }).observe($('#viewer .bar')) } catch { }
+let barH = 0
+try { new ResizeObserver(() => {
+  const h = $('#viewer .bar').offsetHeight; if (!h) return
+  document.documentElement.style.setProperty('--bar-h', (h - (parseFloat(getComputedStyle($('#viewer .bar')).paddingTop) || 0)) + 'px')
+  // la barre grandit / rétrécit (étiquettes qui changent) : on compense pour que la partition reste immobile
+  if (barH && h !== barH && V && $('#viewer').classList.contains('active') && !isHoriz(V.layout)) scroller.scrollTop += h - barH
+  barH = h
+}).observe($('#viewer .bar')) } catch { }
 
 // ---- prof : notifications du navigateur (si elle les autorise) + compteur dans l'onglet ----
 const canNotif = () => !native && 'Notification' in window
@@ -3632,8 +3655,9 @@ function sseSync() {
     if (!o || o.r !== (TEACHER ? 'e' : 'p')) return
     o.t = Date.now()
     if (!o.off) { const was = !!pres.other; pres.other = o; if (!was) { pres.was = false } paintNet(); paintPresence(); if (V && V.doc && V.doc._under) paintUnder() }
-    if (!TEACHER && (o.ev === 'ink' || o.ev === 'agenda' || o.ev === 'score')) setTimeout(() => { try { native && native.tidyNow && native.tidyNow() } catch { } }, 1500)   // range tout de suite le dépôt du prof
-    if (!TEACHER && o.ev === 'ink' && V && V.doc && o.d === presDocOf(V.doc._file)) loadGuestLayer(true)
+    // range tout de suite le dépôt du prof (partition, agenda) ; les annotations se lisent directement, pas besoin de ranger à chaque trait
+    if (!TEACHER && (o.ev === 'agenda' || o.ev === 'score')) setTimeout(() => { try { native && native.tidyNow && native.tidyNow() } catch { } }, 1500)
+    if (!TEACHER && o.ev === 'ink' && V && V.doc && o.d === presDocOf(V.doc._file)) guestLayerSoon()
     if (!TEACHER && o.ev === 'agenda') refreshGuest(true).then(coursSyncStudent).catch(() => { })
     if (!TEACHER && o.ev === 'avis') refreshGuest(true).then(asksSyncStudent).catch(() => { })
     if (TEACHER && o.ev === 'ask') { const st = curStudent(); if (st) loadStudentData(st).then(() => notifyProf('💬 ' + st.name + ' te demande ton avis', '', 'ask:' + Date.now())) }
