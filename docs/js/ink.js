@@ -9,6 +9,7 @@ export class Ink {
     this.scroller = scroller
     this.onChange = onChange
     this.pages = []
+    this.visible = true        // bouton « Annotations » : tout afficher / tout masquer
     this.enabled = false
     this.tool = 'pen'          // pen | hl | eraser | text | emoji
     this.emoji = '〰️'
@@ -32,9 +33,14 @@ export class Ink {
   setUnder(data, who) {
     this.under = data || null
     if (who !== undefined) this.underWho = who
-    for (const pg of this.pages) this.redraw(pg)
+    if (this.visible) for (const pg of this.pages) this.redraw(pg)
   }
-  setUnderVisible(on) { this.underVisible = on; for (const pg of this.pages) this.redraw(pg) }
+  // toutes les annotations (les miennes et celles de l'autre) : affichées ou non
+  setVisible(on) {
+    if (this.visible === on) return
+    this.visible = on
+    for (const pg of this.pages) { pg.canvas.style.visibility = on ? '' : 'hidden'; if (on) this.redraw(pg) }
+  }
 
   // wins (facultatif, ligne continue) : pour chaque page, la fenêtre visible { y0, y1 } (0..1) :
   // la toile ne couvre que cette fenêtre, et n'existe que près de l'écran (mémoire de la tablette)
@@ -48,6 +54,7 @@ export class Ink {
     this.pages = pageEls.map((el, i) => {
       const canvas = document.createElement('canvas')
       canvas.className = 'ink'
+      if (!this.visible) canvas.style.visibility = 'hidden'
       el.appendChild(canvas)
       const win = wins && wins[i]
       if (win) Object.assign(canvas.style, { top: win.y0 * 100 + '%', height: (win.y1 - win.y0) * 100 + '%' })
@@ -97,17 +104,12 @@ export class Ink {
     const c = pg.canvas, ctx = c.getContext('2d')
     ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.clearRect(0, 0, c.width, c.height)
-    if (c.width <= 1) return
+    if (c.width <= 1 || !this.visible) return
     const { W, H, oy } = this._dims(pg)
     ctx.setTransform(1, 0, 0, 1, 0, -oy)
-    const u = this.underVisible !== false && this.under && this.under[pg.i]
-    if (u && u.length) {
-      // calque de l'autre personne : halo violet pour le distinguer de ses propres annotations
-      ctx.save(); ctx.shadowColor = hexA(this.underColor || '#9b3fc0', 0.45); ctx.shadowBlur = Math.max(3, W / 300)
-      for (const s of u) draw(ctx, s, W, H)
-      ctx.restore()
-      if (this.underWho) drawBadges(ctx, u, this.underWho, W, H, this.underColor)
-    }
+    // annotations de l'autre, puis les miennes : même dessin (pas de halo ni de bulle de nom, trop lourds pour la tablette)
+    const u = this.under && this.under[pg.i]
+    if (u) for (const s of u) draw(ctx, s, W, H)
     for (const s of pg.strokes) draw(ctx, s, W, H)
     if (this.current && this.current.pg === pg && this.current.s) draw(ctx, this.current.s, W, H)
   }
@@ -540,39 +542,6 @@ function centroid(m) {
   let x = 0, y = 0
   for (const p of m.values()) { x += p.x; y += p.y }
   return { x: x / m.size, y: y / m.size }
-}
-
-// petites bulles « auteur » : une par groupe d'annotations proches
-function bbox(o, W, H) {
-  if (o.t === 'text') { const h = o.s * 1.3, w = o.s * Math.max(1, String(o.text).length) * 0.6; return [o.x - w / 2, o.y - h * W / H / 2, o.x + w / 2, o.y + h * W / H / 2] }
-  if (!o.p || !o.p.length) return null
-  let a = 1e9, b = 1e9, c = -1e9, d = -1e9
-  for (const q of o.p) { if (q[0] < a) a = q[0]; if (q[1] < b) b = q[1]; if (q[0] > c) c = q[0]; if (q[1] > d) d = q[1] }
-  return [a, b, c, d]
-}
-function hexA(h, a) { const m = /^#?([0-9a-f]{6})$/i.exec(h || ''); if (!m) return `rgba(176,64,208,${a})`; const n = parseInt(m[1], 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})` }
-function drawBadges(ctx, objs, who, W, H, color) {
-  const gap = 0.03, boxes = []
-  for (const o of objs) {
-    const bb = bbox(o, W, H); if (!bb) continue
-    let m = boxes.find(x => bb[0] < x[2] + gap && bb[2] > x[0] - gap && bb[1] < x[3] + gap * W / H && bb[3] > x[1] - gap * W / H)
-    if (m) { m[0] = Math.min(m[0], bb[0]); m[1] = Math.min(m[1], bb[1]); m[2] = Math.max(m[2], bb[2]); m[3] = Math.max(m[3], bb[3]) }
-    else boxes.push(bb.slice())
-  }
-  const px = Math.max(9, Math.round(W * 0.011))
-  ctx.save()
-  ctx.font = `700 ${px}px system-ui, sans-serif`; ctx.textBaseline = 'middle'
-  const label = String(who).slice(0, 14)
-  const tw = ctx.measureText(label).width, bw = tw + px * 1.1, bh = px * 1.55
-  for (const bb of boxes) {
-    let x = bb[2] * W + px * 0.3, y = bb[1] * H - bh * 0.6
-    if (x + bw > W) x = Math.max(0, bb[0] * W - bw - px * 0.3)
-    if (y < 0) y = 0
-    ctx.globalAlpha = 0.92; ctx.fillStyle = color || '#9b3fc0'
-    ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(x, y, bw, bh, bh / 2); else ctx.rect(x, y, bw, bh); ctx.fill()
-    ctx.globalAlpha = 1; ctx.fillStyle = '#fff'; ctx.fillText(label, x + px * 0.55, y + bh / 2 + 0.5)
-  }
-  ctx.restore()
 }
 
 // points d'une forme entre a (départ) et b (arrivée) ; asp = hauteur / largeur de la page

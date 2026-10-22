@@ -714,5 +714,6 @@ body.teacher .libtools { background: color-mix(in srgb, var(--tc, #2f7de1) 14%, 
    sinon la barre passe sur 2 lignes et la partition saute */
 .vbar .netstate { width: 170px; flex: none; overflow: hidden; }
 .vbar .netstate span { overflow: hidden; text-overflow: ellipsis; }
-.vbar .btn.under { width: 210px; flex: none; justify-content: flex-start; overflow: hidden; }
+.vbar .btn.under { flex: none; overflow: hidden; }
+.btn.under.off { opacity: .55; } .btn.under.off #underLbl { text-decoration: line-through; }
 .vbar #underLbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }

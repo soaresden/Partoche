@@ -579,8 +579,10 @@ function guestLayerSoon() {
   }, Math.max(600, 4000 - (Date.now() - glLast)))
 }
 // appli de l'élève : calque des annotations du prof
+let glPending = false
 async function loadGuestLayer(force) {
   if (TEACHER || !V) return
+  if (player.playing) { glPending = glPending || !!force; return }   // repris à la pause
   const c = shareCfg(); if (!c.link || !c.pwd) return
   const myV = V
   try {
@@ -599,7 +601,7 @@ async function loadGuestLayer(force) {
     setGuestSeen(myV.doc._file, g.stamp)
     if (V.key) {
       const k = V.key, r = await viewInk(gd.ink)
-      if (V === myV && V.key === k) { V.viewUnder = r.pages; ink.setUnder(toView(r.pages), V.doc._underWho) }
+      if (V === myV && V.key === k) { V.viewUnder = slimInk(r.pages); ink.setUnder(toView(V.viewUnder), V.doc._underWho) }
     }
     paintUnder()
   } catch (e) { net.ok = false; paintNet(); nlog('annotations du prof : ' + e.message) }
@@ -699,22 +701,32 @@ const ago = t => { const s = Math.round((Date.now() - t) / 1000); return s < 60 
 addEventListener('online', paintNet); addEventListener('offline', paintNet)
 setInterval(() => {
   paintNet()
-  if (!TEACHER && V && $('#viewer').classList.contains('active') && !document.hidden) loadGuestLayer(false)   // relit pCloud au plus 1 fois / min ; en direct, c'est le signal du prof qui déclenche
+  if (!TEACHER && V && $('#viewer').classList.contains('active') && !document.hidden && !player.playing) { const f = glPending; glPending = false; loadGuestLayer(f) }   // relit pCloud au plus 1 fois / min ; en direct, c'est le signal du prof qui déclenche
 }, 20000)
+// bouton « Annotations » : toutes les annotations (les miennes + celles du prof / de l'élève), affichées ou masquées
 function paintUnder() {
-  const U = V && V.doc && V.doc._under
-  const has = !!(U && Object.keys(U).length)
-  $('#btnUnder').hidden = !has
-  if (!has) return
-  const on = G.showUnder !== false
+  const on = G.showInk !== false || inkOn
+  $('#btnUnder').hidden = !V
   $('#btnUnder').classList.toggle('off', !on)
-  const here = inkCount(V.viewUnder) > 0
-  const live = !!(pres.other && pres.other.d && V.doc._file && pres.other.d === presDocOf(V.doc._file))
-  $('#underLbl').textContent = V.doc._underWho + (here ? '' : ' (autre vue)') + (live ? ' · en direct' : V.doc._underStamp ? ' · ' + stampAgo(V.doc._underStamp) : '')
-  $('#btnUnder .udot').style.background = V.doc._underColor || ''
-  $('#btnUnder').title = here ? 'Annotations de ' + V.doc._underWho + ' : afficher / masquer'
-    : V.doc._underWho + ' a annoté cette partition avec un autre choix de pistes ou de noms de notes'
-  ink.setUnderVisible(on)
+  $('#btnUnder').title = 'Afficher / masquer les annotations'
+  ink.setVisible(on)
+}
+// traits allégés pour l'affichage (un trait au stylo peut avoir des centaines de points) : même dessin, bien plus rapide
+function slimStroke(p, tol) {
+  if (p.length <= 6) return p
+  const keep = new Uint8Array(p.length); keep[0] = keep[p.length - 1] = 1
+  const st = [[0, p.length - 1]]
+  while (st.length) {
+    const [a, b] = st.pop(); let md = 0, mi = -1
+    const ax = p[a][0], ay = p[a][1], dx = p[b][0] - ax, dy = p[b][1] - ay, L = Math.hypot(dx, dy) || 1e-9
+    for (let i = a + 1; i < b; i++) { const d = Math.abs(dy * (p[i][0] - ax) - dx * (p[i][1] - ay)) / L; if (d > md) { md = d; mi = i } }
+    if (md > tol) { keep[mi] = 1; st.push([a, mi], [mi, b]) }
+  }
+  return p.filter((_, i) => keep[i])
+}
+function slimInk(pages) {
+  if (!pages) return pages
+  return pages.map(l => (l || []).map(o => (o.p && o.p.length > 6 && !o.sh) ? { ...o, p: slimStroke(o.p, 0.0005) } : o))
 }
 // clé de vue « 0110-solfege-0-1-1 » -> { visible, notes }
 function parseViewKey(k) {
@@ -728,14 +740,10 @@ async function switchToView(k) {
   V.visible = v.visible; V.notes = Object.assign({}, V.notes, v.notes)
   saveFilePrefs(); buildTrackList(); updateNamesUI(); await renderVariant(); return true
 }
-$('#btnUnder').onclick = async () => {
-  const U = V.doc._under
-  const here = inkCount(V.viewUnder) > 0
-  if (!here) {   // l'autre a annoté avec une autre vue : on propose d'y passer
-    const k = bestKey(U)
-    if (k && confirm(V.doc._underWho + ' a annoté avec d’autres pistes / noms de notes. Passer à sa vue ?')) { G.showUnder = true; saveGlobal(); await switchToView(k); return }
-  }
-  G.showUnder = G.showUnder === false; saveGlobal(); paintUnder()
+$('#btnUnder').onclick = () => {
+  G.showInk = G.showInk === false
+  if (!G.showInk && inkOn) setInk(false)   // on ne dessine pas sur des annotations cachées
+  saveGlobal(); paintUnder()
 }
 if (TEACHER) document.addEventListener('visibilitychange', () => { if (document.hidden && V && V.doc) commitDoc() })
 
@@ -1355,7 +1363,7 @@ async function buildPages() {
   const key = V.key
   const own = await viewInk(V.doc.ink), und = await viewInk(V.doc._under)
   if (!V || V.key !== key) return
-  V.viewOwn = own.pages; V.inkMerged = own.keys; V.viewUnder = und.pages
+  V.viewOwn = own.pages; V.inkMerged = own.keys; V.viewUnder = slimInk(und.pages)
   pageObserver.disconnect()
   renderQ.length = 0
   pagesEl.innerHTML = ''
@@ -2110,6 +2118,8 @@ document.addEventListener('pointerdown', e => {
 let inkOn = false
 function setInk(on, silent) {
   inkOn = on
+  if (on && G.showInk === false) { G.showInk = true; saveGlobal() }
+  if (on) paintUnder()
   ink.setEnabled(on)
   $('#inkbar').hidden = !on
   $$('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.m === (on ? 'pen' : 'hand')))
@@ -3654,7 +3664,7 @@ function sseSync() {
     let o; try { const m = JSON.parse(ev.data); if (m.event && m.event !== 'message') return; o = JSON.parse(m.message) } catch { return }
     if (!o || o.r !== (TEACHER ? 'e' : 'p')) return
     o.t = Date.now()
-    if (!o.off) { const was = !!pres.other; pres.other = o; if (!was) { pres.was = false } paintNet(); paintPresence(); if (V && V.doc && V.doc._under) paintUnder() }
+    if (!o.off) { const was = !!pres.other; pres.other = o; if (!was) { pres.was = false } paintNet(); paintPresence() }
     // range tout de suite le dépôt du prof (partition, agenda) ; les annotations se lisent directement, pas besoin de ranger à chaque trait
     if (!TEACHER && (o.ev === 'agenda' || o.ev === 'score')) setTimeout(() => { try { native && native.tidyNow && native.tidyNow() } catch { } }, 1500)
     if (!TEACHER && o.ev === 'ink' && V && V.doc && o.d === presDocOf(V.doc._file)) guestLayerSoon()
@@ -3673,7 +3683,7 @@ function stampAgo(st) {
   return 'modifié ' + ago(t)
 }
 // le bouton du calque de l'autre suit la présence (« en direct » quand le prof est sur la même partition)
-setInterval(() => { if (V && V.doc && $('#viewer').classList.contains('active') && V.doc._under) paintUnder() }, 15000)
+
 
 // =====================================================================
 //  DISPONIBILITÉS DU PROF : horaires (08:00–20:00 par défaut), jours off, indisponibilités.
