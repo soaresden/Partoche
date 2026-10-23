@@ -1259,6 +1259,7 @@ async function openScore(entry) {
   player.setLoop(null); $('#btnLoop').classList.remove('on'); paintLoopBar()
   setInk(false, true)
   show('viewer')
+  applyLayout()   // maintenant que l'écran est affiché : vraie hauteur (avant, elle valait 0 -> écran noir)
   if (!TEACHER && work) { workTick = Date.now(); setTimeout(() => workStep(), 50) }   // début de séance : heure d'ouverture
   pushRecent(entry)
   buildTrackList()
@@ -1643,7 +1644,9 @@ function defaultLayout() {
 }
 const LAYOUT_ICON = { vertical: '#i-1up', two: '#i-2up', horizontal: '#i-hup', line: '#i-lineup' }
 const isHoriz = l => l === 'horizontal' || l === 'line'
-function setVh() { pagesEl.style.setProperty('--vh', scroller.clientHeight + 'px') }
+function setVh() { const h = scroller.clientHeight; if (h > 40) pagesEl.style.setProperty('--vh', h + 'px') }   // écran caché : on garde l'ancienne hauteur
+// la zone de la partition change de taille (ouverture, rotation, barre du haut…) : pages et tuiles suivent
+try { let lastH = 0; new ResizeObserver(() => { const h = scroller.clientHeight; if (!V || h <= 40 || h === lastH) return; lastH = h; setVh(); sizeTiles(); ink.resize(); requestAnimationFrame(kickVisible) }).observe(scroller) } catch { }
 function applyLayout() {
   setVh()
   pagesEl.classList.toggle('two', V.layout === 'two')
