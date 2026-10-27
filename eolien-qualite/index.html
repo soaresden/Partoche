@@ -136,7 +136,7 @@
   #pAccueil { grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); }
   #pJouer { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; }
   #pPiliers, #pTheme, #pAnim { grid-template-rows: auto 1fr; }
-  .animations { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 16px; align-content: start; min-height: 0; }
+  .animations { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 14px; align-content: start; min-height: 0; overflow: auto; }
   .anim { display: grid; grid-template-rows: auto 1fr; text-align: left; padding: 0; overflow: hidden; border-radius: 18px; cursor: pointer;
     background: #fff; border: 1px solid var(--pc-ligne, #d8e7f4); box-shadow: 0 12px 32px rgba(2,85,161,.08); color: var(--pc-encre, #0c2f5c); transition: transform .15s, box-shadow .15s; }
   .anim:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(2,85,161,.16); }
@@ -703,6 +703,18 @@
           <span class="vignette"><canvas id="vignetteCtv" width="640" height="360"></canvas><i>▶</i></span>
           <span class="txt"><b data-i18n="animCtvTitre"></b><span data-i18n="animCtvTxt"></span><small>⏱ 11 s</small></span>
         </button>
+        <button class="anim" type="button" id="animFiab">
+          <span class="vignette"><canvas id="vignetteFiab" width="640" height="360"></canvas><i>▶</i></span>
+          <span class="txt"><b data-i18n="anFiabTitre"></b><span data-i18n="anFiabTxt"></span><small>⏱ 13 s</small></span>
+        </button>
+        <button class="anim" type="button" id="animTrans">
+          <span class="vignette"><canvas id="vignetteTrans" width="640" height="360"></canvas><i>▶</i></span>
+          <span class="txt"><b data-i18n="anTransTitre"></b><span data-i18n="anTransTxt"></span><small>⏱ 12 s</small></span>
+        </button>
+        <button class="anim" type="button" id="animJour">
+          <span class="vignette"><canvas id="vignetteJour" width="640" height="360"></canvas><i>▶</i></span>
+          <span class="txt"><b data-i18n="anJourTitre"></b><span data-i18n="anJourTxt"></span><small>⏱ 14 s</small></span>
+        </button>
       </div>
     </section>
   </main>
@@ -1019,7 +1031,7 @@ const I18N = {
     sousTitre: 'La qualité, moteur de la performance',
     intro: 'Cette année, la qualité se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
     marque: 'Semaine mondiale de la qualité 2026', marqueSous: '9 – 13 novembre · Journée mondiale de la qualité le jeudi 12',
-    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'Les petits films du jeu, à regarder quand vous voulez.', animCtvTitre: '🚤 Le CTV appareille', animCtvTxt: 'Au lever du jour à Ouistreham : chargement des pièces, briefing, une mouette affamée… et cap sur le parc.', animFin: '🎉 Bonne Semaine de la qualité !',
+    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'Les petits films du jeu, à regarder quand vous voulez.', animCtvTitre: '🚤 Le CTV appareille', animCtvTxt: 'Au lever du jour à Ouistreham : chargement des pièces, briefing, une mouette affamée… et cap sur le parc.', animFin: '🎉 Bonne Semaine de la qualité !', anFiabTitre: '🛡️ Réparer ou fiabiliser ?', anFiabTxt: 'Deux éoliennes, le même défaut qui revient. À gauche on répare encore et encore ; à droite on traite la cause.', anFiabFin: 'Traiter la cause, ça paie !', anFiabSous: 'Réparer, c\'est utile. Éviter que ça revienne, c\'est la performance.', anFiabGauche: '🔧 On répare…', anFiabDroite: '🛡️ On fiabilise', anFiabLeg: [[0, 'Deux éoliennes exposées, le même défaut qui revient…'], [1.2, '1er défaut : on répare des deux côtés'], [3.6, '2e défaut : à droite, on traite la cause (fiabilisation)'], [6, 'À gauche, ça recommence…'], [8.4, '… et encore. À droite : pause café ☕'], [10.6, 'Le coût de la non-qualité grimpe à gauche']], anTransTitre: '🪜 Le transfert', anTransTxt: 'Le CTV pousse contre l\'échelle, le technicien s\'accroche à la ligne de vie et monte… avec une passagère surprise.', anTransFin: 'La sécurité d\'abord', anTransSous: 'Au-delà de 1,5 m de houle, on ne transfère pas.', anTransLeg: [[0, 'Approche de l\'éolienne C04'], [3, 'Le bateau pousse contre l\'échelle : contact !'], [4.4, 'Harnais accroché à la ligne de vie ✔'], [5.2, 'On attend la crête de la vague… maintenant !'], [6.2, 'Montée à l\'échelle jusqu\'à la plateforme'], [8.4, 'Arrivé ! Une mouette aussi…']], anJourTitre: '🌅 Une journée au parc', anJourTxt: 'De l\'aube à la nuit en accéléré : le vent qui varie, les dauphins, le CTV, les feux des nacelles… et la fête.', anJourFin: '🎆 Joyeuse Semaine de la qualité !', anJourSous: 'Le parc ne dort jamais', anJourLeg: [[0, '06:00 · le parc se réveille'], [1.5, 'Le vent forcit : les rotors accélèrent'], [3.1, 'Visite des dauphins 🐬'], [4.4, 'Le CTV part en tournée'], [7, '18:00 · le vent tombe, le soleil aussi'], [8.6, 'La nuit, les feux rouges des nacelles veillent'], [10.1, '… et c\'est la fête de la qualité ! 🎆']],
     jours: 'jours', heures: 'heures', minutes: 'min', secondes: 's',
     legendeTitre: 'Repères à l\'écran',
     l1: '<b>Bulle orange</b> : éolienne en défaut, <b>bridée à 40 %</b>. Laissée trop longtemps, elle passe en <b>arrêt de sécurité</b> (bulle rouge), puis peut prendre feu 🔥 et exploser 💥, ce qui coupe le string en aval.',
@@ -1166,7 +1178,7 @@ const I18N = {
     sousTitre: 'Quality as the engine of performance',
     intro: 'This year, quality plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
     marque: 'World Quality Week 2026', marqueSous: '9 – 13 November · World Quality Day on Thursday 12th',
-    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'The game\'s short films, to watch whenever you like.', animCtvTitre: '🚤 The CTV sets sail', animCtvTxt: 'Daybreak in Ouistreham: loading parts, safety briefing, a hungry seagull… and off to the farm.', animFin: '🎉 Happy World Quality Week!',
+    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'The game\'s short films, to watch whenever you like.', animCtvTitre: '🚤 The CTV sets sail', animCtvTxt: 'Daybreak in Ouistreham: loading parts, safety briefing, a hungry seagull… and off to the farm.', animFin: '🎉 Happy World Quality Week!', anFiabTitre: '🛡️ Repair or reinforce?', anFiabTxt: 'Two turbines, the same fault coming back. On the left we repair again and again; on the right we treat the cause.', anFiabFin: 'Treating the cause pays off!', anFiabSous: 'Repairing is useful. Stopping it coming back is performance.', anFiabGauche: '🔧 We repair…', anFiabDroite: '🛡️ We reinforce', anFiabLeg: [[0, 'Two exposed turbines, the same fault coming back…'], [1.2, '1st fault: both sides repair'], [3.6, '2nd fault: on the right, we treat the cause (reinforcement)'], [6, 'On the left, here it goes again…'], [8.4, '… and again. On the right: coffee break ☕'], [10.6, 'The cost of poor quality climbs on the left']], anTransTitre: '🪜 The transfer', anTransTxt: 'The CTV pushes against the ladder, the technician clips onto the lifeline and climbs… with a surprise passenger.', anTransFin: 'Safety first', anTransSous: 'Above 1.5 m of swell, no transfer.', anTransLeg: [[0, 'Approaching turbine C04'], [3, 'The boat pushes against the ladder: contact!'], [4.4, 'Harness clipped to the lifeline ✔'], [5.2, 'Wait for the crest of the wave… now!'], [6.2, 'Climbing the ladder to the platform'], [8.4, 'Made it! So did a seagull…']], anJourTitre: '🌅 A day at the farm', anJourTxt: 'From dawn to night in fast-forward: shifting wind, dolphins, the CTV, nacelle lights… and a party.', anJourFin: '🎆 Happy World Quality Week!', anJourSous: 'The farm never sleeps', anJourLeg: [[0, '6 am · the farm wakes up'], [1.5, 'The wind picks up: rotors speed up'], [3.1, 'Dolphins drop by 🐬'], [4.4, 'The CTV sets off on its round'], [7, '6 pm · the wind drops, so does the sun'], [8.6, 'At night, the nacelles\' red lights keep watch'], [10.1, '… and it\'s quality party time! 🎆']],
     jours: 'days', heures: 'hrs', minutes: 'min', secondes: 'sec',
     legendeTitre: 'On-screen cues',
     l1: '<b>Orange bubble</b>: turbine fault, <b>derated to 40%</b>. Left too long, it goes into <b>safety shutdown</b> (red bubble), then may catch fire 🔥 and explode 💥, cutting the string downstream.',
@@ -2680,12 +2692,13 @@ const interlude = (() => {
     if (t < 4.2) caisse(hx, hy, oscille);
   }
   function ctv(t) {
-    const x0 = sternX(t), y0 = eau(t), a = pente(t);
+    return bateau(sternX(t), eau(t), pente(t), t > 6.6 ? 170 * (t - 6.6) : 0, t, { murX: 522, caisse: t >= 4.2, feu: lisse(t / 8) < .8 });
+  }
+  function bateau(x0, y0, a, v, t, o = {}) {   // le CTV de profil, poupe en (x0, y0) ; v : vitesse, pour le sillage
     c.save(); c.translate(x0, y0); c.rotate(a);
     // sillage et moustaches d'étrave quand on avance
-    const v = t > 6.6 ? 170 * (t - 6.6) : 0;
     if (v > 5) {
-      const lw = Math.max(1, Math.min(560, v * 1.7, x0 - 522)), sg = c.createLinearGradient(0, 0, -lw, 0);
+      const lw = Math.max(1, Math.min(560, v * 1.7, o.murX ? x0 - o.murX : 560)), sg = c.createLinearGradient(0, 0, -lw, 0);
       sg.addColorStop(0, 'rgba(255,255,255,.8)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
       c.fillStyle = sg; c.beginPath(); c.moveTo(4, -6); c.lineTo(-lw, -16); c.lineTo(-lw, 22); c.lineTo(4, 8); c.closePath(); c.fill();
       c.fillStyle = 'rgba(255,255,255,.5)';
@@ -2707,7 +2720,7 @@ const interlude = (() => {
     c.fillStyle = '#d8e2ee'; c.fillRect(150, -102, 104, 5);
     c.strokeStyle = '#46505e'; c.lineWidth = 3; c.beginPath(); c.moveTo(205, -102); c.lineTo(205, -132); c.stroke();
     const rad = Math.cos(t * 5) * 18; c.lineWidth = 3; c.beginPath(); c.moveTo(205 - rad, -126); c.lineTo(205 + rad, -126); c.stroke();
-    c.fillStyle = lisse(t / 8) < .8 ? '#fff6c8' : '#cfd6df'; c.beginPath(); c.arc(205, -134, 3.5, 0, 6.28); c.fill();
+    c.fillStyle = o.feu ? '#fff6c8' : '#cfd6df'; c.beginPath(); c.arc(205, -134, 3.5, 0, 6.28); c.fill();
     c.fillStyle = '#ff7a1a'; c.beginPath(); c.arc(162, -50, 8, 0, 6.28); c.fill(); c.fillStyle = '#fff'; c.beginPath(); c.arc(162, -50, 4, 0, 6.28); c.fill();
     c.fillStyle = '#3a414c'; c.fillRect(138, -70, 9, 36);   // cheminée
     // garde-corps
@@ -2716,7 +2729,7 @@ const interlude = (() => {
     for (let x = 284; x <= 324; x += 14) { c.moveTo(x, -35 - (x - 276) * .2); c.lineTo(x, -51 - (x - 276) * .2); }
     c.stroke();
     c.fillStyle = 'rgba(255,255,255,.7)'; c.fillRect(6, 4, 330, 2.5);
-    if (t >= 4.2) caisse(80, -34, 0);   // la caisse de pièces, posée sur le pont arrière
+    if (o.caisse) caisse(80, -34, 0);   // la caisse de pièces, posée sur le pont arrière
     c.restore();
     return { x0, y0, a };
   }
@@ -2795,30 +2808,229 @@ const interlude = (() => {
     c.globalAlpha = 1;
   }
   function son(cle, f) { if (!joues[cle]) { joues[cle] = true; f(); } }
+
+  /* ----- outils communs aux autres animations ----- */
+  function cielJour(haut, bas, yh = 560) { const g = c.createLinearGradient(0, 0, 0, yh); g.addColorStop(0, haut); g.addColorStop(1, bas); c.fillStyle = g; c.fillRect(-400, -100, 2400, yh + 100); }
+  function merPlate(y, t, haut = '#3d86c2', bas = '#123f6e') {
+    const g = c.createLinearGradient(0, y, 0, 900); g.addColorStop(0, haut); g.addColorStop(1, bas); c.fillStyle = g; c.fillRect(-400, y, 2400, 1000 - y);
+    c.strokeStyle = 'rgba(255,255,255,.14)'; c.lineWidth = 1.5;
+    for (let r = 0; r < 8; r++) { const yy = y + 18 + r * 34; c.beginPath(); for (let x = -40; x <= 1640; x += 40) c[x === -40 ? 'moveTo' : 'lineTo'](x, yy + Math.sin(x / 55 + t * 2 + r) * 3); c.stroke(); }
+  }
+  function eolProfil(x, yb, h, ang, o = {}) {   // une éolienne vue de face : pièce de transition, mât, rotor
+    const w = Math.max(2.5, h * .045), tp = h * .12, L = h * .5, hy = yb - h;
+    if (o.dore) { const g = c.createRadialGradient(x, hy, 4, x, hy, L * 1.2); g.addColorStop(0, 'rgba(255,214,100,.55)'); g.addColorStop(1, 'rgba(255,214,100,0)'); c.fillStyle = g; c.fillRect(x - L * 1.3, hy - L * 1.3, L * 2.6, L * 2.6); }
+    c.fillStyle = '#f2b705'; c.fillRect(x - w, yb - tp, w * 2, tp + 8);
+    c.fillStyle = o.couleur || (o.dore ? '#f3d27a' : '#eef2f6');
+    c.beginPath(); c.moveTo(x - w * .8, yb - tp); c.lineTo(x - w * .4, hy); c.lineTo(x + w * .4, hy); c.lineTo(x + w * .8, yb - tp); c.closePath(); c.fill();
+    c.fillStyle = o.couleur || (o.dore ? '#f2b705' : '#f5f7fa');
+    for (let i = 0; i < 3; i++) {
+      const a = ang + i * 2.094, ca = Math.cos(a), sa = Math.sin(a), px = -sa, py = ca;
+      c.beginPath(); c.moveTo(x + px * w * .6, hy + py * w * .6); c.lineTo(x + ca * L, hy + sa * L); c.lineTo(x - px * w * .6, hy - py * w * .6); c.closePath(); c.fill();
+    }
+    c.fillStyle = o.couleur || '#d3dbe5'; c.beginPath(); c.arc(x, hy, w * .9, 0, 6.28); c.fill();
+    if (o.feu > 0) { c.fillStyle = 'rgba(255,40,40,' + o.feu + ')'; c.beginPath(); c.arc(x, hy - w * 1.4, Math.max(2, w * .5), 0, 6.28); c.fill(); }
+    if (o.alerte) {
+      const ax = x + w * 3 + 22, ay = hy - 34;
+      c.fillStyle = '#ff4d5e'; c.beginPath(); c.arc(ax, ay, 16, 0, 6.28); c.fill();
+      c.fillStyle = '#fff'; c.font = '800 20px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('!', ax, ay + 7);
+      for (let i = 0; i < 4; i++) { const u = ((t0Anim + i * .45) % 1.8) / 1.8; c.fillStyle = 'rgba(80,80,90,' + (.5 * (1 - u)) + ')'; c.beginPath(); c.arc(x + 10 + u * 30, hy - 6 - u * 60, 6 + u * 12, 0, 6.28); c.fill(); }
+    }
+  }
+  let t0Anim = 0;   // temps courant, pour les petites fumées
+  const titreEcran = (txt, y, taillePx, alpha, couleur = '#fff') => {
+    c.save(); c.globalAlpha = alpha; c.textAlign = 'center'; c.fillStyle = couleur; c.shadowColor = 'rgba(0,30,70,.55)'; c.shadowBlur = 14;
+    c.font = '800 ' + taillePx + 'px "Fira Sans", sans-serif'; c.fillText(txt, 800, y); c.restore();
+  };
+
+  /* ----- « Réparer ou fiabiliser ? » : deux éoliennes, le même défaut qui revient ----- */
+  const FIAB = { gauche: [1.2, 3.6, 6.0, 8.4, 10.6], droite: [1.2, 3.6] };
+  function visite(t, td, duree) {   // le petit CTV : arrive, intervient, repart (positions relatives au pied de l'éolienne)
+    const u = t - td; if (u < 0 || u > duree + 1.2) return null;
+    const arrive = lisse(u / .5), part = lisse((u - .5 - duree) / .6);
+    return { dx: mix(-420, -84, arrive) + part * -420, travail: u > .5 && u < .5 + duree };
+  }
+  function animFiab(t) {
+    t0Anim = t;
+    cielJour('#5ea6dd', '#cfe8f7', 640); merPlate(640, t);
+    c.fillStyle = 'rgba(255,255,255,.85)'; c.fillRect(797, 0, 6, 900);
+    c.fillStyle = '#0255a1'; c.beginPath(); c.arc(800, 420, 34, 0, 6.28); c.fill(); c.fillStyle = '#fff'; c.font = '800 26px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('VS', 800, 429);
+    for (const cote of ['gauche', 'droite']) {
+      const cx = cote === 'gauche' ? 400 : 1200, pannes = FIAB[cote].filter(d => t >= d);
+      const derniere = pannes.length ? pannes[pannes.length - 1] : -9;
+      const fiabT = cote === 'droite' ? 4.1 : Infinity, dore = t >= fiabT + 1.5;
+      const enPanne = pannes.length && t < derniere + (cote === 'droite' && derniere === 3.6 ? 2.1 : 1.35);
+      const ang = enPanne ? (cote === 'gauche' ? 1.1 : 1.1) : t * (dore ? 2.2 : 2);
+      eolProfil(cx, 640, 320, ang, { dore, alerte: enPanne });
+      if (cote === 'droite' && t > fiabT && t < fiabT + 1.8) {   // la fiabilisation : un anneau doré qui monte
+        const u = (t - fiabT) / 1.8; c.strokeStyle = 'rgba(255,210,63,' + (1 - u) + ')'; c.lineWidth = 6; c.beginPath(); c.ellipse(cx, 620 - u * 320, 40 + u * 20, 10, 0, 0, 6.28); c.stroke();
+        c.fillStyle = '#ffd23f'; for (let i = 0; i < 8; i++) { const a = i * .785 + t * 3; c.beginPath(); c.arc(cx + Math.cos(a) * 60, 600 - u * 320 + Math.sin(a) * 18, 3, 0, 6.28); c.fill(); }
+      }
+      // le bateau : une visite par défaut, plus longue pour fiabiliser
+      for (const d of FIAB[cote]) {
+        const longue = cote === 'droite' && d === 3.6, v = visite(t, d, longue ? 1.5 : .8); if (!v) continue;
+        c.save(); c.translate(cx + v.dx - 30, 646); c.scale(.42, .42); bateau(0, 0, 0, 0, t, { feu: false }); c.restore();
+        const fatigue = cote === 'gauche' ? pannes.length : 0;
+        technicien(cx + v.dx + 70, 632, t * 9, { marche: false });
+        if (fatigue >= 3) { c.fillStyle = '#7fd3f5'; c.beginPath(); c.ellipse(cx + v.dx + 82, 586 + (t * 40 % 12), 2.5, 4, 0, 0, 6.28); c.fill(); }
+        if (v.travail && Math.sin(t * 30) > 0) { c.fillStyle = longue ? '#ffd23f' : '#fff6a0'; c.beginPath(); c.arc(cx - 16, 600, 7, 0, 6.28); c.fill(); }
+      }
+      // à droite, une fois fiabilisée : pause café
+      if (cote === 'droite' && t > 6.2) {
+        c.save(); c.translate(cx - 360, 646); c.scale(.42, .42); bateau(0, 0, 0, 0, t, { feu: false }); c.restore();
+        technicien(cx - 300, 632, t, { cafe: true });
+        c.font = '26px sans-serif'; c.textAlign = 'center'; c.fillText(t % 2 < 1 ? '😎' : '☕', cx - 300, 556);
+      }
+      // compteurs
+      const rep = pannes.filter(d => t > d + (cote === 'droite' && d === 3.6 ? 2.1 : 1.35)).length;
+      c.fillStyle = 'rgba(6,20,45,.72)'; c.beginPath(); c.roundRect(cx - 230, 18, 460, 104, 18); c.fill();
+      c.fillStyle = '#fff'; c.font = '800 30px "Fira Sans", sans-serif'; c.textAlign = 'center';
+      c.fillText(tx(cote === 'gauche' ? 'anFiabGauche' : 'anFiabDroite'), cx, 58);
+      c.font = '700 26px "Fira Sans", sans-serif'; c.fillStyle = cote === 'gauche' ? '#ffb3ba' : '#9cf5c9';
+      c.fillText((cote === 'gauche' ? '🔧 ×' + rep : '🔧 ×' + Math.min(rep, 1) + (dore ? '   🛡️ ×1' : '')) + '     💸 −' + pannes.length * 50, cx, 104);
+      if (cote === 'gauche' && pannes.length >= 4) { c.font = '42px sans-serif'; c.fillText('😩', cx + 150, 330); }
+    }
+  }
+
+  /* ----- « Le transfert » : le CTV pousse contre l'échelle, le technicien monte ----- */
+  const houle = (x, t) => 650 + 13 * Math.sin(t * 1.4 - x / 160);
+  function animTransfert(t) {
+    t0Anim = t;
+    cielJour('#6aa9db', '#d9ecf8', 700);
+    c.fillStyle = '#2f73ad'; c.beginPath(); c.moveTo(-400, 900); for (let x = -400; x <= 2000; x += 20) c.lineTo(x, houle(x, t) - 4); c.lineTo(2000, 900); c.closePath(); c.fill();   // la mer, derrière
+    c.fillStyle = 'rgba(255,255,255,.8)'; for (const [x, y, r] of [[300, 140, 50], [360, 130, 38], [1250, 190, 44], [1310, 182, 30]]) { c.beginPath(); c.arc(x + t * 6, y, r, 0, 6.28); c.fill(); }
+    // la pièce de transition, l'échelle et la plateforme
+    c.fillStyle = '#eef2f6'; c.fillRect(968, -60, 64, 380);
+    c.fillStyle = '#f2b705'; c.fillRect(940, 300, 120, 640);
+    c.fillStyle = '#c08f00'; c.fillRect(940, 300, 10, 640);
+    c.fillStyle = '#3a2400'; c.font = '800 26px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('C04', 1000, 470);
+    c.fillStyle = '#5b6573'; c.fillRect(860, 292, 280, 12);
+    c.strokeStyle = '#f2b705'; c.lineWidth = 4; c.beginPath(); c.moveTo(864, 292); c.lineTo(864, 250); c.lineTo(1136, 250); c.lineTo(1136, 292); for (let x = 900; x < 1136; x += 40) { c.moveTo(x, 292); c.lineTo(x, 250); } c.stroke();
+    c.strokeStyle = '#2c3440'; c.lineWidth = 5; c.beginPath(); c.moveTo(904, 300); c.lineTo(904, 900); c.moveTo(930, 300); c.lineTo(930, 900); c.stroke();
+    c.lineWidth = 3; c.beginPath(); for (let y = 312; y < 900; y += 22) { c.moveTo(904, y); c.lineTo(930, y); } c.stroke();
+    c.fillStyle = '#16181c'; c.fillRect(888, 420, 12, 480);   // tube de défense : le bateau pousse contre
+    // le CTV
+    const approche = lisse(t / 3), x0 = mix(-520, 540, 1 - (1 - approche) ** 2), v = t < 3 ? 380 * (1 - t / 3) : 0;
+    const y0 = houle(x0 + 170, t) - 6, a = t < 3 ? 0 : .025 * Math.sin(t * 1.4 - 2.6);
+    bateau(x0, y0, a, v, t, { feu: false });
+    if (t > 2.9 && t < 3.3) { c.fillStyle = 'rgba(255,255,255,.9)'; for (let i = 0; i < 6; i++) { c.beginPath(); c.arc(886 + Math.cos(i) * 18, 640 + Math.sin(i * 2) * 10, 4, 0, 6.28); c.fill(); } }
+    // la mer par-dessus la coque
+    c.fillStyle = 'rgba(30,96,150,.55)'; c.beginPath(); c.moveTo(-400, 900);
+    for (let x = -400; x <= 2000; x += 20) c.lineTo(x, houle(x, t) + 8); c.lineTo(2000, 900); c.closePath(); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.4)'; c.lineWidth = 2; c.beginPath(); for (let x = -400; x <= 2000; x += 20) c[x === -400 ? 'moveTo' : 'lineTo'](x, houle(x, t) + 8); c.stroke();
+    // le technicien : de la poupe à l'étrave, puis l'échelle
+    let tx2, ty2, opts = {};
+    const pontY = y0 - 34;
+    if (t < 3.4) { tx2 = x0 + 120; ty2 = pontY; }
+    else if (t < 4.4) { const u = (t - 3.4); tx2 = mix(x0 + 120, x0 + 300, u); ty2 = pontY - 12 * u; opts.marche = true; }
+    else if (t < 5.2) { tx2 = x0 + 300; ty2 = pontY - 12; }
+    else if (t < 8) { const u = lisse((t - 5.2) / 2.8); tx2 = 917; ty2 = mix(pontY - 12, 292, u); opts.marche = true; }
+    else { tx2 = mix(917, 990, lisse((t - 8) / .5)); ty2 = 292; opts.salut = t > 8.5 && t < 9.2; }
+    if (t > 4.4) { c.strokeStyle = '#ff7a1a'; c.lineWidth = 2; c.beginPath(); c.moveTo(917, 250); c.lineTo(tx2, ty2 - 30); c.stroke(); }   // ligne de vie
+    technicien(tx2, ty2, t * 8, { ...opts, bulle: t > 9.4 && t < 10.6 });
+    // la mouette qui se pose sur le casque
+    if (t > 8.4) {
+      const u = lisse((t - 8.4) / 1), gx = mix(1700, tx2 + 2, u), gy = mix(120, ty2 - 56, u) - Math.sin(u * 3.14) * 40, vole = u < 1;
+      c.save(); c.translate(gx, gy); c.scale(-1, 1);
+      c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, 0, 13, 7, 0, 0, 6.28); c.fill(); c.beginPath(); c.arc(11, -5, 5.5, 0, 6.28); c.fill();
+      c.fillStyle = '#f2b705'; c.beginPath(); c.moveTo(16, -5); c.lineTo(24, -3); c.lineTo(16, -2); c.fill();
+      c.fillStyle = '#9aa7b6'; c.beginPath(); c.moveTo(-6, -2); c.lineTo(4, -2); c.lineTo(-4, vole ? -14 - Math.sin(t * 22) * 12 : -10); c.closePath(); c.fill();
+      c.restore();
+      if (t > 9.4) son('mouette2', () => sons.mouette());
+    }
+    if (t > 3) son('contact', () => bip(90, .25, 'triangle', .08));
+    if (t > 4.4) son('clip', () => { bip(1400, .05, 'square', .03); bip(1800, .05, 'square', .03, .07); });
+  }
+
+  /* ----- « Une journée au parc en accéléré » : de l'aube au feu d'artifice ----- */
+  const PARC_LOIN = Array.from({ length: 14 }, (_, i) => [60 + i * 112 + (i % 2) * 30, 52 + (i % 3) * 6]);
+  const PARC_MI = [[180, 120], [470, 135], [760, 118], [1060, 130], [1360, 124]];
+  const PARC_PRES = [[300, 300], [1270, 320]];
+  let angJ = 0;
+  const vent = t => 1.4 + Math.sin(t * .7) * .9 + Math.sin(t * 2.1) * .35;
+  function animJournee(t, dt = 0) {
+    t0Anim = t; angJ += vent(t) * dt * 1.6;
+    const ang = dt ? angJ : t * 2;
+    const d = cl(t / 10.5), cle = [[0, '#6c8fc7', '#ffb38a'], [.3, '#2f7fc8', '#a8d8f5'], [.62, '#3f5d9e', '#ffc28a'], [.78, '#2b2f63', '#ff8f5a'], [.9, '#0b1633', '#1d2b55'], [1, '#070d22', '#121c3d']];
+    let i = 0; while (i < cle.length - 2 && d > cle[i + 1][0]) i++;
+    const kk = cl((d - cle[i][0]) / (cle[i + 1][0] - cle[i][0]));
+    cielJour(mixC(cle[i][1], cle[i + 1][1], kk), mixC(cle[i][2], cle[i + 1][2], kk));
+    const nuit = cl((d - .78) / .12);
+    c.fillStyle = '#fff'; for (const [x, y, r] of etoiles) { c.globalAlpha = nuit * (.5 + .5 * Math.sin(t * 3 + x)); c.beginPath(); c.arc(x, y, r, 0, 6.28); c.fill(); } c.globalAlpha = 1;
+    const u = cl(d / .82), sx = mix(150, 1450, u), sy = 600 - Math.sin(u * Math.PI) * 430;
+    if (u < 1) { const g = c.createRadialGradient(sx, sy, 8, sx, sy, 160); g.addColorStop(0, 'rgba(255,220,150,.8)'); g.addColorStop(1, 'rgba(255,220,150,0)'); c.fillStyle = g; c.fillRect(sx - 170, sy - 170, 340, 340); c.fillStyle = '#ffe7a8'; c.beginPath(); c.arc(sx, sy, 40, 0, 6.28); c.fill(); }
+    if (nuit > 0) { c.globalAlpha = nuit; c.fillStyle = '#f4f1de'; c.beginPath(); c.arc(1280, 150, 34, 0, 6.28); c.fill(); c.fillStyle = mixC('#0b1633', '#070d22', kk); c.beginPath(); c.arc(1294, 142, 30, 0, 6.28); c.fill(); c.globalAlpha = 1; }
+    c.fillStyle = 'rgba(255,255,255,' + (.75 * (1 - nuit)) + ')'; for (const [x, y, r] of [[200, 160, 46], [250, 150, 34], [900, 120, 52], [960, 112, 36], [1400, 200, 40]]) { const xx = (x + t * 40) % 1900 - 150; c.beginPath(); c.arc(xx, y, r, 0, 6.28); c.fill(); }
+    const merH = mixC('#3d86c2', '#0e2546', nuit), merB = mixC('#123f6e', '#050c1d', nuit);
+    merPlate(560, t, merH, merB);
+    // le cargo à l'horizon
+    const cx2 = 1750 - t * 150; c.fillStyle = mixC('#2b3a52', '#0a1020', nuit); c.fillRect(cx2, 540, 120, 16); c.fillRect(cx2 + 80, 524, 30, 16); c.fillStyle = '#c0392b'; c.fillRect(cx2 + 6, 530, 18, 10); c.fillStyle = '#2e86c1'; c.fillRect(cx2 + 26, 530, 18, 10); c.fillStyle = '#f2b705'; c.fillRect(cx2 + 46, 530, 18, 10);
+    const silh = mixC('#c9d6e6', '#3a4a66', nuit), feu = nuit * (Math.sin(t * 6) > 0 ? 1 : .15);
+    for (const [x, h] of PARC_LOIN) eolProfil(x, 560, h, ang + x, { couleur: silh, feu });
+    for (const [x, h] of PARC_MI) eolProfil(x, 600, h, ang * 1.02 + x, { couleur: mixC('#e3eaf2', '#55667f', nuit), feu });
+    // les dauphins
+    for (const [td, x1] of [[3.1, 260], [3.45, 300], [3.8, 340], [7.2, 1080]]) {
+      const v2 = (t - td) / .9; if (v2 < 0 || v2 > 1) continue;
+      const dx = mix(x1, x1 + 150, v2), dy = 690 - Math.sin(v2 * Math.PI) * 90, ang2 = Math.atan2(-Math.cos(v2 * Math.PI) * 90 * Math.PI, 150);
+      c.save(); c.translate(dx, dy); c.rotate(ang2); c.fillStyle = '#7a8ea6';
+      c.beginPath(); c.ellipse(0, 0, 34, 10, 0, 0, 6.28); c.fill(); c.beginPath(); c.moveTo(-6, -8); c.lineTo(4, -22); c.lineTo(10, -8); c.fill();
+      c.beginPath(); c.moveTo(-30, 0); c.lineTo(-46, -10); c.lineTo(-44, 10); c.closePath(); c.fill(); c.restore();
+      if (v2 < .12 || v2 > .88) { c.fillStyle = 'rgba(255,255,255,.85)'; for (let k2 = 0; k2 < 5; k2++) { c.beginPath(); c.arc(dx + (k2 - 2) * 8, 688 - k2 % 2 * 8, 4, 0, 6.28); c.fill(); } }
+    }
+    // le CTV qui part en tournée
+    if (t > 4.3 && t < 8) { const x0 = -400 + (t - 4.3) * 520; bateau(x0, 760, -.02, 400, t, { feu: nuit > .3 }); }
+    for (const [x, h] of PARC_PRES) eolProfil(x, 700, h, ang * .98 + x * .01, { couleur: mixC('#f5f7fa', '#7d8aa3', nuit), feu });
+    // les mouettes
+    if (t > .8 && t < 6) for (let k2 = 0; k2 < 5; k2++) { const gx = -100 + (t - .8) * 360 + k2 * 26, gy = 260 + Math.abs(k2 - 2) * 18 + Math.sin(t * 4 + k2) * 4; c.strokeStyle = mixC('#ffffff', '#55667f', nuit); c.lineWidth = 2.5; c.beginPath(); c.moveTo(gx - 10, gy - 4 - Math.sin(t * 14 + k2) * 4); c.quadraticCurveTo(gx, gy, gx, gy); c.quadraticCurveTo(gx, gy, gx + 10, gy - 4 - Math.sin(t * 14 + k2) * 4); c.stroke(); }
+    // le feu d'artifice de la Journée mondiale de la qualité
+    for (const [tb, x, y, col] of [[10.1, 520, 220, '#ffd23f'], [10.6, 1080, 180, '#00a9e9'], [11.1, 800, 140, '#ff8a5c'], [11.6, 360, 160, '#9cf5c9'], [12.1, 1240, 230, '#ffffff']]) {
+      const u2 = t - tb; if (u2 < 0 || u2 > 1.6) continue;
+      if (u2 < .35) { c.fillStyle = col; c.beginPath(); c.arc(x, mix(620, y, u2 / .35), 3, 0, 6.28); c.fill(); son('fusee' + tb, () => bip(600, .3, 'sine', .02)); continue; }
+      const v3 = u2 - .35; son('boum' + tb, () => bip(110, .4, 'triangle', .07));
+      c.fillStyle = col; c.globalAlpha = Math.max(0, 1 - v3 / 1.25);
+      for (let k2 = 0; k2 < 36; k2++) { const a2 = k2 * .1745, r2 = 150 * (1 - Math.exp(-v3 * 3)); c.beginPath(); c.arc(x + Math.cos(a2) * r2, y + Math.sin(a2) * r2 + v3 * v3 * 40, 3, 0, 6.28); c.fill(); }
+      c.globalAlpha = 1;
+    }
+    // la jauge de vent
+    c.fillStyle = 'rgba(6,20,45,.6)'; c.beginPath(); c.roundRect(40, 40, 210, 54, 14); c.fill();
+    c.fillStyle = '#fff'; c.font = '700 22px "Fira Sans", sans-serif'; c.textAlign = 'left'; c.fillText('🌬️ ' + Math.round(4 + vent(t) * 5) + ' m/s · ' + heureTxt(6 + d * 17), 56, 76);
+  }
+
+  const ANIMS = {
+    ctv: { duree: 11, titreA: 8.2, finLeg: 8, leg: 'interLegendes', sous: '☀️ {interSous} ⚓',
+      dessiner(t, dt) {
+        ciel(t); mer(t); quai(t); amarre(t);
+        const b = ctv(t);
+        equipe(t); grue(t); particules(t, dt, b); mouette(t);
+        if (t > 4.6) son('mouette', () => sons.mouette());
+        if (t > 5.5) son('moteur', () => { bip(55, 1.4, 'sawtooth', .05); bip(82, 1.2, 'square', .02, .2); });
+        if (t > 6.6) son('corne', () => { bip(147, .9, 'sawtooth', .07); bip(220, .9, 'sawtooth', .05); });
+      },
+      fixe(tv) { ciel(tv); mer(tv); quai(tv); amarre(tv); ctv(tv); equipe(tv); grue(tv); mouette(tv); } },
+    fiab: { duree: 13.4, titreA: 11.2, finLeg: 11, leg: 'anFiabLeg', sous: '{anFiabSous}', dessiner: t => animFiab(t), fixe: tv => animFiab(tv) },
+    transfert: { duree: 12.4, titreA: 10.2, finLeg: 10, leg: 'anTransLeg', sous: '{anTransSous}', dessiner: t => animTransfert(t), fixe: tv => animTransfert(tv) },
+    journee: { duree: 14, titreA: 12.3, finLeg: 12.2, leg: 'anJourLeg', sous: '{anJourSous}', dessiner: (t, dt) => animJournee(t, dt), fixe: tv => animJournee(tv) }
+  };
+  let anim = 'ctv';
   function image(maint) {
     if (!actif) return;
     requestAnimationFrame(image);
     const t = (maint - t0) / 1000, dt = Math.min(.05, (maint - avant) / 1000 || 0); avant = maint;
-    if (t >= DUREE) { finir(); return; }
+    const A = ANIMS[anim];
+    if (t >= A.duree) { finir(); return; }
     c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#0b1633'; c.fillRect(0, 0, cvI.width, cvI.height); c.restore();
-    ciel(t); mer(t); quai(t); amarre(t);
-    const b = ctv(t);
-    equipe(t); grue(t); particules(t, dt, b); mouette(t);
-    if (t > 4.6) son('mouette', () => sons.mouette());
-    if (t > 5.5) son('moteur', () => { bip(55, 1.4, 'sawtooth', .05); bip(82, 1.2, 'square', .02, .2); });
-    if (t > 6.6) son('corne', () => { bip(147, .9, 'sawtooth', .07); bip(220, .9, 'sawtooth', .05); });
-    // titre de la journée, puis fondu
-    const tt = lisse((t - 8.2) / .8) * (1 - lisse((t - 10.2) / .6));
+    A.dessiner(t, dt);
+    // titre de fin, puis fondu
+    const tt = lisse((t - A.titreA) / .8) * (1 - lisse((t - (A.duree - .8)) / .6));
     if (tt > 0) {
       c.save(); c.globalAlpha = tt; c.textAlign = 'center'; c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,30,70,.5)'; c.shadowBlur = 18;
       c.font = '800 110px "Fira Sans", sans-serif';
       const fs = Math.min(110, 110 * 1300 / c.measureText(jour).width); c.font = '800 ' + Math.round(fs) + 'px "Fira Sans", sans-serif'; c.fillText(jour, 800, 300);
-      c.font = '600 34px "Fira Sans", sans-serif'; c.fillText('☀️ ' + tx('interSous') + ' ⚓', 800, 352); c.restore();
+      c.font = '600 34px "Fira Sans", sans-serif'; c.fillText(A.sous.replace(/\{(\w+)\}/g, (m, cl2) => tx(cl2)), 800, 352); c.restore();
     }
-    const fondu = lisse((t - 10.4) / .6);
+    const fondu = lisse((t - (A.duree - .6)) / .6);
     if (fondu > 0) { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = 'rgba(11,22,51,' + fondu + ')'; c.fillRect(0, 0, cvI.width, cvI.height); c.restore(); }
-    const lg = tx('interLegendes').filter(([d]) => t >= d).pop();
-    const txt = t > 8 ? '' : lg ? lg[1] : '';
+    const lg = tx(A.leg).filter(([d]) => t >= d).pop();
+    const txt = t > A.finLeg ? '' : lg ? lg[1] : '';
     if ($('interLegende').textContent !== txt) $('interLegende').textContent = txt;
   }
   function finir() {
@@ -2826,16 +3038,17 @@ const interlude = (() => {
     actif = false; $('ecranInterlude').hidden = true;
     const f = suite; suite = null; if (f) f();
   }
-  function jouer(titre, apres) {
+  function jouer(titre, apres, quelle = 'ctv') {
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) { apres(); return; }
-    jour = titre; suite = apres; fumees = []; embruns = []; joues = {};
+    anim = quelle; jour = titre; suite = apres; fumees = []; embruns = []; joues = {}; angJ = 0;
     for (const id of ['ecranFin', 'ecranBase']) $(id).hidden = true;
     $('ecranInterlude').hidden = false; $('interLegende').textContent = '';
     taille(); actif = true; t0 = avant = performance.now(); requestAnimationFrame(image);
   }
-  function vignette(cible, tv) {   // une image fixe de l'animation, pour l'onglet « Animations »
+  function vignette(cible, tv, quelle = 'ctv') {   // une image fixe de l'animation, pour l'onglet « Animations »
     const garde = c; c = cible.getContext('2d'); c.setTransform(cible.width / 1600, 0, 0, cible.height / 900, 0, 0);
-    ciel(tv); mer(tv); quai(tv); amarre(tv); ctv(tv); equipe(tv); grue(tv); mouette(tv);
+    c.fillStyle = '#0b1633'; c.fillRect(0, 0, 1600, 900);
+    ANIMS[quelle].fixe(tv);
     c = garde;
   }
   addEventListener('resize', () => { if (actif) taille(); });
@@ -2843,9 +3056,10 @@ const interlude = (() => {
   addEventListener('keydown', e => { if (actif && [' ', 'Enter', 'Escape'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); finir(); } }, true);
   return { jouer, vignette };
 })();
-interlude.vignette($('vignetteCtv'), 7.4);
-if (document.fonts) document.fonts.ready.then(() => interlude.vignette($('vignetteCtv'), 7.4));
-$('animCtv').addEventListener('click', () => { initAudio(); interlude.jouer(t('animFin'), () => {}); });
+const VIGNETTES = [['Ctv', 'ctv', 7.4, 'animFin'], ['Fiab', 'fiab', 9.2, 'anFiabFin'], ['Trans', 'transfert', 7.2, 'anTransFin'], ['Jour', 'journee', 10.9, 'anJourFin']];
+const dessinerVignettes = () => VIGNETTES.forEach(([id, a, tv]) => interlude.vignette($('vignette' + id), tv, a));
+dessinerVignettes(); if (document.fonts) document.fonts.ready.then(dessinerVignettes);
+for (const [id, a, , fin] of VIGNETTES) $('anim' + id).addEventListener('click', () => { initAudio(); interlude.jouer(t(fin), () => {}, a); });
 
 /* =====================================================================
    Interactions : survol, clic, menu contextuel
