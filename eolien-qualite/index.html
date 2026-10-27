@@ -1025,11 +1025,16 @@ let modeChoisi = stock.get('eq_mode') === 'carriere' ? 'carriere' : 'rapide';
    Supabase (API REST, sans bibliothèque)
    ===================================================================== */
 async function sb(chemin, corps, entetes = {}) {
-  const r = await fetch(CONFIG.supabaseUrl + chemin, {
-    method: 'POST',
-    headers: { apikey: CONFIG.supabaseKey, 'Content-Type': 'application/json', ...entetes },
-    body: JSON.stringify(corps)
-  });
+  let r;
+  try {
+    r = await fetch(CONFIG.supabaseUrl + chemin, {
+      method: 'POST',
+      headers: { apikey: CONFIG.supabaseKey, 'Content-Type': 'application/json', ...entetes },
+      body: JSON.stringify(corps)
+    });
+  } catch (e) {   // la requête n'a pas pu partir : réseau, proxy, pare-feu ou politique de sécurité de la page
+    const err = new Error('Supabase injoignable depuis ce poste'); err.reseau = true; throw err;
+  }
   const txt = await r.text();
   if (!r.ok) { let m = txt; try { m = JSON.parse(txt).message || txt; } catch (e) { /* texte brut */ } const err = new Error(m || r.status); err.serveur = true; throw err; }
   return txt ? JSON.parse(txt) : null;
@@ -2249,6 +2254,7 @@ function erreurAdmin(e) {
     admin.mdp = ''; $('adConnexion').hidden = false; $('adContenu').hidden = true;
     msgAdmin(admin.saisi ? 'Mot de passe incorrect.' : 'Un mot de passe organisateur est défini dans Supabase.', !!admin.saisi); $('adMdp').focus();
   } else if (/check constraint/.test(e.message)) msgAdmin('Valeur refusée : le score doit être entre 0 et 100 000, le pseudo faire 1 à 24 caractères.', true);
+  else if (e.reseau) msgAdmin('Impossible de joindre Supabase (' + CONFIG.supabaseUrl + ') depuis ce poste : le réseau de l\'entreprise, un proxy ou la page (SharePoint) bloque la connexion. Ouvrez la console (F12) pour voir le message exact.', true);
   else msgAdmin('Erreur : ' + e.message, true);
 }
 
