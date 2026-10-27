@@ -34,6 +34,9 @@ SharePoint**, avec le compte de la personne : le jeu sait qui joue et peut enreg
 et sinon lance le jeu autrement. Si le jeu ne démarre pas, le favori affiche la raison exacte : envoyez-la, avec une capture de la console (F12).
 Les polices Google sont bloquées par SharePoint : le jeu utilise alors les polices du système, sans gêne.
 Quand le code du favori change (nouvelle version), il faut **refaire le glisser** du bouton jaune.
+Si SharePoint bloque le jeu (ancien favori, ou simple aperçu), la page affiche d'elle-même un écran « Pour jouer, installez le favori ⭐ »
+avec le bon bouton à glisser. Ce bouton est recopié dans `index.html` par `node outils/favori-statique.js index.html` :
+relancez cette commande si vous changez `CONFIG.sharepoint.dossier`.
 
 **Données et anti-triche**
 - Chaque joueur écrit **uniquement son fichier** : `donnees/joueur-<adresse e-mail>.json` (ses parties, sa carrière, son temps de jeu).

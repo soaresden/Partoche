@@ -330,6 +330,18 @@
   .secours summary { cursor: pointer; color: var(--encre); }
   .secours textarea { width: 100%; margin: 8px 0; font: 11px/1.3 monospace; border-radius: 8px; padding: 6px; resize: none; }
   .fv-boutons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  #sansJs { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; background: rgba(12,47,92,.55);
+    font-family: "Fira Sans", "Segoe UI", system-ui, sans-serif; opacity: 0; visibility: hidden; animation: sjVoir .3s 1.8s forwards; }
+  @keyframes sjVoir { to { opacity: 1; visibility: visible; } }
+  .sj-carte { width: min(620px, 100%); background: #fff; color: #0c2f5c; border-radius: 22px; padding: 24px 28px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  .sj-sur { color: #00a9e9; font-weight: 700; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+  .sj-carte h1 { color: #0255a1; font-size: 28px; margin: 6px 0 8px; }
+  .sj-carte p, .sj-carte li { color: #5a7290; font-size: 15px; line-height: 1.5; }
+  .sj-carte b { color: #0c2f5c; }
+  .sj-zone { display: grid; justify-items: center; gap: 8px; margin: 14px 0; padding: 16px; border: 2px dashed #f2b705; border-radius: 18px; background: #fff8e1; }
+  .sj-zone span { color: #b07f00; font-weight: 700; }
+  .sj-favori { display: inline-block; padding: 12px 26px; border-radius: 99px; background: #f2b705; color: #3a2400; font-weight: 800; font-size: 22px; text-decoration: none; cursor: grab; box-shadow: 0 8px 22px rgba(242,183,5,.4); }
+  .sj-en { font-size: 13px !important; border-top: 1px solid #d8e7f4; padding-top: 10px; }
   a.favori { display: inline-block; margin: 6px 0 0; padding: 6px 12px; border-radius: 99px; background: #f2b705; color: #3a2400 !important; font-weight: 700; text-decoration: none; cursor: grab; }
   #ecranAccueil .piliers .theme { border-top: 5px solid var(--c); }
   #ecranAccueil .themes { align-content: center; }
@@ -471,6 +483,22 @@
 </style>
 </head>
 <body>
+<!-- Écran de secours : visible seulement si le script du jeu n'a pas pu démarrer (SharePoint bloque les scripts intégrés).
+     Le lien ci-dessous est le favori, recopié par outils/favori-statique.js : à régénérer si CONFIG.sharepoint.dossier change. -->
+<div id="sansJs" role="dialog" aria-label="Jeu Qualité 2026">
+  <div class="sj-carte">
+    <div class="sj-sur">Semaine de la qualité 2026 · World Quality Week</div>
+    <h1>Pour jouer, installez le favori ⭐</h1>
+    <p>SharePoint n'exécute pas le jeu directement dans cette page. Le favori le lance avec votre compte EDF, et vos scores comptent.</p>
+    <div class="sj-zone"><span>⬆ Glissez-moi dans la barre des favoris ⬆</span><a class="sj-favori" id="favoriStatique" href="javascript:(async()%3D%3E%7Bconst%20d%3D'%2Fpersonal%2Fdenis_soares_externe_edf-power_com%2FDocuments%2FDocuments%2FSynced%2FClaude%2FQualityWeek2026'%3Bif(!%2F%5C.sharepoint%5C.com%24%2F.test(location.hostname))%7Balert('Ouvrez%20d%5C'abord%20le%20dossier%20QualityWeek2026%20dans%20OneDrive%20%2F%20SharePoint%20(navigateur)%2C%20puis%20cliquez%20sur%20ce%20favori.')%3Breturn%7Dtry%7Bconst%20s%3Dd.split('%2F').slice(0%2C3).join('%2F')%3Bconst%20r%3Dawait%20fetch(location.origin%2Bs%2B%22%2F_api%2Fweb%2FGetFileByServerRelativeUrl('%22%2BencodeURI(d%2B'%2Findex.html').replace(%2F'%2Fg%2C%22''%22)%2B%22')%2F%24value%22%2C%7Bcredentials%3A'include'%2Ccache%3A'no-store'%7D)%3Bif(!r.ok)throw%20new%20Error('HTTP%20'%2Br.status)%3Blet%20h%3Dawait%20r.text()%3Bwindow.QW_DOSSIER%3Dd%3Bconst%20i%3Dh.indexOf('%3Cscript%3E')%2Cj%3Dh.lastIndexOf('%3C%2Fscr'%2B'ipt%3E')%2Cc%3Di%3C0%3F''%3Ah.slice(i%2B8%2Cj)%3Bconst%20n%3D(document.querySelector('script%5Bnonce%5D')%7C%7C%7B%7D).nonce%7C%7C''%3Bif(n)h%3Dh.replace('%3Cscript%3E'%2C'%3Cscript%20nonce%3D%22'%2Bn%2B'%22%3E')%3Bconst%20f%3Ddocument.createElement('iframe')%3Bf.style.cssText%3D'position%3Afixed%3Binset%3A0%3Bwidth%3A100vw%3Bheight%3A100vh%3Bborder%3A0%3Bz-index%3A2147483647%3Bbackground%3A%23fff'%3Bf.allow%3D'autoplay'%3Bconst%20pb%3Dm%3D%3Ealert('Le%20jeu%20n%5C'a%20pas%20pu%20d%C3%A9marrer%20%3A%20'%2Bm%2B'%5CnEnvoyez%20une%20capture%20de%20la%20console%20(F12)%20%C3%A0%20l%5C'organisateur.')%3Bf.onload%3D()%3D%3EsetTimeout(()%3D%3E%7Bconst%20w%3Df.contentWindow%3Bif(w.QW_PRET)return%3Bif(!w.QW_ERREURS)%7Btry%7Bw.eval(c)%7Dcatch(e)%7Bpb(e.message)%3Breturn%7D%7DsetTimeout(()%3D%3E%7Bif(!w.QW_PRET)pb((w.QW_ERREURS%7C%7C%5B%5D)%5B0%5D%7C%7C'raison%20inconnue')%7D%2C1500)%7D%2C300)%3Bf.srcdoc%3Dh%3Bdocument.documentElement.append(f)%3Bdocument.documentElement.style.overflow%3D'hidden'%7Dcatch(e)%7Balert('Impossible%20de%20charger%20le%20jeu%20%3A%20'%2Be.message)%7D%7D)()">⭐ Jeu Qualité 2026</a></div>
+    <ol>
+      <li>Affichez la barre des favoris d'Edge : <b>Ctrl + Maj + B</b>.</li>
+      <li>Si vous avez déjà un favori « Jeu Qualité 2026 », <b>supprimez-le</b> (clic droit › Supprimer) : c'est une ancienne version.</li>
+      <li><b>Glissez le bouton jaune</b> dans la barre, puis <b>cliquez dessus</b>, ici même ou depuis le dossier QualityWeek2026.</li>
+    </ol>
+    <p class="sj-en">🇬🇧 To play: show the favorites bar (Ctrl+Shift+B), delete any older “Jeu Qualité 2026” favorite, drag the yellow button onto the bar, then click it.</p>
+  </div>
+</div>
 <canvas id="jeu"></canvas>
 
 <!-- ======================= HUD ======================= -->
@@ -793,6 +821,7 @@
 'use strict';
 // erreurs de démarrage, relues par le favori pour dire pourquoi le jeu ne démarre pas
 window.QW_ERREURS = []; addEventListener('error', e => window.QW_ERREURS.push(e.message));
+document.getElementById('sansJs').remove();   // le script tourne : l'écran de secours ne sert pas
 
 /* =====================================================================
    Réglages
@@ -811,7 +840,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.7'
+  version: '2026.8'
 };
 
 const PARAMS = {
@@ -1351,7 +1380,7 @@ async function initSharePoint() {
 /* le favori à partager : il charge index.html depuis le dossier SharePoint et l'affiche en plein écran dans la page */
 function codeFavori() {
   const d = CONFIG.sharepoint.dossier.replace(/'/g, "\\'");
-  return 'javascript:' + encodeURIComponent(`(async()=>{const d='${d}';if(!/\\.sharepoint\\.com$/.test(location.hostname)){alert('Ouvrez d\\'abord le dossier QualityWeek2026 dans OneDrive / SharePoint (navigateur), puis cliquez sur ce favori.');return}try{const s=d.split('/').slice(0,3).join('/');const r=await fetch(location.origin+s+"/_api/web/GetFileByServerRelativeUrl('"+encodeURI(d+'/index.html').replace(/'/g,"''")+"')/$value",{credentials:'include',cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);let h=await r.text();window.QW_DOSSIER=d;const i=h.indexOf('<script>'),j=h.lastIndexOf('</scr'+'ipt>'),c=i<0?'':h.slice(i+8,j);const n=(document.querySelector('script[nonce]')||{}).nonce||'';if(n)h=h.replace('<script>','<script nonce="'+n+'">');const f=document.createElement('iframe');f.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483647;background:#fff';f.allow='autoplay';const pb=m=>alert('Le jeu n\\'a pas pu démarrer : '+m+'\\nEnvoyez une capture de la console (F12) à l\\'organisateur.');f.onload=()=>setTimeout(()=>{const w=f.contentWindow;if(w.QW_PRET)return;if(!w.QW_ERREURS){try{w.eval(c)}catch(e){pb(e.message);return}}setTimeout(()=>{if(!w.QW_PRET)pb((w.QW_ERREURS||[])[0]||'raison inconnue')},1500)},1200);f.srcdoc=h;document.documentElement.append(f);document.documentElement.style.overflow='hidden'}catch(e){alert('Impossible de charger le jeu : '+e.message)}})()`);
+  return 'javascript:' + encodeURIComponent(`(async()=>{const d='${d}';if(!/\\.sharepoint\\.com$/.test(location.hostname)){alert('Ouvrez d\\'abord le dossier QualityWeek2026 dans OneDrive / SharePoint (navigateur), puis cliquez sur ce favori.');return}try{const s=d.split('/').slice(0,3).join('/');const r=await fetch(location.origin+s+"/_api/web/GetFileByServerRelativeUrl('"+encodeURI(d+'/index.html').replace(/'/g,"''")+"')/$value",{credentials:'include',cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);let h=await r.text();window.QW_DOSSIER=d;const i=h.indexOf('<script>'),j=h.lastIndexOf('</scr'+'ipt>'),c=i<0?'':h.slice(i+8,j);const n=(document.querySelector('script[nonce]')||{}).nonce||'';if(n)h=h.replace('<script>','<script nonce="'+n+'">');const f=document.createElement('iframe');f.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483647;background:#fff';f.allow='autoplay';const pb=m=>alert('Le jeu n\\'a pas pu démarrer : '+m+'\\nEnvoyez une capture de la console (F12) à l\\'organisateur.');f.onload=()=>setTimeout(()=>{const w=f.contentWindow;if(w.QW_PRET)return;if(!w.QW_ERREURS){try{w.eval(c)}catch(e){pb(e.message);return}}setTimeout(()=>{if(!w.QW_PRET)pb((w.QW_ERREURS||[])[0]||'raison inconnue')},1500)},300);f.srcdoc=h;document.documentElement.append(f);document.documentElement.style.overflow='hidden'}catch(e){alert('Impossible de charger le jeu : '+e.message)}})()`);
 }
 
 /* Relie le dossier des scores. Sans geste de l'utilisateur, on ne fait que vérifier l'autorisation déjà donnée. */
