@@ -248,6 +248,8 @@
   #ecranAccueil ol.liste li.moi { background: #e4f5fd; outline-color: var(--pc-cyan); }
   #ecranAccueil ol.liste li.vide { color: var(--pc-gris); background: none; }
   #ecranAccueil .piliers .theme .ic { background: #e6f4fc; }
+  .etat-donnees { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--pc-ligne, rgba(255,255,255,.2)); font-size: 12.5px; color: var(--pc-gris, #c6d4ee); }
+  .etat-donnees.alerte { color: #b26a00; }
   #ecranAccueil .piliers .theme { border-top: 5px solid var(--c); }
   #ecranAccueil .themes { align-content: center; }
   @media (max-width: 760px) { #ecranAccueil .sep { display: none; } #ecranAccueil .logo-secret img, #ecranAccueil .logo-secret { height: 48px; } }
@@ -297,6 +299,8 @@
   .cta.sec { background: rgba(255,255,255,.1); box-shadow: none; border: 1px solid var(--bord); }
   .cta.or { background: linear-gradient(180deg, #ffe27a, var(--jaune)); color: #3a2400; box-shadow: 0 8px 20px rgba(255,210,63,.25); }
   .releve h2, .base h2 { font-family: "Playfair Display", Georgia, serif; font-size: 34px; margin: 4px 0 6px; }
+  .regles .etapes li { font-size: 16.5px; }
+  .regles .etapes li.nouveau { background: rgba(0,169,233,.14); border: 1px solid rgba(0,169,233,.5); border-radius: 14px; padding: 10px; }
   .prevision { display: grid; gap: 6px; margin: 6px 0 0; padding: 0; list-style: none; font-size: 15px; }
 
   .base { width: min(1100px, 100%); }
@@ -396,7 +400,7 @@
   </div></div>
   <div class="hud-c chip">
     <div class="score-hud"><span id="hScore">0</span> <small>pts</small></div>
-    <div class="lbl"><span id="hPuiss">0</span> MW · <span id="hDispo">64/64</span> <span data-i18n="enService"></span> <span id="hPic" class="pic"></span></div>
+    <div class="lbl"><span id="hPuiss">0</span> MW · <span id="hDispo">64/64</span> <span data-i18n="enService"></span> · 🌬️ <span id="hVent">0</span> m/s <span id="hFleche" style="display:inline-block">➤</span> <span id="hPic" class="pic"></span></div>
   </div>
   <div class="hud-r">
     <div class="chip bord-bateau" id="hBateau">
@@ -451,13 +455,8 @@
           <button class="btn-rouge" id="btnJouer"></button>
         </div>
         <div class="boite-carriere" id="boiteCarriere" hidden>
-          <div class="info" id="carLocal" hidden></div>
-          <div id="carCodeLigne">
-            <label class="nom" for="code" style="margin-top:0" data-i18n="carCode"></label>
-            <div class="ligne"><input id="code" class="champ code" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"><span class="info" style="flex:1;margin:0" data-i18n="carAide"></span></div>
-          </div>
+          <div class="info" id="carLocal" style="margin:0"></div>
         </div>
-        <div class="info" id="infoLogin"></div>
         <div class="info err" id="infoErreur"></div>
       </div>
       <div class="bloc classements">
@@ -470,6 +469,7 @@
         <ol class="liste" id="listeSprint"><li class="vide">…</li></ol>
         <h4><span data-i18n="lbCarriere"></span><small data-i18n="lbCarriereSous"></small></h4>
         <ol class="liste" id="listeCarriere"><li class="vide">…</li></ol>
+        <div class="etat-donnees" id="etatDonnees"></div>
       </div>
     </section>
 
@@ -521,6 +521,18 @@
   </main>
   <div class="vagues" aria-hidden="true"></div>
   <footer class="pied" data-i18n="pied"></footer>
+</div>
+
+<!-- ======================= Les règles, avant chaque journée ======================= -->
+<div class="voile" id="ecranRegles" hidden>
+  <div class="panneau seul">
+    <div class="carte releve regles">
+      <div class="surtitre" id="rgSur"></div>
+      <h2 id="rgTitre"></h2>
+      <ul class="etapes" id="rgListe"></ul>
+      <button class="cta" id="btnGo" data-i18n="btnGo" style="margin-top:16px"></button>
+    </div>
+  </div>
 </div>
 
 <!-- ======================= Relève d'équipe ======================= -->
@@ -607,13 +619,13 @@
         <button class="btn" id="adFermer" type="button">Fermer ✕</button>
       </div>
     </div>
-    <form id="adConnexion" class="outils" autocomplete="off">
-      <input id="adMdp" type="password" placeholder="Mot de passe organisateur" autocomplete="current-password">
-      <button class="btn ok" type="submit">Ouvrir</button>
-    </form>
-    <div id="adContenu" hidden>
+    <div class="outils" style="justify-content:space-between">
+      <span class="compte-ad" id="adDossier"></span>
+      <span class="outils"><button class="btn" id="adDossierBtn" type="button">📁 Choisir le dossier des scores</button><button class="btn" id="adExporter" type="button">⬇ Télécharger les JSON</button></span>
+    </div>
+    <div id="adContenu">
       <div class="outils">
-        <input id="adFiltre" type="text" placeholder="Filtrer par login ou pseudo…">
+        <input id="adFiltre" type="text" placeholder="Filtrer par pseudo…">
         <span class="compte-ad" id="adCompte"></span>
         <button class="btn" id="adRafraichir" type="button">↻ Actualiser</button>
         <button class="btn danger" id="adSuppr" type="button" disabled>🗑 Supprimer la sélection</button>
@@ -637,8 +649,7 @@
    Réglages
    ===================================================================== */
 const CONFIG = {
-  supabaseUrl: 'https://pqfescnjjdqxujldfxkh.supabase.co',
-  supabaseKey: 'sb_publishable_DGUia1ATpu1B-0RYX0Ou4A_TPapsXj1',
+  fichiers: { scores: 'qualite2026-scores.json', carrieres: 'qualite2026-carrieres.json' },   // écrits dans le dossier du jeu
   debutSemaine: '2026-11-09T00:00:00',
   finSemaine: '2026-11-14T00:00:00',
   journeeMondiale: '2026-11-12',
@@ -646,14 +657,19 @@ const CONFIG = {
   prixMWh: .08,       // k€ : 80 € le MWh vendu
   prixPiece: 4,       // k€ par pièce de rechange consommée
   prixPlein: 3,       // k€ par passage à la base (carburant)
+  prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
+  incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
+  stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
   version: '2026.3'
 };
 
 const PARAMS = {
   vitesse: 430, stock: 8, conso: .7, tRep: 1.8, tFiab: [2.0, 2.8], tBase: 3, coutFiab: 1,
-  risqueFragile: 1 / 55, risqueNormal: 1 / 6000, rampe: .6, usure: .5, usureMax: 3,
+  risqueFragile: 1 / 80, risqueNormal: 1 / 9000, rampe: .6, usure: .5, usureMax: 3,
   effets: { brouillard: .65, houle: 1.3 }, cable: false, freqMeteo: 22, maxZones: 2, prevision: 3, scada: 0,
-  meteo: [['brouillard'], ['houle', 'brouillard'], ['houle', 'brouillard']]
+  meteo: [['brouillard'], ['houle', 'brouillard'], ['houle', 'brouillard']],
+  // mécaniques actives (le Sprint n'en garde aucune ; la Carrière les débloque jour après jour)
+  pieces: true, carburant: true, meteoZones: true, ossDepot: true, ossPanne: true, incendies: true
 };
 
 const AMELIORATIONS = [
@@ -671,6 +687,9 @@ const PIC = [19, 21];        // pic de consommation : points x1,5
 const FILE_MAX = 6;
 const FACTEUR_NIVEAU = [1, .12, .03];   // fiabilisée : 8x moins de pannes, puis quasi plus
 const CABLE = 6;
+// un défaut ne stoppe pas l'éolienne : elle est d'abord bridée ; laissée trop longtemps, elle passe en arrêt de sécurité,
+// puis (si CONFIG.incendies) prend feu et explose. Seuils en fraction de la durée d'un shift.
+const BRIDAGE = .4, SEUIL_ARRET = .35, SEUIL_FEU = .6, SEUIL_EXPLOSION = .85;
 const DISSIPATION = 2;
 
 const PANNES = [
@@ -721,8 +740,8 @@ const I18N = {
     tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité',
     jours: 'jours', heures: 'heures', minutes: 'min', secondes: 's',
     legendeTitre: 'Repères à l\'écran',
-    l1: '<b>Bulle rouge</b> : éolienne en panne, l\'icône indique le type de panne.',
-    l2: '<b>Badge ×N</b> : nombre de pannes. Les récidivistes sont vos priorités.',
+    l1: '<b>Bulle orange</b> : éolienne en défaut, <b>bridée à 40 %</b>. Laissée trop longtemps, elle passe en <b>arrêt de sécurité</b> (bulle rouge), puis peut prendre feu 🔥 et exploser 💥, ce qui coupe le string en aval.',
+    l2: '<b>Badge ×N</b> : nombre de défauts. Les récidivistes sont vos priorités.',
     l3: '<b>Éolienne dorée</b> : fiabilisée. Or pâle au niveau 1, or vif et scintillante au niveau 2.',
     l4: '<b>Combo</b> : la même opération enchaînée va plus vite et rapporte un bonus.',
     l5: '<b>Carrière</b> : chaque soir, ventes − pièces − carburant = budget pour améliorer le bateau.',
@@ -735,44 +754,71 @@ const I18N = {
     jouerChapeau: 'Une journée de maintenance, de 6 h à 22 h, en trois shifts, sur la vraie implantation du parc : 64 éoliennes, 13 strings, un poste électrique en mer, des distances réelles.',
     commentJouer: 'Comment jouer',
     etape1: '<b>Cliquez sur une éolienne</b> et choisissez : réparer, ou réparer <i>et</i> fiabiliser. Le bateau y va tout seul.',
-    etape2: '<b>Enchaînez les ordres</b> : la file en bas de l\'écran s\'exécute dans l\'ordre. Même panne à la suite = <b>combo</b>, plus rapide.',
-    etape3: '<b>Repassez à la base</b> pour recharger pièces et carburant.',
-    etape4: '<b>Surveillez la météo</b> : brouillard, houle, grains… les zones sont annoncées avant d\'arriver.',
-    etape5: '<b>Repérez les récidivistes</b> (badge ×N) : quelques éoliennes font l\'essentiel des pannes. Fiabilisez-les !',
+    etape2: '<b>Enchaînez les ordres</b> : la file en bas de l\'écran s\'exécute dans l\'ordre. Même défaut à la suite = <b>combo</b>, plus rapide.',
+    etape3: '<b>Repassez à la base</b> pour les pièces et le carburant, ou passez au <b>dépôt de l\'OSS</b>, au centre du parc, pour quelques pièces.',
+    etape4: '<b>Surveillez la météo</b> : brouillard, houle, grains… les zones sont annoncées avant d\'arriver. Le vent varie aussi : rafales et accalmies font tourner les éoliennes plus ou moins vite.',
+    etape5: '<b>Repérez les récidivistes</b> (badge ×N) : quelques éoliennes, plus exposées à la mer, concentrent l\'essentiel des défauts. Fiabilisez-les !',
     choixMode: 'Choisissez votre partie',
-    modeSprint: 'Une journée en 90 secondes. Le classement du jour.',
-    modeCarriere: 'Jour après jour : vendez votre électricité, améliorez votre bateau, affrontez une météo de plus en plus rude. Sauvegardée.',
+    modeSprint: 'Une journée en 90 secondes, deux boutons à connaître. Idéal pour découvrir !',
+    modeCarriere: 'Pour ceux qui accrochent : une nouveauté chaque jour, un budget pour améliorer le bateau. Reprenez-la avec votre nom.',
     nomLabel: 'Votre nom pour le classement', nomPh: 'Prénom N.',
     btnSprint: 'Larguer les amarres ▶', btnCarriereNew: 'Commencer ma carrière ▶', btnCarriereSuite: 'Continuer · jour {n} ▶', patience: 'Connexion…',
-    carCode: 'Code de reprise (4 chiffres)', carAide: 'Avec votre nom et ce code, reprenez votre carrière depuis n\'importe quel poste.',
-    carLocal: 'Carrière sur ce poste : <b>{pseudo}</b>, jour {jour}, {budget} k€.', carNouvelle: 'Nouvelle carrière',
-    carNouvelleConfirm: 'Recommencer une nouvelle carrière ? La sauvegarde de ce poste sera oubliée (celle en ligne reste accessible avec son code).',
+    rgTitre: 'Les règles en 20 secondes', rgJour: 'Jour {j}', rgSurCarriere: 'Carrière de {pseudo}', btnGo: 'C\'est parti ▶',
+    rg1: 'Une éolienne <b>orange</b> signale un défaut : elle tourne au ralenti.',
+    rg2: '<b>Cliquez dessus</b> et choisissez : <b>Réparer</b> (rapide) ou <b>Fiabiliser</b> (plus long, mais le défaut ne revient presque plus : elle devient <b>dorée</b> ✨). Le bateau y va tout seul.',
+    rg3: 'Les mêmes éoliennes reviennent souvent (badge <b>×N</b>) : ce sont elles qu\'il faut fiabiliser.',
+    rg4Sprint: '<b>90 secondes</b>, une journée de 6 h à 22 h : produisez un maximum d\'énergie !',
+    rg4Carriere: 'Une journée de <b>3 minutes</b>. Le soir, l\'électricité vendue rapporte un budget pour améliorer le bateau.',
+    rgNouveauTitre: 'Nouveau aujourd\'hui',
+    rgNouveau: { 1: '📦 Le bateau emporte un nombre limité de <b>pièces</b> : cliquez sur ⚓ la base, en bas à gauche, pour recharger.',
+      2: '⛽ Le <b>carburant</b> compte aussi. Et la météo s\'en mêle : <b>brouillard</b> (le bateau ralentit) et <b>houle</b> (les interventions durent plus longtemps).',
+      3: '🏭 L\'<b>OSS</b>, au centre du parc, sert de dépôt de pièces avancé. Attention aussi aux <b>dauphins</b> : vitesse limitée !',
+      4: '⛈️ <b>Grains</b> : au-delà de 1,5 m de houle, transfert impossible. Et le transformateur de l\'OSS peut tomber en défaut (−50 % d\'export).',
+      5: '🔌 <b>Défauts de câble</b> : tout un string peut s\'arrêter. Une éolienne trop longtemps négligée peut prendre feu.' },
+    rVent: '🌬️ <b>Vent variable</b> : rafales et accalmies, la production suit le vent',
+    ossRole: 'Il collecte l\'énergie des 64 éoliennes et l\'envoie vers la côte.',
+    arretSecu: '⛔ {id} : arrêt de sécurité', tutoArret: '⛔ <b>{id}</b> est restée trop longtemps en défaut : elle s\'est mise en <b>arrêt de sécurité</b> et ne produit plus rien.',
+    tutoCalme: '🍃 <b>Le vent faiblit</b> : les éoliennes ralentissent et produisent moins. Ce n\'est pas un défaut : l\'éolien est une énergie intermittente.',
+    enFeu: '🔥 {id} prend feu !', tutoFeu: '🔥 <b>{id}</b> est à l\'arrêt depuis trop longtemps et <b>prend feu</b>. Intervenez vite, sinon elle va exploser !',
+    bandeauBoum: '💥 {id} a explosé ! Rotor à remplacer.', bandeauBoumString: '💥 {id} a explosé : {n} éolienne(s) en aval coupée(s) sur le string {s} !',
+    tutoBoum: '💥 Une éolienne laissée à l\'abandon finit par <b>exploser</b> : il faut remplacer le rotor (long et coûteux), et tout le string en aval est coupé. Prévenir coûte toujours moins cher !',
+    bandeauOss: '⚡ Transformateur de l\'OSS en défaut : la production du parc chute de moitié !',
+    tutoOss: '⚡ <b>Cliquez sur l\'OSS</b>, le poste électrique au centre du parc, pour le réparer. Tant qu\'il est en défaut, le parc ne peut exporter que 50 % de sa production.',
+    pleinOss: '📦 +{n} pièces (OSS)', ossRepare: '⚡ OSS réparé : 100 % de l\'export', rotorNeuf: '🏗️ Rotor neuf !',
+    mDetruite: '💥 Détruite : le rotor doit être remplacé. Le string est coupé en aval.', mFeu: '🔥 En feu : explosion imminente !',
+    aRemplacer: 'Remplacer le rotor', aRemplacerDet: 'long et coûteux, rétablit le string', aRemplacerFiab: 'Remplacer et fiabiliser',
+    ossTitre: 'OSS · poste électrique en mer', ossPanne: '⚡ Transformateur en défaut : export limité à 50 %', ossOk: '✔ Transformateur en service',
+    ossStock: 'Dépôt avancé : <b>{n}</b> pièce(s) disponible(s) ce shift', ossReparer: 'Réparer le transformateur', ossReparerDet: 'rétablit 100 % de la production',
+    ossCharger: 'Prendre des pièces', ossChargerDet: 'dépôt avancé : plus proche que le port ({n} en stock)',
+    cRotors: 'Remplacements de rotor ({n})', fBoum: '💥 {n} éolienne(s) ont explosé faute d\'intervention.',
+    carLocal: 'Carrière de <b>{pseudo}</b> : jour {jour}, {budget} k€.', carNouvelle: 'Recommencer à zéro',
+    carNouvelleConfirm: 'Effacer la carrière de {pseudo} et recommencer au jour 1 ?',
     errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
     errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
     errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
-    infoLoginWin: 'Connecté en tant que <b>{login}</b>', infoLoginSp: 'Connecté en tant que <b>{login}</b> (compte Microsoft 365)', infoLoginAstuce: '',
+    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
     piliersTitre: 'Les 4 piliers de la performance',
     piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
-    p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> la panne au lieu de la subir.',
+    p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> le défaut au lieu de le subir.',
     p2t: 'Personnes & culture', p2: 'Formation de l\'équipe, relève, retour d\'expérience : la performance se <em>construit et se transmet</em> d\'un shift à l\'autre.',
     p3t: 'Gouvernance & conformité', p3: 'Pas de transfert au-delà de 1,5 m de houle, vitesse limitée près des mammifères marins : les <em>règles protègent</em> les équipes et le milieu.',
     p4t: 'Durabilité & impact', p4: 'Chaque MWh livré alimente des foyers en énergie renouvelable. Le bilan final le traduit en <em>impact concret</em>.',
     themeTitre: 'Ce que le jeu raconte',
     themeChapeau: 'La qualité n\'est pas qu\'une affaire de conformité : c\'est un levier pour décider, prévenir et créer de la valeur. Chaque mécanique illustre une idée.',
-    t1t: 'Traiter la cause, pas le symptôme', t1: 'Réparer remet l\'éolienne en route. La <em>fiabiliser</em> évite que la panne revienne. Le temps investi aujourd\'hui est rendu au centuple demain.',
-    t2t: 'Pareto : 20 % des causes, 80 % des effets', t2: 'Quelques éoliennes « fragiles » concentrent l\'essentiel des pannes. Les repérer grâce à leur <em>historique</em> et agir dessus en priorité, c\'est là que se gagne la performance.',
-    t3t: 'Capitaliser l\'expérience', t3: 'Traiter des pannes identiques à la suite va plus vite : c\'est l\'effet <em>retour d\'expérience</em>. Le combo récompense l\'organisation, pas la précipitation.',
+    t1t: 'Traiter la cause, pas le symptôme', t1: 'Réparer remet l\'éolienne en route. La <em>fiabiliser</em> évite que le défaut revienne. Le temps investi aujourd\'hui est rendu au centuple demain.',
+    t2t: 'Pareto : 20 % des causes, 80 % des effets', t2: 'Quelques éoliennes plus exposées (houle, embruns, turbulences) concentrent l\'essentiel des défauts. Les repérer grâce à leur <em>historique</em> et agir dessus en priorité, c\'est là que se gagne la performance.',
+    t3t: 'Capitaliser l\'expérience', t3: 'Traiter des défauts identiques à la suite va plus vite : c\'est l\'effet <em>retour d\'expérience</em>. Le combo récompense l\'organisation, pas la précipitation.',
     t4t: 'Anticiper les aléas', t4: 'Les zones météo sont annoncées avant d\'arriver. Lire les <em>signaux faibles</em> et planifier évite de se retrouver bloqué au mauvais endroit.',
-    t5t: 'Le coût de la non-qualité', t5: 'En carrière, chaque réparation coûte des pièces. Ce que vous ne dépensez pas en pannes répétées, vous l\'<em>investissez</em> dans votre bateau.',
+    t5t: 'Le coût de la non-qualité', t5: 'En carrière, chaque réparation coûte des pièces. Ce que vous ne dépensez pas en défauts répétés, vous l\'<em>investissez</em> dans votre bateau.',
     t6t: 'Mesurer ce qui compte', t6: 'Le score, c\'est l\'énergie livrée au réseau, pas le nombre d\'interventions. Courir partout donne l\'impression d\'agir ; la <em>disponibilité</em> du parc dit la vérité.',
     pied: 'Semaine mondiale de la qualité · 9 – 13 novembre 2026 · Journée mondiale de la qualité le jeudi 12 novembre · #WQW26',
     enService: 'en service', pic: '· 🏙️ pic ×1,5', ordres: 'Ordres', annuler: 'Cliquer pour annuler', base: 'Base',
     shiftNom: ['matin', 'après-midi', 'soir'], shiftTitre: ['shift du matin', 'shift de l\'après-midi', 'shift du soir'],
     hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Jour {j} · ', modeNom: { rapide: 'Sprint 90 s', carriere: 'Carrière · jour {j}' },
     depart: '🚤 06:00 · {shift} · {mode}',
-    tutoPanne: '⚠️ <b>{id}</b> est en panne ! <b>Cliquez dessus</b> et donnez un ordre : le bateau ira tout seul.',
-    tutoApres: '👍 Relancée ! Le badge <b>×N</b> sous une éolienne compte ses pannes : les plus fragiles se repèrent vite. Ce sont elles qu\'il faut <b>fiabiliser</b> 🛡️.',
-    tutoRecidive: '🔁 <b>{id}</b> retombe dans la même panne. Certaines éoliennes sont plus fragiles que d\'autres : <b>fiabilisez-les</b> pour casser la répétition.',
+    tutoPanne: '⚠️ <b>{id}</b> signale un défaut : elle tourne bridée à 40 %. <b>Cliquez dessus</b> et donnez un ordre : le bateau ira tout seul.',
+    tutoApres: '👍 Relancée ! Le badge <b>×N</b> sous une éolienne compte ses défauts : les plus exposées se repèrent vite. Ce sont elles qu\'il faut <b>fiabiliser</b> 🛡️.',
+    tutoRecidive: '🔁 <b>{id}</b> a de nouveau le même défaut. Certaines éoliennes sont plus exposées que d\'autres : <b>fiabilisez-les</b> pour casser la répétition.',
     tutoCombo: '🔁 <b>Combo !</b> Enchaîner les mêmes opérations va de plus en plus vite : c\'est le <b>retour d\'expérience</b>. Changer d\'opération remet le compteur à zéro.',
     tutoGrain: '⛈️ <b>Grain annoncé</b> : sous le grain, la houle dépasse 1,5 m et le transfert vers les éoliennes est <b>impossible</b>. Anticipez !',
     tutoCable: '🔌 Un défaut sur le câble de <b>{id}</b> coupe toutes les éoliennes en aval sur le string. <b>Priorité absolue !</b>',
@@ -780,26 +826,26 @@ const I18N = {
     tutoCarbu0: '⛽ <b>Réservoir vide</b> : le bateau avance au ralenti. Cliquez sur ⚓ la base pour refaire le plein.',
     tutoCarbu: '⛽ Carburant bas : prévoyez un passage à la base ⚓.',
     tutoPieces: '📦 <b>Plus assez de pièces à bord</b> : cliquez sur ⚓ la base (en bas à gauche) pour recharger.',
-    tutoAlerte: '🛰️ <b>Alarme prédictive</b> sur {id} : fiabilisez-la avant qu\'elle ne tombe en panne !',
+    tutoAlerte: '🛰️ <b>Alarme prédictive</b> sur {id} : fiabilisez-la avant que le défaut n\'apparaisse !',
     filePleine: '🧾 File d\'ordres pleine ({n} max) : laissez l\'équipage avancer.',
     grainCible: '⛈️ L\'éolienne visée est sous un grain : transfert impossible pour l\'instant.',
     bandeauPic: '🏙️ Pic de consommation (19 h – 21 h) : chaque MWh compte ×1,5 !',
     bandeauReleve: '🚤 {shift} : l\'équipe embarque, pleins faits.',
-    encore: '🔁 Encore {id} !', relancee: '✔ {id} relancée', plein: '📦⛽ Plein fait', evitee: '✨ Panne évitée !', suspendu: 'suspendu',
+    encore: '🔁 Encore {id} !', relancee: '✔ {id} à 100 %', plein: '📦⛽ Plein fait', evitee: '✨ Défaut évité !', suspendu: 'suspendu',
     prevision: 'Prévision : {ico} {nom} dans {s} s', transfertImpossible: 'transfert impossible',
     baseNom: 'Base O&M', baseSous: 'pièces · carburant', chargement: '⏳ Chargement…',
-    mTitre: '{id} · {g} · string {s}', mProd: '✔ En production', mCoupe: '⏸ Arrêtée par un défaut câble en amont',
+    mTitre: '{id} · {g} · string {s}', mProd: '✔ En production · vent {v} m/s · {pc} % de sa puissance', mBridee: '⚠️ Bridée à 40 % : intervenez avant l\'arrêt de sécurité', mArret: '⛔ Arrêt de sécurité : plus de production', mCoupe: '⏸ Arrêtée par un défaut câble en amont',
     mNiv: ['', ' · 🛡️ fiabilisée', ' · 🛡️🛡️ fiabilisation renforcée'],
-    mHisto: ' · <b>{n} panne(s) aujourd\'hui</b>', mTotal: ' · {n} au total', mGrain: '⛈️ Sous un grain : transfert impossible pour l\'instant', mHoule: '🌊 Houle : intervention plus longue',
-    mAlerte: '⚠ Alarme prédictive : panne imminente !',
+    mHisto: ' · <b>{n} défaut(s) aujourd\'hui</b>', mTotal: ' · {n} au total', mGrain: '⛈️ Sous un grain : transfert impossible pour l\'instant', mHoule: '🌊 Houle : intervention plus longue',
+    mAlerte: '⚠ Alarme prédictive : défaut imminent !',
     aReparer: 'Réparer', aRepDet: 'remet en route', aRepCable: 'relance tout le string', aRepFiab: 'Réparer et fiabiliser',
-    aFiab: 'Fiabiliser', aFiab2: 'Fiabilisation renforcée', aFiabDet: '{remede} : 8× moins de pannes', aFiab2Det: 'pannes quasi supprimées',
+    aFiab: 'Fiabiliser', aFiab2: 'Fiabilisation renforcée', aFiabDet: '{remede} : 8× moins de défauts', aFiab2Det: 'défauts quasi supprimés',
     aDeja: 'déjà dans la file', aMax: '✨ Rien à faire : fiabilisée au maximum.',
-    dp: ' : ', toastFiab1: '8× moins de pannes', toastFiab2: 'Quasiment plus de pannes',
+    dp: ' : ', toastFiab1: '8× moins de défauts', toastFiab2: 'Quasiment plus de défauts',
     rSur: 'Relève d\'équipe · {h}', rTitre: 'Fin du {shift}', dispo: 'disponibilité', ptsShift: 'points ce shift', meilleurCombo: 'meilleur combo',
     rFiab: '🛡️ <b>{n}</b> fiabilisation(s) ce shift : ces éoliennes continueront de produire pendant que l\'équipe suivante travaille.',
-    rFiab0: '🚒 Aucune fiabilisation ce shift : les mêmes pannes risquent de revenir.',
-    rPanne: '<br>⚠️ <b>{n}</b> éolienne(s) encore à l\'arrêt : elles attendent l\'équipe suivante.', rOk: '<br>✔ Le parc est transmis en bon état.',
+    rFiab0: '🚒 Aucune fiabilisation ce shift : les mêmes défauts risquent de revenir.',
+    rPanne: '<br>⚠️ <b>{n}</b> éolienne(s) encore en défaut : elles attendent l\'équipe suivante.', rOk: '<br>✔ Le parc est transmis en bon état.',
     rPrev: 'Prévisions pour le {shift}', rCable: '🔌 Risque de <b>défaut câble</b> : tout un string peut s\'arrêter', rPic: '🏙️ <b>Pic de consommation</b> de 19 h à 21 h : points ×1,5',
     btnReleve: 'Prendre la relève ▶',
     fSur: 'Fin de journée · 22:00 · {mode}',
@@ -807,22 +853,22 @@ const I18N = {
     statRep: '🔧 réparations', statFiab: '🛡️ fiabilisations', statCombo: '🔁 meilleur combo', statDispo: '⚡ disponibilité',
     envoi: 'Envoi du score…', rangTxt: '<b>{a}</b> sur {b} aujourd\'hui · <b>{c}</b> sur {d} au général', rangCarriere: 'Carrière sauvegardée ✔',
     errSpam: 'Score non enregistré : deux parties trop rapprochées.', errHorsLigneScore: 'Classement hors ligne : score gardé sur ce poste.',
-    pareto: '📊 <b>Pareto</b> : {f} éoliennes sur 64 ({pc} %) ont causé <b>{part} %</b> des pannes. Vous en avez fiabilisé <b>{n}</b>.',
+    pareto: '📊 <b>Pareto</b> : {f} éoliennes sur 64 ({pc} %) ont concentré <b>{part} %</b> des défauts. Vous en avez fiabilisé <b>{n}</b>.',
     paretoPeu: ' Les repérer tôt grâce à leur historique (badge ×N), c\'est la clé.', paretoBien: ' Bien vu !',
     profils: [
       ['🏆 Pilote de la performance durable', 'Vous avez repéré les éoliennes à problèmes et traité les causes : le parc a tourné pendant que vous gardiez la main.'],
       ['🧭 Stratège de l\'amélioration continue', 'Vous avez commencé à traiter les causes plutôt que les symptômes. Ciblez encore mieux les récidivistes et le parc tournera presque seul !'],
       ['🔧 Réparateur avisé', 'Beaucoup d\'incendies éteints… et quelques fiabilisations. Concentrez-les sur les éoliennes qui reviennent sans cesse : l\'effet est spectaculaire.'],
-      ['🚒 Pompier du parc', 'Vous avez couru d\'une panne à l\'autre sans traiter la cause. Les mêmes éoliennes sont retombées encore et encore. Au prochain tour, fiabilisez !']
+      ['🚒 Pompier du parc', 'Vous avez couru d\'un défaut à l\'autre sans traiter la cause. Les mêmes défauts sont revenus encore et encore. Au prochain tour, fiabilisez !']
     ],
-    morale: 'Réparer, c\'est utile. Éviter que la panne revienne, c\'est ça qui fait la performance.',
+    morale: 'Réparer, c\'est utile. Éviter que le défaut revienne, c\'est ça qui fait la performance.',
     btnRejouer: 'Rejouer ↻', btnAccueil: 'Accueil', btnBase: '⚓ Améliorer le bateau', btnJour: 'Jour {n} ▶',
     lbFinSprint: '🏆 Sprint 90 s', lbFinCarriere: '🏆 Carrière',
     compteTitre: 'Compte du jour {j}', cVentes: 'Ventes d\'électricité ({mwh} MWh)', cPieces: 'Pièces de rechange ({n})', cCarbu: 'Carburant ({n} pleins)',
     cResultat: 'Résultat du jour', cBudget: 'Budget disponible',
-    cCopq: '💸 Dont <b>coût de la non-qualité</b> : {n} réparations = {k} k€ partis en pannes répétables.',
+    cCopq: '💸 Dont <b>coût de la non-qualité</b> : {n} réparations = {k} k€ partis en défauts répétables.',
     cVieux: '🕰️ Vieillissement : {ids} montrent des signes de fatigue.',
-    demain: '📅 Demain : {txt}', nouveautes: { 2: '🐬 zones de mammifères marins (vitesse limitée)', 3: '⛈️ grains : transfert impossible au-delà de 1,5 m de houle', 4: '🔌 défauts de câble : tout un string peut tomber' }, plusDur: 'des pannes un peu plus fréquentes',
+    demain: '📅 Demain : {txt}', nouveautes: { 2: '⛽ carburant, brouillard et houle', 3: '🏭 dépôt de pièces à l\'OSS et dauphins', 4: '⛈️ grains et défaut du transformateur de l\'OSS', 5: '🔌 défauts de câble et incendies' }, plusDur: 'des défauts un peu plus fréquents',
     baseTitre: '⚓ Base O&M · le chantier', baseIntro: 'Investissez le résultat de vos journées dans le bateau et l\'équipe. Les améliorations sont gardées pour toute la carrière.',
     bSur: 'Carrière de {pseudo} · avant le jour {j}', niveau: 'Niveau {n}/{max}', actuel: 'Actuel', prochain: 'Prochain', acheter: 'Améliorer · {p} k€', max: 'Niveau maximum',
     ameli: {
@@ -830,7 +876,7 @@ const I18N = {
       equipe: ['Formation de l\'équipe', 'Temps d\'intervention'], radar: ['Radar météo', 'Prévisions à l\'avance'], scada: ['Supervision SCADA', '']
     },
     pilierAmeli: { equipe: 'Personnes & culture', radar: 'Anticiper', scada: 'Innovation & technologie' },
-    scadaNiv: ['aucune', 'historique de pannes cumulé visible (Pareto)', 'alarmes prédictives avant la panne']
+    scadaNiv: ['aucune', 'historique des défauts cumulé visible (Pareto)', 'alarmes prédictives avant le défaut']
   },
   en: {
     dates: '📅 9 – 13 November 2026',
@@ -840,8 +886,8 @@ const I18N = {
     tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality',
     jours: 'days', heures: 'hrs', minutes: 'min', secondes: 'sec',
     legendeTitre: 'On-screen cues',
-    l1: '<b>Red bubble</b>: turbine down, the icon shows the type of fault.',
-    l2: '<b>×N badge</b>: number of failures. Repeat offenders are your priority.',
+    l1: '<b>Orange bubble</b>: turbine fault, <b>derated to 40%</b>. Left too long, it goes into <b>safety shutdown</b> (red bubble), then may catch fire 🔥 and explode 💥, cutting the string downstream.',
+    l2: '<b>×N badge</b>: number of faults. Repeat offenders are your priority.',
     l3: '<b>Golden turbine</b>: reinforced. Pale gold at level 1, bright sparkling gold at level 2.',
     l4: '<b>Combo</b>: chaining the same operation goes faster and earns a bonus.',
     l5: '<b>Career</b>: every evening, sales − parts − fuel = budget to upgrade the boat.',
@@ -855,43 +901,70 @@ const I18N = {
     commentJouer: 'How to play',
     etape1: '<b>Click a turbine</b> and choose: repair, or repair <i>and</i> reinforce. The boat sails there on its own.',
     etape2: '<b>Chain your orders</b>: the queue at the bottom runs in order. Same fault in a row = <b>combo</b>, faster.',
-    etape3: '<b>Head back to base</b> to reload spare parts and fuel.',
-    etape4: '<b>Watch the weather</b>: fog, swell, squalls… zones are forecast before they arrive.',
-    etape5: '<b>Spot the repeat offenders</b> (×N badge): a few turbines cause most failures. Reinforce them!',
+    etape3: '<b>Head back to base</b> for parts and fuel, or stop at the <b>OSS depot</b> in the middle of the farm for a few parts.',
+    etape4: '<b>Watch the weather</b>: fog, swell, squalls… zones are forecast before they arrive. The wind varies too: gusts and lulls make turbines spin faster or slower.',
+    etape5: '<b>Spot the repeat offenders</b> (×N badge): a few turbines, more exposed to the sea, account for most faults. Reinforce them!',
     choixMode: 'Choose your game',
-    modeSprint: 'One day in 90 seconds. Today\'s leaderboard.',
-    modeCarriere: 'Day after day: sell your power, upgrade your boat, face rougher weather. Saved.',
+    modeSprint: 'One day in 90 seconds, two buttons to know. Perfect to start!',
+    modeCarriere: 'For those who get hooked: something new every day, a budget to upgrade the boat. Resume it with your name.',
     nomLabel: 'Your name for the leaderboard', nomPh: 'First name L.',
     btnSprint: 'Cast off ▶', btnCarriereNew: 'Start my career ▶', btnCarriereSuite: 'Continue · day {n} ▶', patience: 'Connecting…',
-    carCode: 'Resume code (4 digits)', carAide: 'With your name and this code, resume your career from any computer.',
-    carLocal: 'Career on this computer: <b>{pseudo}</b>, day {jour}, €{budget}k.', carNouvelle: 'New career',
-    carNouvelleConfirm: 'Start a new career? The save on this computer will be forgotten (the online one stays available with its code).',
+    rgTitre: 'The rules in 20 seconds', rgJour: 'Day {j}', rgSurCarriere: '{pseudo}\'s career', btnGo: 'Let\'s go ▶',
+    rg1: 'An <b>orange</b> turbine reports a fault: it runs at reduced power.',
+    rg2: '<b>Click it</b> and choose: <b>Repair</b> (quick) or <b>Reinforce</b> (longer, but the fault hardly ever comes back: it turns <b>golden</b> ✨). The boat sails there on its own.',
+    rg3: 'The same turbines come back often (<b>×N</b> badge): those are the ones to reinforce.',
+    rg4Sprint: '<b>90 seconds</b>, one day from 6 am to 10 pm: produce as much energy as you can!',
+    rg4Carriere: 'A <b>3-minute</b> day. In the evening, the electricity sold earns a budget to upgrade the boat.',
+    rgNouveauTitre: 'New today',
+    rgNouveau: { 1: '📦 The boat carries a limited number of <b>spare parts</b>: click ⚓ the base, bottom left, to reload.',
+      2: '⛽ <b>Fuel</b> matters too. And the weather joins in: <b>fog</b> (the boat slows down) and <b>swell</b> (interventions take longer).',
+      3: '🏭 The <b>OSS</b>, in the middle of the farm, is a forward parts depot. Watch out for <b>dolphins</b> too: speed limit!',
+      4: '⛈️ <b>Squalls</b>: above 1.5 m of swell, no transfer. And the OSS transformer can fail (−50% export).',
+      5: '🔌 <b>Cable faults</b>: a whole string can stop. A turbine neglected too long can catch fire.' },
+    rVent: '🌬️ <b>Variable wind</b>: gusts and lulls, output follows the wind',
+    ossRole: 'It collects the energy of the 64 turbines and sends it ashore.',
+    arretSecu: '⛔ {id}: safety shutdown', tutoArret: '⛔ <b>{id}</b> stayed faulty too long: it went into <b>safety shutdown</b> and produces nothing.',
+    tutoCalme: '🍃 <b>The wind is dropping</b>: turbines slow down and produce less. It is not a fault: wind power is intermittent.',
+    enFeu: '🔥 {id} is on fire!', tutoFeu: '🔥 <b>{id}</b> has been shut down too long and <b>caught fire</b>. Act fast or it will explode!',
+    bandeauBoum: '💥 {id} exploded! Rotor must be replaced.', bandeauBoumString: '💥 {id} exploded: {n} downstream turbine(s) cut off on string {s}!',
+    tutoBoum: '💥 A neglected turbine ends up <b>exploding</b>: the rotor must be replaced (slow and costly), and the whole string downstream is cut off. Prevention always costs less!',
+    bandeauOss: '⚡ OSS transformer fault: farm output drops by half!',
+    tutoOss: '⚡ <b>Click the OSS</b>, the substation in the middle of the farm, to repair it. While it is faulty, the farm can only export 50% of its output.',
+    pleinOss: '📦 +{n} parts (OSS)', ossRepare: '⚡ OSS repaired: 100% export', rotorNeuf: '🏗️ New rotor!',
+    mDetruite: '💥 Destroyed: the rotor must be replaced. The string is cut off downstream.', mFeu: '🔥 On fire: about to explode!',
+    aRemplacer: 'Replace the rotor', aRemplacerDet: 'slow and costly, restores the string', aRemplacerFiab: 'Replace & reinforce',
+    ossTitre: 'OSS · offshore substation', ossPanne: '⚡ Transformer fault: export limited to 50%', ossOk: '✔ Transformer in service',
+    ossStock: 'Forward depot: <b>{n}</b> part(s) available this shift', ossReparer: 'Repair the transformer', ossReparerDet: 'restores 100% output',
+    ossCharger: 'Pick up parts', ossChargerDet: 'forward depot: closer than the port ({n} in stock)',
+    cRotors: 'Rotor replacements ({n})', fBoum: '💥 {n} turbine(s) exploded for lack of intervention.',
+    carLocal: '<b>{pseudo}</b>\'s career: day {jour}, €{budget}k.', carNouvelle: 'Start over',
+    carNouvelleConfirm: 'Erase {pseudo}\'s career and start again from day 1?',
     errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
     errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
     errHorsLigne: 'Offline: the career is kept on this computer only.',
-    infoLoginWin: 'Signed in as <b>{login}</b>', infoLoginSp: 'Signed in as <b>{login}</b> (Microsoft 365 account)', infoLoginAstuce: '',
+    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
     piliersTitre: 'The 4 Pillars of Performance',
     piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
-    p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> failures instead of suffering them.',
+    p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> faults instead of suffering them.',
     p2t: 'People & Culture', p2: 'Crew training, shift handovers, lessons learned: performance is <em>built and passed on</em> from one shift to the next.',
     p3t: 'Governance & Compliance', p3: 'No transfer above 1.5 m of swell, speed limits near marine mammals: <em>rules protect</em> crews and the environment.',
     p4t: 'Sustainability & Impact', p4: 'Every MWh delivered powers homes with renewable energy. The final report turns it into <em>concrete impact</em>.',
     themeTitre: 'What the game tells',
     themeChapeau: 'Quality is not just about compliance: it is a lever to decide, prevent and create value. Each mechanic illustrates an idea.',
-    t1t: 'Fix the cause, not the symptom', t1: 'Repairing gets the turbine back online. <em>Reinforcing</em> it stops the failure from coming back. Time invested today pays back many times over.',
-    t2t: 'Pareto: 20% of causes, 80% of effects', t2: 'A few "fragile" turbines cause most failures. Spotting them through their <em>history</em> and acting on them first is where performance is won.',
+    t1t: 'Fix the cause, not the symptom', t1: 'Repairing gets the turbine back online. <em>Reinforcing</em> it stops the fault from coming back. Time invested today pays back many times over.',
+    t2t: 'Pareto: 20% of causes, 80% of effects', t2: 'A few more exposed turbines (swell, sea spray, turbulence) account for most faults. Spotting them through their <em>history</em> and acting on them first is where performance is won.',
     t3t: 'Learn from experience', t3: 'Handling identical faults in a row gets faster: that is <em>lessons learned</em> at work. Combos reward organisation, not haste.',
     t4t: 'Anticipate the unexpected', t4: 'Weather zones are forecast before they arrive. Reading <em>weak signals</em> and planning ahead keeps you from getting stuck in the wrong place.',
-    t5t: 'The cost of poor quality', t5: 'In career mode, every repair costs parts. What you don\'t spend on recurring failures, you <em>invest</em> in your boat.',
+    t5t: 'The cost of poor quality', t5: 'In career mode, every repair costs parts. What you don\'t spend on recurring faults, you <em>invest</em> in your boat.',
     t6t: 'Measure what matters', t6: 'Your score is the energy delivered to the grid, not the number of interventions. Running around feels busy; farm <em>availability</em> tells the truth.',
     pied: 'World Quality Week · 9 – 13 November 2026 · World Quality Day on Thursday 12 November · #WQW26',
     enService: 'online', pic: '· 🏙️ peak ×1.5', ordres: 'Orders', annuler: 'Click to cancel', base: 'Base',
     shiftNom: ['morning', 'afternoon', 'evening'], shiftTitre: ['morning shift', 'afternoon shift', 'evening shift'],
     hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Day {j} · ', modeNom: { rapide: 'Sprint 90 s', carriere: 'Career · day {j}' },
     depart: '🚤 06:00 · {shift} · {mode}',
-    tutoPanne: '⚠️ <b>{id}</b> is down! <b>Click it</b> and give an order: the boat will go on its own.',
-    tutoApres: '👍 Back online! The <b>×N</b> badge under a turbine counts its failures: fragile ones stand out quickly. Those are the ones to <b>reinforce</b> 🛡️.',
-    tutoRecidive: '🔁 <b>{id}</b> has the same fault again. Some turbines are more fragile than others: <b>reinforce them</b> to break the cycle.',
+    tutoPanne: '⚠️ <b>{id}</b> reports a fault: it runs derated at 40%. <b>Click it</b> and give an order: the boat will go on its own.',
+    tutoApres: '👍 Back online! The <b>×N</b> badge under a turbine counts its faults: the most exposed ones stand out quickly. Those are the ones to <b>reinforce</b> 🛡️.',
+    tutoRecidive: '🔁 <b>{id}</b> has the same fault again. Some turbines are more exposed than others: <b>reinforce them</b> to break the cycle.',
     tutoCombo: '🔁 <b>Combo!</b> Chaining the same operations gets faster and faster: that\'s <b>lessons learned</b>. Switching operation resets the counter.',
     tutoGrain: '⛈️ <b>Squall forecast</b>: under it, swell exceeds 1.5 m and transfers to turbines are <b>impossible</b>. Plan ahead!',
     tutoCable: '🔌 A cable fault at <b>{id}</b> cuts every turbine downstream on its string. <b>Top priority!</b>',
@@ -899,26 +972,26 @@ const I18N = {
     tutoCarbu0: '⛽ <b>Out of fuel</b>: the boat crawls. Click ⚓ the base to refuel.',
     tutoCarbu: '⛽ Fuel low: plan a stop at the base ⚓.',
     tutoPieces: '📦 <b>Not enough parts on board</b>: click ⚓ the base (bottom left) to reload.',
-    tutoAlerte: '🛰️ <b>Predictive alarm</b> on {id}: reinforce it before it fails!',
+    tutoAlerte: '🛰️ <b>Predictive alarm</b> on {id}: reinforce it before the fault appears!',
     filePleine: '🧾 Order queue full ({n} max): let the crew catch up.',
     grainCible: '⛈️ The target turbine is under a squall: no transfer for now.',
     bandeauPic: '🏙️ Demand peak (7 – 9 pm): every MWh counts ×1.5!',
     bandeauReleve: '🚤 {shift}: the crew is on board, fully stocked.',
-    encore: '🔁 {id} again!', relancee: '✔ {id} back online', plein: '📦⛽ Restocked', evitee: '✨ Failure avoided!', suspendu: 'on hold',
+    encore: '🔁 {id} again!', relancee: '✔ {id} at 100%', plein: '📦⛽ Restocked', evitee: '✨ Fault avoided!', suspendu: 'on hold',
     prevision: 'Forecast: {ico} {nom} in {s} s', transfertImpossible: 'no transfer',
     baseNom: 'O&M base', baseSous: 'parts · fuel', chargement: '⏳ Loading…',
-    mTitre: '{id} · {g} · string {s}', mProd: '✔ Producing', mCoupe: '⏸ Stopped by an upstream cable fault',
+    mTitre: '{id} · {g} · string {s}', mProd: '✔ Producing · wind {v} m/s · {pc}% of its power', mBridee: '⚠️ Derated to 40%: act before the safety shutdown', mArret: '⛔ Safety shutdown: no more output', mCoupe: '⏸ Stopped by an upstream cable fault',
     mNiv: ['', ' · 🛡️ reinforced', ' · 🛡️🛡️ fully reinforced'],
-    mHisto: ' · <b>{n} failure(s) today</b>', mTotal: ' · {n} in total', mGrain: '⛈️ Under a squall: no transfer for now', mHoule: '🌊 Swell: slower intervention',
-    mAlerte: '⚠ Predictive alarm: failure imminent!',
+    mHisto: ' · <b>{n} fault(s) today</b>', mTotal: ' · {n} in total', mGrain: '⛈️ Under a squall: no transfer for now', mHoule: '🌊 Swell: slower intervention',
+    mAlerte: '⚠ Predictive alarm: fault imminent!',
     aReparer: 'Repair', aRepDet: 'back online', aRepCable: 'restarts the whole string', aRepFiab: 'Repair & reinforce',
-    aFiab: 'Reinforce', aFiab2: 'Deep reinforcement', aFiabDet: '{remede}: 8× fewer failures', aFiab2Det: 'failures almost eliminated',
+    aFiab: 'Reinforce', aFiab2: 'Deep reinforcement', aFiabDet: '{remede}: 8× fewer faults', aFiab2Det: 'faults almost eliminated',
     aDeja: 'already queued', aMax: '✨ Nothing to do: fully reinforced.',
-    dp: ': ', toastFiab1: '8× fewer failures', toastFiab2: 'Almost no more failures',
+    dp: ': ', toastFiab1: '8× fewer faults', toastFiab2: 'Almost no more faults',
     rSur: 'Crew change · {h}', rTitre: 'End of the {shift}', dispo: 'availability', ptsShift: 'points this shift', meilleurCombo: 'best combo',
     rFiab: '🛡️ <b>{n}</b> reinforcement(s) this shift: those turbines will keep producing while the next crew works.',
-    rFiab0: '🚒 No reinforcement this shift: the same failures are likely to come back.',
-    rPanne: '<br>⚠️ <b>{n}</b> turbine(s) still down: they are waiting for the next crew.', rOk: '<br>✔ The farm is handed over in good shape.',
+    rFiab0: '🚒 No reinforcement this shift: the same faults are likely to come back.',
+    rPanne: '<br>⚠️ <b>{n}</b> turbine(s) still faulty: they are waiting for the next crew.', rOk: '<br>✔ The farm is handed over in good shape.',
     rPrev: 'Forecast for the {shift}', rCable: '🔌 Risk of <b>cable faults</b>: a whole string can stop', rPic: '🏙️ <b>Demand peak</b> from 7 to 9 pm: points ×1.5',
     btnReleve: 'Take over ▶',
     fSur: 'End of day · 10:00 pm · {mode}',
@@ -926,22 +999,22 @@ const I18N = {
     statRep: '🔧 repairs', statFiab: '🛡️ reinforcements', statCombo: '🔁 best combo', statDispo: '⚡ availability',
     envoi: 'Sending score…', rangTxt: '<b>{a}</b> of {b} today · <b>{c}</b> of {d} all time', rangCarriere: 'Career saved ✔',
     errSpam: 'Score not saved: two games too close together.', errHorsLigneScore: 'Leaderboard offline: score kept on this computer.',
-    pareto: '📊 <b>Pareto</b>: {f} turbines out of 64 ({pc}%) caused <b>{part}%</b> of failures. You reinforced <b>{n}</b> of them.',
+    pareto: '📊 <b>Pareto</b>: {f} turbines out of 64 ({pc}%) accounted for <b>{part}%</b> of faults. You reinforced <b>{n}</b> of them.',
     paretoPeu: ' Spotting them early through their history (×N badge) is the key.', paretoBien: ' Well spotted!',
     profils: [
       ['🏆 Sustainable performance pilot', 'You spotted the problem turbines and fixed the causes: the farm kept turning while you stayed in control.'],
       ['🧭 Continuous improvement strategist', 'You started fixing causes rather than symptoms. Target the repeat offenders even better and the farm will almost run itself!'],
       ['🔧 Savvy fixer', 'Lots of fires put out… and a few reinforcements. Focus them on the turbines that keep failing: the effect is spectacular.'],
-      ['🚒 Farm firefighter', 'You ran from one failure to the next without fixing the cause. The same turbines failed again and again. Next time, reinforce!']
+      ['🚒 Farm firefighter', 'You ran from one fault to the next without fixing the cause. The same faults came back again and again. Next time, reinforce!']
     ],
-    morale: 'Repairing is useful. Stopping the failure from coming back is what drives performance.',
+    morale: 'Repairing is useful. Stopping the fault from coming back is what drives performance.',
     btnRejouer: 'Play again ↻', btnAccueil: 'Home', btnBase: '⚓ Upgrade the boat', btnJour: 'Day {n} ▶',
     lbFinSprint: '🏆 Sprint 90 s', lbFinCarriere: '🏆 Career',
     compteTitre: 'Day {j} account', cVentes: 'Electricity sales ({mwh} MWh)', cPieces: 'Spare parts ({n})', cCarbu: 'Fuel ({n} refills)',
     cResultat: 'Day result', cBudget: 'Available budget',
-    cCopq: '💸 Of which <b>cost of poor quality</b>: {n} repairs = €{k}k spent on avoidable failures.',
+    cCopq: '💸 Of which <b>cost of poor quality</b>: {n} repairs = €{k}k spent on avoidable faults.',
     cVieux: '🕰️ Ageing: {ids} are showing signs of wear.',
-    demain: '📅 Tomorrow: {txt}', nouveautes: { 2: '🐬 marine mammal zones (speed limit)', 3: '⛈️ squalls: no transfer above 1.5 m of swell', 4: '🔌 cable faults: a whole string can go down' }, plusDur: 'slightly more frequent failures',
+    demain: '📅 Tomorrow: {txt}', nouveautes: { 2: '⛽ fuel, fog and swell', 3: '🏭 OSS parts depot and dolphins', 4: '⛈️ squalls and OSS transformer fault', 5: '🔌 cable faults and fires' }, plusDur: 'slightly more frequent faults',
     baseTitre: '⚓ O&M base · the yard', baseIntro: 'Invest your daily results in the boat and the crew. Upgrades are kept for the whole career.',
     bSur: '{pseudo}\'s career · before day {j}', niveau: 'Level {n}/{max}', actuel: 'Now', prochain: 'Next', acheter: 'Upgrade · €{p}k', max: 'Maximum level',
     ameli: {
@@ -949,7 +1022,7 @@ const I18N = {
       equipe: ['Crew training', 'Intervention time'], radar: ['Weather radar', 'Forecast lead time'], scada: ['SCADA monitoring', '']
     },
     pilierAmeli: { equipe: 'People & culture', radar: 'Anticipate', scada: 'Innovation & technology' },
-    scadaNiv: ['none', 'cumulative failure history visible (Pareto)', 'predictive alarms before failures']
+    scadaNiv: ['none', 'cumulative fault history visible (Pareto)', 'predictive alarms before faults']
   }
 };
 let langue = (() => { try { const l = localStorage.getItem('eq_langue'); if (l === 'fr' || l === 'en') return l; } catch (e) { /* */ } return /^fr/i.test(navigator.language || 'fr') ? 'fr' : 'en'; })();
@@ -979,74 +1052,132 @@ const stock = {
 const echapper = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 /* =====================================================================
-   Identité du joueur
-   - page publiée sur SharePoint : compte Microsoft 365 de la personne connectée
-     (API REST du site, appelée avec sa session : aucune saisie, aucun lanceur) ;
-   - sinon : ?login=… dans l'adresse, ou le dernier login connu sur ce poste ;
-   - à défaut, le pseudo saisi sert d'identifiant.
+   Joueur : sur le stand, chacun saisit son nom (le PC est celui de l'organisateur)
    ===================================================================== */
-const joueur = (() => {
-  const q = new URLSearchParams(location.search);
-  const viaUrl = (q.get('login') || q.get('user') || '').trim().slice(0, 64);
-  if (viaUrl) { stock.set('eq_login', viaUrl); stock.set('eq_source', 'windows'); }
-  const login = viaUrl || stock.get('eq_login') || '';
-  return { login, source: login ? (stock.get('eq_source') || 'windows') : 'saisie', pseudo: stock.get('eq_pseudo') || '' };
-})();
-
-async function detecterCompteSharePoint() {
-  if (!/^https?:$/.test(location.protocol) || location.hostname === 'localhost') return;
-  // on remonte l'arborescence de la page jusqu'au site SharePoint qui répond
-  const dossiers = location.pathname.split('/').slice(1, -1);
-  const essais = [];
-  for (let n = dossiers.length; n >= 0 && essais.length < 5; n--) essais.push('/' + dossiers.slice(0, n).join('/'));
-  for (const site of essais) {
-    try {
-      const r = await fetch(location.origin + site.replace(/\/$/, '') + '/_api/web/currentuser',
-        { headers: { Accept: 'application/json;odata=nometadata' }, credentials: 'include' });
-      if (!r.ok) continue;
-      const u = await r.json();
-      const login = (u.Email || u.UserPrincipalName || String(u.LoginName || '').split('|').pop() || '').trim().toLowerCase().slice(0, 64);
-      if (!login) return;
-      joueur.login = login; joueur.source = 'sharepoint';
-      stock.set('eq_login', login); stock.set('eq_source', 'sharepoint');
-      if (!$('pseudo').value.trim() && u.Title) { $('pseudo').value = String(u.Title).trim().slice(0, 24); majBoutonJouer(); }
-      majInfoLogin();
-      return;
-    } catch (e) { /* pas sur SharePoint : on continue sans */ }
-  }
-}
-function majInfoLogin() {
-  $('infoLogin').innerHTML = !joueur.login ? t('infoLoginAstuce')
-    : t(joueur.source === 'sharepoint' ? 'infoLoginSp' : 'infoLoginWin', { login: echapper(joueur.login) });
-}
+const joueur = { pseudo: stock.get('eq_pseudo') || '' };
+const cleNom = p => String(p).trim().toLowerCase();
 let modeChoisi = stock.get('eq_mode') === 'carriere' ? 'carriere' : 'rapide';
 
 /* =====================================================================
-   Supabase (API REST, sans bibliothèque)
+   Données : fichiers JSON dans le dossier du jeu (synchronisé par OneDrive)
+   - écrits uniquement par ce PC, via l'accès aux fichiers d'Edge / Chrome ;
+   - qualite2026-scores.json : toutes les parties (avec le temps de jeu) ;
+   - qualite2026-carrieres.json : les carrières, une par nom de joueur ;
+   - copie de secours dans le navigateur, reversée dans les fichiers dès que le dossier est relié.
    ===================================================================== */
-async function sb(chemin, corps, entetes = {}) {
-  let r;
-  try {
-    r = await fetch(CONFIG.supabaseUrl + chemin, {
-      method: 'POST',
-      headers: { apikey: CONFIG.supabaseKey, 'Content-Type': 'application/json', ...entetes },
-      body: JSON.stringify(corps)
-    });
-  } catch (e) {   // la requête n'a pas pu partir : réseau, proxy, pare-feu ou politique de sécurité de la page
-    const err = new Error('Supabase injoignable depuis ce poste'); err.reseau = true; throw err;
-  }
-  const txt = await r.text();
-  if (!r.ok) { let m = txt; try { m = JSON.parse(txt).message || txt; } catch (e) { /* texte brut */ } const err = new Error(m || r.status); err.serveur = true; throw err; }
-  return txt ? JSON.parse(txt) : null;
+const BD = { parties: [], carrieres: {}, attente: [] };
+const donnees = { dossier: null, nom: '', etat: 'local', erreur: '', ecriture: Promise.resolve(true) };
+
+function lireLocal() {
+  try { const d = JSON.parse(stock.get('eq_bd')); if (d) return { parties: d.parties || [], carrieres: d.carrieres || {}, attente: d.attente || [] }; } catch (e) { /* */ }
+  return { parties: [], carrieres: {}, attente: [] };
 }
-const debutDuJour = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
+function garderLocal() { stock.set('eq_bd', JSON.stringify({ parties: BD.parties, carrieres: BD.carrieres, attente: BD.attente })); }
+
+function idbBase() {
+  return new Promise((ok, ko) => {
+    const r = indexedDB.open('qualite2026', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
+  });
+}
+async function idbLire(k) { const db = await idbBase(); return new Promise(ok => { const r = db.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); }); }
+async function idbEcrire(k, v) { const db = await idbBase(); return new Promise(ok => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = () => ok(); tx.onerror = () => ok(); }); }
+
+async function lireJSON(nom) {
+  try { return JSON.parse(await (await (await donnees.dossier.getFileHandle(nom)).getFile()).text() || 'null'); }
+  catch (e) { if (e.name === 'NotFoundError') return null; throw e; }
+}
+async function ecrireJSON(nom, data) {
+  const w = await (await donnees.dossier.getFileHandle(nom, { create: true })).createWritable();
+  await w.write(JSON.stringify(data, null, 1)); await w.close();
+}
+
+/* Relie le dossier des scores. Sans geste de l'utilisateur, on ne fait que vérifier l'autorisation déjà donnée. */
+async function relierDossier(interactif) {
+  if (!window.showDirectoryPicker) { donnees.etat = 'indispo'; majEtatDonnees(); return; }
+  try {
+    let h = interactif === 'changer' ? null : await idbLire('dossier');
+    if (h && (await h.queryPermission({ mode: 'readwrite' })) !== 'granted') {
+      if (!interactif || (await h.requestPermission({ mode: 'readwrite' })) !== 'granted') { donnees.etat = 'relier'; donnees.nom = h.name; majEtatDonnees(); return; }
+    }
+    if (!h) {
+      if (!interactif) { donnees.etat = 'local'; majEtatDonnees(); return; }
+      h = await showDirectoryPicker({ id: 'qualite2026', mode: 'readwrite' });
+      await idbEcrire('dossier', h);
+    }
+    donnees.dossier = h; donnees.nom = h.name;
+    const [sc, ca] = await Promise.all([lireJSON(CONFIG.fichiers.scores), lireJSON(CONFIG.fichiers.carrieres)]);
+    // les fichiers font foi ; on y reverse ce qui a été joué pendant que le dossier n'était pas relié
+    const loc = lireLocal();
+    BD.parties = (sc && sc.parties) || []; BD.carrieres = (ca && ca.carrieres) || {};
+    const ids = new Set(BD.parties.map(x => x.id));
+    for (const x of loc.parties) if (loc.attente.includes(x.id) && !ids.has(x.id)) BD.parties.push(x);
+    for (const [k, c] of Object.entries(loc.carrieres)) if (!BD.carrieres[k] || (c.maj || 0) > (BD.carrieres[k].maj || 0)) BD.carrieres[k] = c;
+    BD.parties.sort((a, b) => a.date - b.date);
+    BD.attente = loc.attente;
+    donnees.etat = 'ok';
+    await enregistrer();
+  } catch (e) {
+    if (e.name === 'AbortError') return;   // sélection annulée
+    console.warn('Dossier des scores', e); donnees.etat = 'erreur'; donnees.erreur = e.message;
+  }
+  majEtatDonnees(); rafraichirClassements();
+}
+
+/* Écrit les deux fichiers (à la suite, jamais en parallèle) et garde une copie dans le navigateur */
+function enregistrer() {
+  garderLocal();
+  if (donnees.etat !== 'ok') return Promise.resolve(false);
+  const maj = new Date().toISOString();
+  donnees.ecriture = donnees.ecriture.then(async () => {
+    await ecrireJSON(CONFIG.fichiers.scores, { v: 1, maj, parties: BD.parties });
+    await ecrireJSON(CONFIG.fichiers.carrieres, { v: 1, maj, carrieres: BD.carrieres });
+    BD.attente = []; garderLocal();
+    return true;
+  }).catch(e => {
+    console.warn('Écriture impossible', e);
+    donnees.etat = 'erreur'; donnees.erreur = e.message; majEtatDonnees();
+    return false;
+  });
+  return donnees.ecriture;
+}
+
+function majEtatDonnees() {
+  const el = $('etatDonnees'); if (!el) return;
+  const e = donnees.etat, nom = echapper(donnees.nom || '');
+  el.className = 'etat-donnees ' + (e === 'ok' ? 'ok' : 'alerte');
+  el.innerHTML = e === 'ok' ? t('donneesOk', { nom }) : e === 'relier' ? t('donneesRelier', { nom }) : e === 'erreur' ? t('donneesErreur', { err: echapper(donnees.erreur) })
+    : e === 'indispo' ? t('donneesIndispo') : t('donneesLocal');
+  if (e !== 'ok' && e !== 'indispo') {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'lien';
+    b.textContent = t(e === 'relier' ? 'donneesBtnRelier' : e === 'erreur' ? 'donneesBtnReessayer' : 'donneesBtnChoisir');
+    b.addEventListener('click', () => relierDossier(true));
+    el.append(' ', b);
+  }
+  if ($('adDossier')) $('adDossier').innerHTML = el.innerHTML.replace(/<button[\s\S]*<\/button>/, '');
+}
+
+/* ---------- Classements, calculés à partir des parties ---------- */
+const jourIso = d => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
+function avecRangs(liste, val) { let r = 0; return liste.map((x, i) => ({ ...x, rang: i && val(x) === val(liste[i - 1]) ? r : (r = i + 1) })); }
+function meilleursSprint(periode, sauf) {
+  const auj = jourIso(Date.now()), m = new Map();
+  for (const x of BD.parties) {
+    if (x.mode !== 'rapide' || (periode === 'jour' && jourIso(x.date) !== auj)) continue;
+    const k = cleNom(x.pseudo); if (k === sauf) continue;
+    const y = m.get(k); if (!y || x.score > y.score) m.set(k, x);
+  }
+  return [...m.values()].sort((a, b) => b.score - a.score || a.date - b.date);
+}
+const classementCarriere = () => Object.values(BD.carrieres).sort((a, b) => b.totalMWh - a.totalMWh || a.maj - b.maj);
 
 const tableaux = { listeSprint: { p: 'jour', mode: 'rapide', nb: 6 }, listeCarriere: { mode: 'carriere', nb: 5 }, listeFin: { p: 'jour', mode: 'rapide' } };
-async function chargerClassement(cible) {
-  const ol = $(cible), tb = tableaux[cible];
+function chargerClassement(cible) {
+  const ol = $(cible), tb = tableaux[cible], nb = tb.nb || 8;
   const ligne = (rang, pseudo, sous, valeur, unite) => {
     const li = document.createElement('li');
-    if (joueur.pseudo && pseudo.toLowerCase() === joueur.pseudo.toLowerCase()) li.className = 'moi';
+    if (joueur.pseudo && cleNom(pseudo) === cleNom(joueur.pseudo)) li.className = 'moi';
     const r = document.createElement('span'); r.className = 'r'; r.textContent = ['🥇', '🥈', '🥉'][rang - 1] || rang;
     const p = document.createElement('span'); p.className = 'p'; p.textContent = pseudo;
     const sm = document.createElement('small'); sm.textContent = sous; p.append(sm);
@@ -1054,21 +1185,19 @@ async function chargerClassement(cible) {
     const u = document.createElement('small'); u.textContent = unite; s.append(u);
     li.append(r, p, s); return li;
   };
-  try {
-    if (tb.mode === 'carriere') {
-      const lignes = await sb('/rest/v1/rpc/classement_carriere', { nb: tb.nb || 8 });
-      ol.replaceChildren(...lignes.map(l => ligne(l.rang, l.pseudo, t('jourCourt', { n: l.jour }), l.total_mwh, 'MWh')));
-      if (!lignes.length) ol.innerHTML = '<li class="vide">' + t('lbVideCarriere') + '</li>';
-    } else {
-      const lignes = await sb('/rest/v1/rpc/classement', { nb: tb.nb || 8, depuis: tb.p === 'jour' ? debutDuJour() : null, p_mode: 'rapide' });
-      ol.replaceChildren(...lignes.map(l => ligne(l.rang, l.pseudo, '🛡️' + l.ameliorations, l.score, 'pts')));
-      if (!lignes.length) ol.innerHTML = '<li class="vide">' + t('lbVide') + '</li>';
-    }
-  } catch (e) {
-    console.warn('Classement indisponible', e);
-    const best = stock.get('eq_best_rapide');
-    ol.innerHTML = '<li class="vide">' + t('lbHorsLigne') + (best && tb.mode !== 'carriere' ? '<br>' + t('lbRecord', { n: fmt(+best) }) : '') + '</li>';
+  if (tb.mode === 'carriere') {
+    const l = avecRangs(classementCarriere(), c => c.totalMWh).slice(0, nb);
+    ol.replaceChildren(...l.map(c => ligne(c.rang, c.pseudo, t('jourCourt', { n: c.jour }), c.totalMWh, 'MWh')));
+    if (!l.length) ol.innerHTML = '<li class="vide">' + t('lbVideCarriere') + '</li>';
+  } else {
+    const l = avecRangs(meilleursSprint(tb.p), x => x.score).slice(0, nb);
+    ol.replaceChildren(...l.map(x => ligne(x.rang, x.pseudo, '🛡️' + x.ameliorations, x.score, 'pts')));
+    if (!l.length) ol.innerHTML = '<li class="vide">' + t('lbVide') + '</li>';
   }
+}
+function rafraichirClassements() {
+  for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
+  if (!$('ecranFin').hidden) chargerClassement('listeFin');
 }
 document.querySelectorAll('.onglets').forEach(o => o.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
@@ -1077,49 +1206,36 @@ document.querySelectorAll('.onglets').forEach(o => o.addEventListener('click', e
   chargerClassement(o.dataset.cible);
 }));
 
-async function envoyerScore(res) {
-  const login = joueur.login || joueur.pseudo;
+function enregistrerPartie(res) {
+  const ligne = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: Date.now(), pseudo: joueur.pseudo,
+    mode: res.mode, jour: res.jour, score: res.score, energie: res.energie, reparations: res.reparations,
+    ameliorations: res.ameliorations, evitees: res.evitees, dispo: res.dispo, comboMax: res.comboMax,
+    temps: res.temps, explosions: res.explosions, langue, version: CONFIG.version
+  };
+  BD.parties.push(ligne); BD.attente.push(ligne.id);
   if (res.mode === 'rapide') {
-    const best = +(stock.get('eq_best_rapide') || 0);
-    if (res.score > best) stock.set('eq_best_rapide', res.score);
-  }
-  $('fRang').textContent = t('envoi');
-  try {
-    await sb('/rest/v1/scores', {
-      login, pseudo: joueur.pseudo, source: joueur.source, mode: res.mode, jour: res.jour,
-      score: res.score, energie: res.energie, reparations: res.reparations, ameliorations: res.ameliorations,
-      pannes_evitees: res.evitees, disponibilite: res.dispo, combo_max: res.comboMax, temps_jeu: res.temps,
-      langue, version: CONFIG.version
-    }, { Prefer: 'return=minimal' });
-    if (res.mode === 'rapide') {
-      const [jour, tout] = await Promise.all([
-        sb('/rest/v1/rpc/mon_rang', { p_score: res.score, p_login: login, depuis: debutDuJour(), p_mode: 'rapide' }),
-        sb('/rest/v1/rpc/mon_rang', { p_score: res.score, p_login: login, depuis: null, p_mode: 'rapide' })
-      ]);
-      $('fRang').innerHTML = t('rangTxt', { a: ordinal(jour[0].rang), b: jour[0].joueurs, c: ordinal(tout[0].rang), d: tout[0].joueurs });
-    } else $('fRang').textContent = t('rangCarriere');
-  } catch (e) {
-    console.warn('Score non envoyé', e);
-    $('fRang').textContent = res.mode === 'carriere' ? t('rangCarriere') : /Trop de parties/.test(e.message) ? t('errSpam') : t('errHorsLigneScore');
-  }
+    const k = cleNom(joueur.pseudo), r = l => ({ rang: 1 + l.filter(x => x.score > res.score).length, n: l.length + 1 });
+    const a = r(meilleursSprint('jour', k)), b = r(meilleursSprint('tout', k));
+    $('fRang').innerHTML = t('rangTxt', { a: ordinal(a.rang), b: a.n, c: ordinal(b.rang), d: b.n });
+  } else $('fRang').textContent = t('rangCarriere');
+  enregistrer();
   chargerClassement('listeFin');
 }
 
 /* =====================================================================
-   Carrière : sauvegarde locale + en ligne (pseudo + code à 4 chiffres)
+   Carrière : une par nom de joueur, gardée dans qualite2026-carrieres.json
    ===================================================================== */
 let carriere = null;
-const cleNom = p => p.trim().toLowerCase();
-function nouvelleCarriere(pseudo, code) {
-  return { v: 1, pseudo, code, jour: 1, budget: 0, totalMWh: 0, tempsJeu: 0, maj: Date.now(),
+function nouvelleCarriere(pseudo) {
+  return { v: 1, pseudo, jour: 1, budget: 0, totalMWh: 0, tempsJeu: 0, maj: Date.now(),
     upg: { moteur: 0, soute: 0, reservoir: 0, equipe: 0, radar: 0, scada: 0 }, parc: null, journal: [] };
 }
-function carriereLocale() { try { const c = JSON.parse(stock.get('eq_carriere')); if (c && c.v === 1) return c; } catch (e) { /* */ } return null; }
+const carriereDe = p => (p ? BD.carrieres[cleNom(p)] || null : null);
 function sauverCarriere() {
   carriere.maj = Date.now();
-  stock.set('eq_carriere', JSON.stringify(carriere));
-  return sb('/rest/v1/rpc/sauver_carriere', { p_pseudo: carriere.pseudo, p_code: carriere.code, p_login: joueur.login, p_data: { ...carriere, code: undefined } })
-    .catch(e => console.warn('Sauvegarde en ligne impossible', e));
+  BD.carrieres[cleNom(carriere.pseudo)] = carriere;
+  return enregistrer();
 }
 
 /* =====================================================================
@@ -1146,6 +1262,9 @@ const sons = {
   combo(n) { for (let i = 0; i < Math.min(n, 5); i++) bip(700 + i * 140, .12, 'sine', .07, i * .06); },
   outil() { bip(rand(1400, 1800), .03, 'square', .012); },
   refus() { bip(180, .2, 'sawtooth', .05); },
+  feu() { for (let i = 0; i < 6; i++) bip(rand(200, 900), .05, 'sawtooth', .025, i * .05); },
+  boum() { bip(90, .7, 'sawtooth', .14); bip(55, .9, 'square', .1, .05); bip(140, .3, 'triangle', .08); },
+  mouette() { bip(1700, .09, 'triangle', .025); bip(1400, .14, 'triangle', .022, .1); },
   achat() { bip(1047, .1, 'triangle', .08); bip(1319, .18, 'triangle', .08, .08); },
   fin() { [784, 659, 523, 784, 1047].forEach((f, i) => bip(f, .3, 'triangle', .08, i * .13)); }
 };
@@ -1224,14 +1343,19 @@ function creerParc(sauvegarde) {
 /* Paramètres de la journée : sprint, ou carrière (difficulté qui monte + améliorations achetées) */
 function parametres(mode, car) {
   const P = JSON.parse(JSON.stringify(PARAMS));
-  if (mode === 'rapide') { return P; }
-  const j = car.jour, u = car.upg, k = Math.min(1.8, 1 + .07 * (j - 1));
+  if (mode === 'rapide') {   // Sprint : l'essentiel seulement (réparer ou fiabiliser), pour ceux qui ne jouent jamais
+    Object.assign(P, { pieces: false, carburant: false, meteoZones: false, ossDepot: false, ossPanne: false, incendies: false });
+    P.risqueFragile *= 1.6; P.risqueNormal *= .6;   // en 90 s, les récidivistes doivent se voir
+    return P;
+  }
+  // Carrière : une mécanique de plus chaque jour
+  const j = car.jour, u = car.upg, k = Math.min(1.8, 1 + .07 * (j - 2 > 0 ? j - 2 : 0));
   P.risqueFragile *= k; P.risqueNormal *= k;
+  Object.assign(P, { pieces: true, carburant: j >= 2, meteoZones: j >= 2, ossDepot: j >= 3, ossPanne: j >= 4, cable: j >= 5, incendies: CONFIG.incendies && j >= 5 });
   const m = [['brouillard'], ['houle', 'brouillard'], ['houle', 'brouillard']];
-  if (j >= 2) { m[0].push('dauphins'); m[2].push('dauphins'); }
-  if (j >= 3) { m[1].push('grain'); m[2].push('grain', 'grain'); P.effets = { brouillard: .5, houle: 1.5 }; P.maxZones = 3; }
-  P.meteo = m; P.freqMeteo = Math.max(10, 22 - 2 * j);
-  P.cable = j >= 4;
+  if (j >= 3) { m[0].push('dauphins'); m[2].push('dauphins'); }
+  if (j >= 4) { m[1].push('grain'); m[2].push('grain', 'grain'); P.effets = { brouillard: .5, houle: 1.5 }; P.maxZones = 3; }
+  P.meteo = m; P.freqMeteo = Math.max(12, 24 - 2 * j);
   P.vitesse *= 1 + .12 * u.moteur; P.stock += 2 * u.soute; P.conso *= [1, .7, .5][u.reservoir];
   P.tRep *= 1 - .1 * u.equipe; P.tFiab = P.tFiab.map(x => x * (1 - .1 * u.equipe));
   P.prevision = [3, 6, 10][u.radar]; P.scada = u.scada;
@@ -1250,6 +1374,7 @@ let M = PARAMS;
 
 function nouvellePartie(mode) {
   M = parametres(mode, carriere);
+  VENT = creerVent(mode === 'rapide' ? hacher(jourIso(Date.now())) : hacher(cleNom(carriere.pseudo) + '/' + carriere.jour));
   parc = creerParc(mode === 'carriere' ? carriere.parc : null); eoliennes = parc.liste;
   partie = {
     mode, jour: mode === 'carriere' ? carriere.jour : 1, dureeShift: CONFIG.dureeShift[mode],
@@ -1257,20 +1382,54 @@ function nouvellePartie(mode) {
     reparations: 0, ameliorations: 0, evitees: 0, tempsMarche: 0, pannes: 0, pannesFragiles: 0, piecesRep: 0, piecesFiab: 0, pleins: 0,
     comboCle: null, combo: 0, comboMax: 0, file: [], encours: null, zones: [], prochaineZone: 6,
     cableFait: [false, false, false], cableT: [99, rand(.25, .65), rand(.2, .5)], premierePanne: false,
+    explosions: 0, remplacements: 0, oss: { stock: 0, panne: false, depuis: 0 }, ossShift: 1, ossT: rand(.3, .6),
     shifts: [], stockMsg: 0, puissance: 0, enService: 64, pic: false
   };
   debutShift();
   particules = []; textes = []; astuces = {};
   if (mode === 'carriere' && carriere.jour > 1) astuces.apres1 = astuces.combo = true;
+  if (mode === 'carriere') partie.ossShift = carriere.jour >= 2 ? 1 + Math.floor(Math.random() * 2) : 9;
   $('toasts').replaceChildren();
 }
 const hps = () => 16 / (3 * partie.dureeShift);   // heures de journée par seconde de jeu
+
+/* ---------- Vent : intermittent, variable dans l'espace, avec rafales et accalmies ----------
+   Même graine pour toutes les parties Sprint d'une journée (classement équitable). */
+function hasard(graine) { let a = graine >>> 0; return () => { a = a + 0x6D2B79F5 | 0; let x = Math.imul(a ^ a >>> 15, 1 | a); x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x; return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
+const hacher = txt => [...String(txt)].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619), 2166136261);
+let VENT = creerVent(1);
+function creerVent(graine) {
+  const r = hasard(graine);
+  return {
+    base: 10 + r() * 1.6, dir: -.35 + (r() - .5) * .7, phase: r() * 6.28,   // vent dominant de sud-ouest, vers le nord-est
+    ondes: [[1.8, .045], [1.2, .11], [.7, .27]].map(([a, w]) => ({ a, w: w * (.8 + .4 * r()), p: r() * 6.28 })),
+    accalmies: [{ t: 25 + r() * 45, d: 9 + r() * 6 }, { t: 105 + r() * 45, d: 9 + r() * 6 }]   // en secondes d'une journée de 180 s
+  };
+}
+const tJour = () => (partie ? partie.t * 180 / (3 * partie.dureeShift) : horloge);
+function calme(T) {   // 0 = vent normal, 1 = accalmie installée
+  let c = 0;
+  for (const a of VENT.accalmies) { const u = (T - a.t) / a.d; if (u > 0 && u < 1) c = Math.max(c, Math.sin(u * Math.PI)); }
+  return c;
+}
+function ventGlobal() {
+  const T = tJour();
+  let v = VENT.base;
+  for (const o of VENT.ondes) v += o.a * Math.sin(o.w * T + o.p);
+  return clamp(v * (1 - .72 * calme(T)), .5, 18);
+}
+function ventLocal(x, y, vg) {   // fronts de rafales qui traversent le parc dans le sens du vent
+  const T = tJour(), axe = x * Math.cos(VENT.dir) + y * Math.sin(VENT.dir);
+  return vg * (1 + .2 * Math.sin(axe * .011 - T * .8 + VENT.phase) + .07 * Math.sin(x * .031 + y * .023 + T * .3));
+}
+const puissanceRel = v => (v < 3 ? 0 : v >= 12 ? 1 : (v ** 3 - 27) / (1728 - 27));   // courbe de puissance : démarrage 3 m/s, nominal 12 m/s
+const traits = Array.from({ length: 130 }, () => ({ x: rand(-50, W + 50), y: rand(-50, H + 50), l: rand(.6, 1.4), ph: rand(0, 6.28) }));
 const heureJeu = () => 6 + partie.t * hps();
 const dureeTxt = s => { const m = Math.max(5, Math.round(s * hps() * 60 / 5) * 5); return m >= 60 ? Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0') : m + ' min'; };
 
 function debutShift() {
   partie.tShift = 0;
-  partie.stock = M.stock; partie.carbu = 100;
+  partie.stock = M.stock; partie.carbu = 100; partie.oss.stock = CONFIG.stockOSS;
   partie.file = []; partie.encours = null; partie.zones = [];
   partie.prochaineZone = partie.shift === 0 ? 7 : 3;
   partie.shiftStats = { points: partie.points + partie.bonusCombo, marche: 0, comboMax: 0, rep: partie.reparations, fiab: partie.ameliorations };
@@ -1309,7 +1468,7 @@ function majMeteo(dt) {
   for (const z of partie.zones) { z.age += dt; z.x += z.vx * dt; z.y += z.vy * dt; }
   partie.zones = partie.zones.filter(z => z.age < z.prev + z.duree + DISSIPATION);
   partie.prochaineZone -= dt;
-  if (partie.prochaineZone <= 0 && partie.zones.length < M.maxZones && partie.tShift < partie.dureeShift - 6) {
+  if (M.meteoZones && partie.prochaineZone <= 0 && partie.zones.length < M.maxZones && partie.tShift < partie.dureeShift - 6) {
     partie.prochaineZone = M.freqMeteo * rand(.7, 1.3);
     const type = pick(M.meteo[partie.shift]);
     const T = METEO[type], cible = pick(eoliennes), ang = rand(0, 6.28), v = rand(8, 20);
@@ -1326,6 +1485,19 @@ function risque(e) {
   const base = e.fragile ? M.risqueFragile : M.risqueNormal;
   const meteo = zonesEn(e.x, e.y).some(z => z.type === 'grain') ? 2 : 1;
   return base * FACTEUR_NIVEAU[e.niveau] * e.usure * rampe * meteo;
+}
+
+function exploser(e) {
+  e.feu = false; e.detruite = true; partie.explosions++;
+  secousse = Math.max(secousse, 14); sons.boum();
+  for (let i = 0; i < 46; i++) {
+    const a = rand(0, 6.28), v = rand(40, 190);
+    particules.push({ type: i % 3 ? 'flamme' : 'debris', x: e.x - 3, y: e.y - 44, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60, vie: rand(.5, 1.2), max: 1.2 });
+  }
+  particules.push({ type: 'onde', x: e.x, y: e.y - 30, r: 6, vie: .7, max: .7 });
+  const aval = parc.strings[e.string].length - e.ordre - 1;
+  bandeau(t(aval ? 'bandeauBoumString' : 'bandeauBoum', { id: e.id, n: aval, s: e.string }), 4);
+  astuce('boum', t('tutoBoum'), 6);
 }
 
 function tomberEnPanne(e, type) {
@@ -1345,19 +1517,27 @@ function tomberEnPanne(e, type) {
 
 function majParc(dt) {
   const sh = partie.shift;
-  const charge = [.55, .66, .72][sh] + .08 * Math.sin(partie.t * 30 / partie.dureeShift / 9);
+  const vg = ventGlobal(); partie.vent = vg;
   const h = heureJeu(), pic = h >= PIC[0] && h < PIC[1] ? 1.5 : 1;
+  if (calme(tJour()) > .5 && !astuces['calme' + Math.round(tJour() / 60)]) {
+    astuces['calme' + Math.round(tJour() / 60)] = true;
+    montrerAstuce(t('tutoCalme'), 5);
+  }
   for (const l of Object.values(parc.strings)) {
     let coupe = false;
-    for (const e of l) { e.coupe = coupe; if (!e.marche && e.panne === CABLE) coupe = true; }
+    for (const e of l) { e.coupe = coupe; if (!e.marche && (e.panne === CABLE || e.detruite)) coupe = true; }   // câble HS ou éolienne détruite : tout l'aval est coupé
   }
   let enService = 0, puissance = 0;
   for (const e of eoliennes) {
-    if (e.marche && !e.coupe) {
-      const c = Math.min(1, charge + (zonesEn(e.x, e.y).some(z => z.type === 'grain') ? .15 : 0));
-      const mwh = MW * c * hps() * dt;
-      partie.energie += mwh; partie.points += mwh * pic; puissance += MW * c; enService++;
-      partie.tempsMarche += dt; partie.shiftStats.marche += dt;
+    e.v = ventLocal(e.x, e.y, vg) * (zonesEn(e.x, e.y).some(z => z.type === 'grain') ? 1.15 : 1);
+    // en défaut, l'éolienne reste bridée à 40 % tant qu'elle n'est pas passée en arrêt de sécurité
+    const etat = e.coupe ? 0 : e.marche ? 1 : (!e.arret && !e.detruite && e.panne !== CABLE ? BRIDAGE : 0);
+    e.regime = etat * puissanceRel(e.v);
+    if (etat) {
+      const oss = partie.oss.panne ? .5 : 1;   // transformateur de l'OSS en défaut : le parc ne peut exporter que la moitié
+      const mwh = MW * e.regime * oss * hps() * dt;
+      partie.energie += mwh; partie.points += mwh * pic; puissance += MW * e.regime * oss; enService++;
+      partie.tempsMarche += dt * etat; partie.shiftStats.marche += dt * etat;   // disponibilité : indépendante du vent
     }
     if (e.marche) {
       if (e.alerte > 0) {           // alarme prédictive (SCADA niveau 2) : la panne arrive
@@ -1372,11 +1552,38 @@ function majParc(dt) {
         else tomberEnPanne(e);
       }
     } else {
+      // laissée à l'abandon : bridée, puis arrêt de sécurité, puis (si activé) feu et explosion
       e.depuisPanne += dt;
-      if (Math.random() < dt * 6) particules.push({ type: 'fumee', x: e.x + rand(-3, 3), y: e.y - 48, vx: rand(4, 14), vy: rand(-22, -10), r: rand(3, 5), vie: 1.4, max: 1.4 });
+      const d = e.depuisPanne / partie.dureeShift;
+      if (!e.arret && !e.detruite && d > SEUIL_ARRET && e.panne !== CABLE) {
+        e.arret = true; sons.panne();
+        texte(e.x, e.y - 70, t('arretSecu', { id: e.id }), '#ffb3ba', 15);
+        astuce('arret', t('tutoArret', { id: e.id }), 5.5);
+      }
+      if (M.incendies && !e.detruite && !e.feu && d > SEUIL_FEU && e.panne !== CABLE) {
+        e.feu = true; sons.feu();
+        texte(e.x, e.y - 70, t('enFeu', { id: e.id }), '#ffb347', 16);
+        astuce('feu', t('tutoFeu', { id: e.id }), 5.5);
+      }
+      if (e.feu && d > SEUIL_EXPLOSION) exploser(e);
+      if (e.arret && (!e.detruite || e.depuisPanne < 5)) {
+        const noire = e.feu || e.detruite, n = e.feu ? 16 : 3 + 9 * Math.min(1, (d - SEUIL_ARRET) / (SEUIL_FEU - SEUIL_ARRET));
+        if (Math.random() < dt * n) particules.push({ type: noire ? 'fumeeNoire' : 'fumee', x: e.x + rand(-3, 3), y: e.y - 48, vx: rand(4, 16), vy: rand(-26, -10), r: rand(3, noire ? 7 : 5), vie: noire ? 2.2 : 1.4, max: noire ? 2.2 : 1.4 });
+        if (e.feu && Math.random() < dt * 14) particules.push({ type: 'flamme', x: e.x - 3 + rand(-5, 5), y: e.y - 44 + rand(-4, 2), vx: rand(-8, 8), vy: rand(-40, -20), vie: .5, max: .5 });
+      }
     }
   }
   partie.puissance = puissance; partie.enService = enService; partie.pic = pic > 1;
+  // transformateur de l'OSS : un défaut par partie (sprint : 2e shift ; carrière : à partir du jour 2)
+  if (M.ossPanne && !partie.oss.fait && sh === partie.ossShift && partie.tShift > partie.ossT * partie.dureeShift) {
+    partie.oss.fait = true; partie.oss.panne = true; partie.oss.depuis = 0;
+    secousse = Math.max(secousse, 6); sons.panne();
+    bandeau(t('bandeauOss'), 3.5); astuce('oss', t('tutoOss'), 6);
+  }
+  if (partie.oss.panne) {
+    partie.oss.depuis += dt;
+    if (Math.random() < dt * 8) particules.push({ type: 'fumeeNoire', x: OSS.x + rand(-6, 6), y: OSS.y - 18, vx: rand(4, 14), vy: rand(-24, -10), r: rand(3, 6), vie: 1.8, max: 1.8 });
+  }
   // défaut câble : un par shift à partir de l'après-midi (carrière, jour 4 et suivants)
   if (M.cable && !partie.cableFait[sh] && partie.tShift > partie.cableT[sh] * partie.dureeShift) {
     partie.cableFait[sh] = true;
@@ -1389,7 +1596,9 @@ function majParc(dt) {
    Ordres (façon Diner Dash) : clic -> ordre ajouté à la file -> le bateau exécute seul
    ===================================================================== */
 let idOrdre = 0;
-const coutOrdre = o => (o.type === 'rep' ? 1 : o.type === 'fiab' ? M.coutFiab : 0);
+const OSS_CIBLE = { id: 'OSS', x: OSS.x, y: OSS.y - 6, oss: true };
+const coutOrdre = o => (o.type === 'rep' ? (o.e.detruite ? 3 : 1) : o.type === 'fiab' ? M.coutFiab : o.type === 'repOss' ? 2 : 0);
+const tempsOrdre = (type, e, niveau = e.niveau) => (type === 'rep' ? M.tRep * (e.detruite ? 3 : 1) : type === 'fiab' ? M.tFiab[niveau] : type === 'repOss' ? M.tRep * 2 : 1);
 const nbOrdres = () => partie.file.length + (partie.encours ? 1 : 0);
 function dejaPrevu(e, type) { return partie.file.some(o => o.e === e && o.type === type) || (!!partie.encours && partie.encours.o.e === e && partie.encours.o.type === type); }
 
@@ -1413,13 +1622,14 @@ function annulerOrdre(id) {
 }
 
 function bloqueur(o) {
-  if (o.type === 'base') return null;
+  if (o.type === 'base' || o.type === 'oss') return o.type === 'oss' && inaccessible(o.e) ? 'meteo' : null;
   if (inaccessible(o.e)) return 'meteo';
   const besoin = coutOrdre(o) + (o.type === 'fiab' && !o.e.marche && !dejaPrevu(o.e, 'rep') ? 1 : 0);
-  return partie.stock < besoin ? 'pieces' : null;
+  return M.pieces && partie.stock < besoin ? 'pieces' : null;
 }
 function choisirOrdre() {
-  partie.file = partie.file.filter(o => !(o.type === 'rep' && o.e.marche) && !(o.type === 'fiab' && o.e.niveau >= 2));
+  partie.file = partie.file.filter(o => !(o.type === 'rep' && o.e.marche) && !(o.type === 'fiab' && o.e.niveau >= 2)
+    && !(o.type === 'repOss' && !partie.oss.panne) && !(o.type === 'oss' && partie.oss.stock <= 0));
   for (let i = 0; i < partie.file.length; i++) {
     const o = partie.file[i];
     if (bloqueur(o)) continue;
@@ -1432,12 +1642,11 @@ function choisirOrdre() {
   }
   return null;
 }
-const cleCombo = o => (o.type === 'rep' ? 'rep' + o.e.panne : 'fiab');
+const cleCombo = o => (o.type === 'rep' ? 'rep' + o.e.panne : o.type);
 function dureeOrdre(o) {
   if (o.type === 'base') return M.tBase;
   const n = partie.comboCle === cleCombo(o) ? partie.combo + 1 : 1;
-  const base = o.type === 'rep' ? M.tRep : M.tFiab[o.e.niveau];
-  return base * facteurOperation(o.e.x, o.e.y) * (1 - .12 * Math.min(n - 1, 3));
+  return tempsOrdre(o.type, o.e) * facteurOperation(o.e.x, o.e.y) * (o.type === 'oss' ? 1 : 1 - .12 * Math.min(n - 1, 3));
 }
 const amarrage = e => ({ x: e.x + 2, y: e.y + 22 });
 const quaiBase = () => ({ x: BASE.x + 95, y: BASE.y - 6 });
@@ -1450,15 +1659,28 @@ function terminerOrdre(o) {
     sons.repare();
     return;
   }
+  if (o.type === 'oss') {   // dépôt avancé : des pièces, pas de carburant
+    const n = Math.min(partie.oss.stock, M.stock - partie.stock);
+    partie.oss.stock -= n; partie.stock += n;
+    texte(OSS.x, OSS.y - 40, t('pleinOss', { n }), '#9cf5c9', 15); sons.repare();
+    return;
+  }
+  if (o.type === 'repOss') {
+    if (M.pieces) partie.stock -= 2;
+    partie.piecesRep += 2; partie.oss.panne = false; partie.reparations++;
+    texte(OSS.x, OSS.y - 40, t('ossRepare'), '#9cf5c9', 16); sons.fiabilise();
+    return;
+  }
   const cle = cleCombo(o);
   partie.combo = partie.comboCle === cle ? partie.combo + 1 : 1;
   partie.comboCle = cle;
   partie.comboMax = Math.max(partie.comboMax, partie.combo);
   partie.shiftStats.comboMax = Math.max(partie.shiftStats.comboMax, partie.combo);
-  partie.stock -= coutOrdre(o);
+  if (M.pieces) partie.stock -= coutOrdre(o);
   if (o.type === 'rep') {
-    partie.piecesRep += 1;
-    e.marche = true; e.panne = null; e.eclat = 1;
+    partie.piecesRep += coutOrdre(o);
+    if (e.detruite) { e.detruite = false; partie.remplacements++; texte(e.x, e.y - 86, t('rotorNeuf'), '#9cf5c9', 15); }
+    e.marche = true; e.panne = null; e.eclat = 1; e.feu = false; e.arret = false;
     if (e.niveau < 2) e.usure = Math.min(M.usureMax, e.usure + M.usure);   // réparer sans traiter la cause : la panne revient plus vite
     partie.reparations++;
     sons.repare();
@@ -1472,7 +1694,7 @@ function terminerOrdre(o) {
     sons.fiabilise();
     const nom = e.niveau === 1 ? panne(e.faiblesse).remede : t('aFiab2');
     texte(e.x, e.y - 64, '🛡️ ' + nom, '#3ddc97', 14);
-    toast('<b>' + e.id + '</b> · ' + echapper(nom) + '<br>' + t(e.niveau === 1 ? 'toastFiab1' : 'toastFiab2'));
+    if (partie.mode === 'carriere') toast('<b>' + e.id + '</b> · ' + echapper(nom) + '<br>' + t(e.niveau === 1 ? 'toastFiab1' : 'toastFiab2'));
   }
   if (partie.combo >= 2) {
     const bonus = 6 * (partie.combo - 1);
@@ -1502,7 +1724,7 @@ function majBateau(dt) {
   bateau.x += bateau.vx * dt; bateau.y += bateau.vy * dt;
   const v = Math.hypot(bateau.vx, bateau.vy);
   const pousse = !!c && c.phase === 'travail' && c.o.type !== 'base';   // le bateau pousse sur l'échelle d'accès
-  partie.carbu = Math.max(0, partie.carbu - dt * M.conso * (1.1 * v / PARAMS.vitesse + (pousse ? .35 : 0)));
+  if (M.carburant) partie.carbu = Math.max(0, partie.carbu - dt * M.conso * (1.1 * v / PARAMS.vitesse + (pousse ? .35 : 0)));
   const capVise = pousse ? -Math.PI / 2 : v > 25 ? Math.atan2(bateau.vy, bateau.vx) : bateau.cap;
   bateau.cap += (((capVise - bateau.cap + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * Math.min(1, dt * 7);
   if (v > 60 && bateau.visible && Math.random() < dt * 40)
@@ -1562,7 +1784,8 @@ function finShift() {
   $('rEnergie').textContent = fmt(s.points); $('rCombo').textContent = '×' + s.combo;
   const enPanne = eoliennes.filter(e => !e.marche).length;
   $('rMessage').innerHTML = (s.fiab ? t('rFiab', { n: s.fiab }) : t('rFiab0')) + (enPanne ? t('rPanne', { n: enPanne }) : t('rOk'));
-  const prochains = [...new Set(M.meteo[partie.shift + 1])].map(ty => { const m = meteoTxt(ty); return '<li>' + m.ico + ' <b>' + m.nom + '</b>' + t('dp') + m.effet + '</li>'; });
+  const prochains = (M.meteoZones ? [...new Set(M.meteo[partie.shift + 1])] : []).map(ty => { const m = meteoTxt(ty); return '<li>' + m.ico + ' <b>' + m.nom + '</b>' + t('dp') + m.effet + '</li>'; });
+  prochains.unshift('<li>' + t('rVent') + '</li>');
   if (M.cable) prochains.push('<li>' + t('rCable') + '</li>');
   if (partie.shift + 1 === 2) prochains.push('<li>' + t('rPic') + '</li>');
   $('rPrevTitre').textContent = t('rPrev', { shift: titres[partie.shift + 1] });
@@ -1581,12 +1804,24 @@ $('btnReleve').addEventListener('click', () => {
 
 function lancerJournee() {
   nouvellePartie(modeChoisi);
+  etat = 'regles';   // la journée ne démarre qu'après la carte des règles
+  for (const id of ['ecranAccueil', 'ecranFin', 'ecranReleve', 'ecranBase', 'hud', 'file']) $(id).hidden = true;
+  const carr = partie.mode === 'carriere', j = partie.jour;
+  $('rgSur').textContent = carr ? t('rgSurCarriere', { pseudo: carriere.pseudo }) : 'Sprint 90 s';
+  $('rgTitre').textContent = carr ? t('rgJour', { j }) : t('rgTitre');
+  const lignes = [['🟠', t('rg1')], ['👆', t('rg2')], ['🔁', t('rg3')], ['⏱️', t(carr ? 'rg4Carriere' : 'rg4Sprint')]];
+  const nouveau = carr ? t('rgNouveau')[Math.min(j, 5)] : null;
+  $('rgListe').innerHTML = lignes.map(([i, x]) => '<li><span class="ico">' + i + '</span><span>' + x + '</span></li>').join('')
+    + (nouveau ? '<li class="nouveau"><span class="ico">✨</span><span><b>' + t('rgNouveauTitre') + '</b><br>' + nouveau + '</span></li>' : '');
+  $('ecranRegles').hidden = false;
+  $('btnGo').focus();
+}
+$('btnGo').addEventListener('click', () => {
+  $('ecranRegles').hidden = true; $('hud').hidden = false; $('file').hidden = false;
   etat = 'jeu';
-  for (const id of ['ecranAccueil', 'ecranFin', 'ecranReleve', 'ecranBase']) $(id).hidden = true;
-  $('hud').hidden = false; $('file').hidden = false;
   const nomMode = t('modeNom')[partie.mode].replace('{j}', partie.jour);
   bandeau(t('depart', { shift: t('shiftTitre')[0], mode: nomMode }), 2.6);
-}
+});
 
 async function demarrer() {
   const p = $('pseudo').value.trim().slice(0, 24);
@@ -1595,22 +1830,10 @@ async function demarrer() {
   joueur.pseudo = p; stock.set('eq_pseudo', p);
   initAudio();
   if (modeChoisi === 'rapide') { lancerJournee(); return; }
-  // Carrière : reprise locale, sinon reprise ou création en ligne avec le code
-  const locale = carriereLocale();
-  if (locale && cleNom(locale.pseudo) === cleNom(p)) { carriere = locale; lancerJournee(); return; }
-  const code = $('code').value.trim();
-  if (!/^\d{4}$/.test(code)) { $('code').focus(); $('infoErreur').textContent = t('errCode'); return; }
-  const btn = $('btnJouer'); btn.disabled = true; btn.textContent = t('patience');
-  try {
-    const data = await sb('/rest/v1/rpc/charger_carriere', { p_pseudo: p, p_code: code });
-    carriere = Object.assign(nouvelleCarriere(p, code), data, { code });
-  } catch (e) {
-    if (/Aucune carriere/.test(e.message)) { carriere = nouvelleCarriere(p, code); await sauverCarriere(); }
-    else if (/Code incorrect/.test(e.message)) { $('infoErreur').textContent = t('errCodeFaux'); majBoutonJouer(); btn.disabled = false; return; }
-    else { carriere = nouvelleCarriere(p, code); $('infoErreur').textContent = t('errHorsLigne'); }
-  }
-  stock.set('eq_carriere', JSON.stringify(carriere));
-  btn.disabled = false; majCarteCarriere();
+  // Carrière : reprise par le nom saisi, sinon nouvelle carrière
+  carriere = carriereDe(p) || nouvelleCarriere(p);
+  carriere.pseudo = p;
+  BD.carrieres[cleNom(p)] = carriere;
   lancerJournee();
 }
 
@@ -1622,7 +1845,7 @@ function terminer() {
   const res = {
     mode: partie.mode, jour: partie.jour, score: Math.round(partie.points + partie.bonusCombo), energie: Math.round(partie.energie),
     reparations: partie.reparations, ameliorations: partie.ameliorations, evitees: Math.min(500, Math.round(partie.evitees)),
-    dispo, comboMax: Math.min(100, partie.comboMax), temps: Math.round(partie.temps)
+    dispo, comboMax: Math.min(100, partie.comboMax), temps: Math.round(partie.temps), explosions: partie.explosions
   };
   const nomMode = t('modeNom')[res.mode].replace('{j}', res.jour);
   $('fSur').textContent = t('fSur', { mode: nomMode });
@@ -1630,7 +1853,8 @@ function terminer() {
   const foyers = Math.round(res.energie * 1000 / 12.9);   // ~4,7 MWh par an et par foyer, soit ~12,9 kWh par jour
   $('fDetail').innerHTML = t('fDetail', { mwh: fmt(res.energie), foyers: fmt(foyers) })
     + (partie.points - partie.energie > 1 ? t('fPic', { n: fmt(partie.points - partie.energie) }) : '')
-    + (partie.bonusCombo ? t('fCombos', { n: fmt(partie.bonusCombo) }) : '');
+    + (partie.bonusCombo ? t('fCombos', { n: fmt(partie.bonusCombo) }) : '')
+    + (partie.explosions ? '<br>' + t('fBoum', { n: partie.explosions }) : '');
   $('fRep').textContent = res.reparations; $('fAme').textContent = res.ameliorations;
   $('fCombo').textContent = '×' + res.comboMax; $('fDispo').textContent = dispo + ' %';
   $('fEtoiles').innerHTML = partie.shifts.map((s, i) => '<div><b>' + etoilesDispo(s.dispo) + '</b>' + t('shiftTitre')[i] + ' · ' + s.dispo + ' %</div>').join('');
@@ -1650,7 +1874,7 @@ function terminer() {
   $('fTitreLb').textContent = t(enCarriere ? 'lbFinCarriere' : 'lbFinSprint');
   if (enCarriere) bilanCarriere(res);
   setTimeout(() => { $('ecranFin').hidden = false; }, 900);
-  envoyerScore(res);
+  enregistrerPartie(res);
 }
 
 /* Carrière : compte du jour (le coût de la non-qualité apparaît), vieillissement, sauvegarde */
@@ -1658,8 +1882,9 @@ function bilanCarriere(res) {
   const ventes = res.energie * CONFIG.prixMWh;
   const pieces = (partie.piecesRep + partie.piecesFiab) * CONFIG.prixPiece;
   const carbu = partie.pleins * CONFIG.prixPlein;
-  const resultat = Math.round(ventes - pieces - carbu);
-  const copq = partie.piecesRep * CONFIG.prixPiece;
+  const rotors = partie.remplacements * CONFIG.prixRemplacement;
+  const resultat = Math.round(ventes - pieces - carbu - rotors);
+  const copq = partie.piecesRep * CONFIG.prixPiece + rotors;
   carriere.budget += resultat;
   carriere.totalMWh += res.energie;
   carriere.tempsJeu += res.temps;
@@ -1679,6 +1904,7 @@ function bilanCarriere(res) {
     + '<tr><td>' + t('cVentes', { mwh: fmt(res.energie) }) + '</td><td class="plus">' + k(ventes) + '</td></tr>'
     + '<tr><td>' + t('cPieces', { n: partie.piecesRep + partie.piecesFiab }) + '</td><td class="moins">' + k(pieces, true) + '</td></tr>'
     + '<tr><td>' + t('cCarbu', { n: partie.pleins }) + '</td><td class="moins">' + k(carbu, true) + '</td></tr>'
+    + (rotors ? '<tr><td>' + t('cRotors', { n: partie.remplacements }) + '</td><td class="moins">' + k(rotors, true) + '</td></tr>' : '')
     + '<tr class="total"><td>' + t('cResultat') + '</td><td>' + k(resultat) + '</td></tr>'
     + '<tr><td>' + t('cBudget') + '</td><td>💶 ' + fmt(carriere.budget) + ' k€</td></tr></table>'
     + '<div class="note">' + t('cCopq', { n: partie.piecesRep, k: fmt(copq) }) + '</div>'
@@ -1735,15 +1961,18 @@ function eolienneSous(x, y) {
   for (const e of eoliennes) { const d = Math.min(dist(x, y, e.x, e.y - 22), dist(x, y, e.x, e.y)); if (d < dmin) { dmin = d; best = e; } }
   return best;
 }
-const surBase = (x, y) => x > BASE.x - 75 && x < BASE.x + 65 && y > BASE.y - 35 && y < BASE.y + 32;
+const surOSS = (x, y) => dist(x, y, OSS.x, OSS.y - 6) < 20;
+const baseActive = () => !partie || M.pieces || M.carburant;
+const surBase = (x, y) => baseActive() && x > BASE.x - 75 && x < BASE.x + 65 && y > BASE.y - 35 && y < BASE.y + 32;
 
 cv.addEventListener('pointermove', e => {
   versMonde(e);
-  cv.style.cursor = etat === 'jeu' && (eolienneSous(souris.x, souris.y) || surBase(souris.x, souris.y)) ? 'pointer' : 'default';
+  cv.style.cursor = etat === 'jeu' && (eolienneSous(souris.x, souris.y) || surBase(souris.x, souris.y) || surOSS(souris.x, souris.y)) ? 'pointer' : 'default';
 });
 cv.addEventListener('pointerdown', e => {
   versMonde(e); initAudio();
   if (etat !== 'jeu') return;
+  if (surOSS(souris.x, souris.y)) { ouvrirMenuOSS(); return; }
   const eo = eolienneSous(souris.x, souris.y);
   if (eo) { ouvrirMenu(eo); return; }
   fermerMenu();
@@ -1759,16 +1988,18 @@ function ouvrirMenu(e) {
   titre.textContent = t('mTitre', { id: e.id, g: e.g, s: e.string });
   const sous = document.createElement('div'); sous.className = 'm-sous';
   const p = e.panne !== null ? panne(e.panne) : null;
-  sous.innerHTML = (e.marche ? (e.coupe ? t('mCoupe') : t('mProd')) : p.ico + ' ' + p.nom) + t('mNiv')[e.niveau]
+  sous.innerHTML = (e.marche ? (e.coupe ? t('mCoupe') : t('mProd', { v: Math.round(e.v || 0), pc: Math.round(100 * (e.regime || 0)) })) : p.ico + ' ' + p.nom
+      + '<br>' + (e.detruite || e.feu || e.panne === CABLE ? '' : e.arret ? '<span class="alerte">' + t('mArret') + '</span>' : t('mBridee'))) + t('mNiv')[e.niveau]
     + (e.nbPannes ? t('mHisto', { n: e.nbPannes }) : '') + (partie.mode === 'carriere' && e.histo > e.nbPannes ? t('mTotal', { n: e.histo }) : '')
     + (e.alerte > 0 ? '<br><span class="alerte">' + t('mAlerte') + '</span>' : '')
+    + (e.detruite ? '<br><span class="alerte">' + t('mDetruite') + '</span>' : e.feu ? '<br><span class="alerte">' + t('mFeu') + '</span>' : '')
     + (inaccessible(e) ? '<br>' + t('mGrain') : '') + (facteurOperation(e.x, e.y) > 1 ? '<br>' + t('mHoule') : '');
   m.append(titre, sous);
   const op = facteurOperation(e.x, e.y);
   const action = (ico, nom, detail, types, cls) => {
     const b = document.createElement('button'); b.className = 'act ' + (cls || ''); b.type = 'button';
     let niveau = e.niveau, tps = 0, pieces = 0;
-    for (const ty of types) { if (ty === 'rep') { tps += M.tRep; pieces += 1; } else { tps += M.tFiab[niveau]; pieces += M.coutFiab; niveau++; } }
+    for (const ty of types) { tps += tempsOrdre(ty, e, niveau); pieces += coutOrdre({ type: ty, e }); if (ty === 'fiab') niveau++; }
     const deja = types.every(ty => dejaPrevu(e, ty));
     b.innerHTML = '<span class="ico">' + ico + '</span><span>' + nom + '<small></small></span><span class="cout">⏱ ' + dureeTxt(tps * op) + '<br>📦 ' + pieces + '</span>';
     b.querySelector('small').textContent = deja ? t('aDeja') : detail;
@@ -1778,8 +2009,9 @@ function ouvrirMenu(e) {
   };
   const detFiab = e.niveau === 0 ? t('aFiabDet', { remede: panne(e.faiblesse).remede }) : t('aFiab2Det');
   if (!e.marche) {
-    action('🔧', t('aReparer'), e.panne === CABLE ? t('aRepCable') : t('aRepDet'), ['rep']);
-    if (e.niveau < 2 && e.panne !== CABLE) action('🛡️', t('aRepFiab'), detFiab, ['rep', 'fiab'], 'fiab');
+    if (e.detruite) action('🏗️', t('aRemplacer'), t('aRemplacerDet'), ['rep']);
+    else action('🔧', t('aReparer'), e.panne === CABLE ? t('aRepCable') : t('aRepDet'), ['rep']);
+    if (e.niveau < 2 && e.panne !== CABLE) action('🛡️', e.detruite ? t('aRemplacerFiab') : t('aRepFiab'), detFiab, ['rep', 'fiab'], 'fiab');
   } else if (e.niveau < 2) {
     action('🛡️', e.niveau === 0 ? t('aFiab') : t('aFiab2'), detFiab, ['fiab'], 'fiab');
   } else {
@@ -1792,6 +2024,34 @@ function ouvrirMenu(e) {
   m.style.left = clamp(x, 8, innerWidth - r.width - 8) + 'px';
   m.style.top = clamp(s.y - r.height / 2, 8, innerHeight - r.height - 8) + 'px';
 }
+function placerMenu(x, y) {
+  const m = $('menu'), s = versEcran(x, y), r = m.getBoundingClientRect();
+  let px = s.x + 26;
+  if (px + r.width > innerWidth - 8) px = s.x - r.width - 26;
+  m.style.left = clamp(px, 8, innerWidth - r.width - 8) + 'px';
+  m.style.top = clamp(s.y - r.height / 2, 8, innerHeight - r.height - 8) + 'px';
+}
+function ouvrirMenuOSS() {
+  menuPour = OSS_CIBLE;
+  const m = $('menu'); m.replaceChildren();
+  const titre = document.createElement('div'); titre.className = 'm-titre'; titre.textContent = t('ossTitre');
+  const sous = document.createElement('div'); sous.className = 'm-sous';
+  sous.innerHTML = (partie.oss.panne ? '<span class="alerte">' + t('ossPanne') + '</span><br>' : t('ossOk') + '<br>') + (M.ossDepot ? t('ossStock', { n: partie.oss.stock }) : t('ossRole'))
+    + (inaccessible(OSS_CIBLE) ? '<br>' + t('mGrain') : '');
+  m.append(titre, sous);
+  const action = (ico, nom, detail, type, pieces, off) => {
+    const b = document.createElement('button'); b.className = 'act'; b.type = 'button';
+    b.innerHTML = '<span class="ico">' + ico + '</span><span>' + nom + '<small></small></span><span class="cout">⏱ ' + dureeTxt(tempsOrdre(type, OSS_CIBLE)) + '<br>📦 ' + pieces + '</span>';
+    b.querySelector('small').textContent = dejaPrevu(OSS_CIBLE, type) ? t('aDeja') : detail;
+    b.disabled = off || dejaPrevu(OSS_CIBLE, type);
+    b.addEventListener('click', () => { ajouterOrdres(OSS_CIBLE, [type]); fermerMenu(); });
+    m.append(b);
+  };
+  if (partie.oss.panne) action('⚡', t('ossReparer'), t('ossReparerDet'), 'repOss', 2);
+  if (M.ossDepot) action('📦', t('ossCharger'), t('ossChargerDet', { n: partie.oss.stock }), 'oss', '+' + Math.min(partie.oss.stock, M.stock), partie.oss.stock <= 0);
+  m.hidden = false;
+  placerMenu(OSS.x, OSS.y);
+}
 function fermerMenu() { $('menu').hidden = true; menuPour = null; }
 addEventListener('keydown', e => { if (e.key === 'Escape') fermerMenu(); });
 
@@ -1803,7 +2063,7 @@ function majFile() {
   const tous = (partie.encours ? [partie.encours.o] : []).concat(partie.file);
   tous.forEach((o, i) => {
     const b = document.createElement('button'); b.className = 'ordre' + (i === 0 && partie.encours ? ' encours' : ''); b.dataset.id = o.id; b.title = t('annuler');
-    const ico = o.type === 'rep' ? '🔧' : o.type === 'fiab' ? '🛡️' : '⚓';
+    const ico = { rep: o.e && o.e.detruite ? '🏗️' : '🔧', fiab: '🛡️', base: '⚓', oss: '📦', repOss: '⚡' }[o.type];
     b.innerHTML = '<span class="i">' + ico + '</span><span>' + (o.e ? o.e.id : t('base')) + '</span><span class="etat"></span><span class="barre"></span>';
     b.addEventListener('click', () => annulerOrdre(o.id));
     f.append(b);
@@ -1827,23 +2087,102 @@ function majFileProgression() {
 }
 
 /* =====================================================================
+   La vie en mer : mouettes, dauphins, cargo au large
+   ===================================================================== */
+const vie = { mouettes: [], dauphins: [], navires: [], tMouettes: 2, tDauphins: 4, tNavire: 8 };
+function majVie(dt) {
+  vie.tMouettes -= dt; vie.tDauphins -= dt; vie.tNavire -= dt;
+  if (vie.tMouettes <= 0) {   // un petit vol traverse le parc
+    vie.tMouettes = rand(5, 11);
+    const gauche = Math.random() < .5, y0 = rand(140, 780), a = (gauche ? 0 : Math.PI) + rand(-.35, .35), v = rand(55, 85);
+    for (let i = 0, n = 2 + Math.floor(Math.random() * 4); i < n; i++)
+      vie.mouettes.push({ x: (gauche ? -40 : W + 40) - Math.cos(a) * i * 26 + rand(-8, 8), y: y0 + (i % 2 ? 1 : -1) * Math.ceil(i / 2) * 16, vx: Math.cos(a) * v, vy: Math.sin(a) * v, ph: rand(0, 6.28), t: rand(.8, 1.1) });
+    if (Math.random() < .5) sons.mouette();
+  }
+  for (const m of vie.mouettes) { m.x += m.vx * dt; m.y += m.vy * dt + Math.sin(horloge * 1.3 + m.ph) * 6 * dt; m.ph += dt * 9 * m.t; }
+  vie.mouettes = vie.mouettes.filter(m => m.x > -80 && m.x < W + 80);
+  if (vie.tDauphins <= 0) {   // un groupe de dauphins saute, quelque part en mer
+    vie.tDauphins = rand(6, 13);
+    let x, y, ok = false;
+    for (let k = 0; k < 12 && !ok; k++) { x = rand(160, W - 60); y = rand(130, H - 60); ok = !eoliennes.some(e => dist(x, y, e.x, e.y) < 45); }
+    const dir = Math.random() < .5 ? 1 : -1;
+    for (let i = 0, n = 2 + Math.floor(Math.random() * 3); i < n; i++) vie.dauphins.push({ x: x + i * 22 * dir, y: y + rand(-10, 10), dir, t: -i * .35, d: rand(1.1, 1.4) });
+  }
+  for (const d of vie.dauphins) d.t += dt;
+  vie.dauphins = vie.dauphins.filter(d => d.t < d.d * 2.2);
+  if (vie.tNavire <= 0 && !vie.navires.length) {   // cargo qui remonte la Manche
+    vie.tNavire = rand(30, 50);
+    const sens = Math.random() < .5 ? 1 : -1;
+    vie.navires.push({ x: sens > 0 ? -140 : W + 140, y: rand(108, 128), v: sens * rand(14, 20), c: pick(['#c0392b', '#2e86c1', '#e67e22', '#27ae60']) });
+  }
+  for (const n of vie.navires) n.x += n.v * dt;
+  vie.navires = vie.navires.filter(n => n.x > -200 && n.x < W + 200);
+}
+function dessinerVieMer() {
+  for (const n of vie.navires) {   // cargo vu de dessus
+    ctx.save(); ctx.translate(n.x, n.y); if (n.v < 0) ctx.scale(-1, 1);
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.ellipse(-70, 0, 26, 7, 0, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#2d3a46'; ctx.beginPath(); ctx.moveTo(-60, -9); ctx.lineTo(48, -9); ctx.quadraticCurveTo(66, 0, 48, 9); ctx.lineTo(-60, 9); ctx.closePath(); ctx.fill();
+    const coul = [n.c, '#f1c40f', '#ecf0f1', '#16a085', n.c, '#8e44ad'];
+    for (let i = 0; i < 6; i++) { ctx.fillStyle = coul[i]; ctx.fillRect(-40 + i * 14, -7, 12, 6); ctx.fillStyle = coul[(i + 2) % 6]; ctx.fillRect(-40 + i * 14, 1, 12, 6); }
+    ctx.fillStyle = '#f4f4f4'; ctx.fillRect(-56, -7, 12, 14);
+    ctx.restore();
+  }
+  for (const d of vie.dauphins) {
+    if (d.t < 0) continue;
+    const u = d.t / d.d;
+    if (u > 1) continue;
+    const x = d.x + (u - .5) * 46 * d.dir, y = d.y - Math.sin(u * Math.PI) * 18;
+    if (u < .08 || u > .92) { ctx.strokeStyle = 'rgba(255,255,255,.55)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.ellipse(x, d.y + 2, 9, 3, 0, 0, 6.28); ctx.stroke(); }
+    ctx.save(); ctx.translate(x, y); ctx.scale(d.dir, 1); ctx.rotate((u - .5) * 1.9);
+    ctx.fillStyle = '#6f8ea3'; ctx.beginPath(); ctx.ellipse(0, 0, 13, 4.5, 0, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-2, -4); ctx.lineTo(2, -10); ctx.lineTo(4, -4); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-12, 0); ctx.lineTo(-18, -4); ctx.lineTo(-17, 4); ctx.fill();
+    ctx.fillStyle = '#dfe9ef'; ctx.beginPath(); ctx.ellipse(2, 2, 7, 1.6, 0, 0, 6.28); ctx.fill();
+    ctx.restore();
+  }
+}
+function dessinerMouettes() {
+  for (const m of vie.mouettes) {
+    const bat = Math.sin(m.ph) * .55, ang = Math.atan2(m.vy, m.vx);
+    ctx.fillStyle = 'rgba(0,20,35,.18)';   // ombre sur l'eau
+    ctx.beginPath(); ctx.ellipse(m.x + 22, m.y + 34, 6, 2, 0, 0, 6.28); ctx.fill();
+    ctx.save(); ctx.translate(m.x, m.y); ctx.rotate(ang);
+    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+    for (const s of [-1, 1]) {
+      ctx.beginPath(); ctx.moveTo(0, 0);
+      ctx.quadraticCurveTo(-3, s * (6 + bat * 4), -6, s * (11 + bat * 6)); ctx.stroke();
+    }
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.ellipse(0, 0, 5, 2, 0, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#f2b705'; ctx.fillRect(4.5, -.6, 2.4, 1.2);
+    ctx.fillStyle = '#4a4f55'; ctx.fillRect(-6, -1, 2.5, 2);
+    ctx.restore();
+  }
+}
+
+/* =====================================================================
    Animations communes
    ===================================================================== */
 function majCommun(dt) {
   horloge += dt;
   secousse *= Math.pow(.02, dt);
-  const charge = partie ? [.55, .66, .72][partie.shift] : .6;
+
   for (const e of eoliennes) {
-    e.rpm += ((e.marche && !e.coupe ? 2.4 + charge * 3 : 0) - e.rpm) * Math.min(1, dt * 1.2);
+    const cible = partie ? (e.regime > 0 ? 1.2 + 5 * e.regime : 0) : 3.5;   // les pales suivent le vent local
+    e.rpm += (cible - e.rpm) * Math.min(1, dt * 1.2);
     e.angle += e.rpm * dt; e.eclat = Math.max(0, e.eclat - dt);
   }
   for (const v of vagues) { v.x += v.v * dt; if (v.x > W + 30) { v.x = -30; v.y = rand(0, H); } }
+  if ($('ecranAccueil').hidden) majVie(dt);
   for (const p of particules) {
     p.vie -= dt;
     if (p.vx !== undefined) { p.x += p.vx * dt; p.y += p.vy * dt; }
     if (p.type === 'sillage') p.r += dt * 12;
     if (p.type === 'fumee') p.r += dt * 6;
-    if (p.type === 'etincelle') p.vy += 240 * dt;
+    if (p.type === 'etincelle' || p.type === 'debris') p.vy += 240 * dt;
+    if (p.type === 'fumeeNoire') p.r += dt * 9;
+    if (p.type === 'onde') p.r += dt * 160;
+    if (p.type === 'flamme') { p.vx *= Math.pow(.2, dt); p.vy *= Math.pow(.2, dt); }
   }
   particules = particules.filter(p => p.vie > 0);
   for (const x of textes) { x.vie -= dt; x.y -= dt * 24; }
@@ -1855,6 +2194,22 @@ function majCommun(dt) {
 /* =====================================================================
    Dessin
    ===================================================================== */
+function dessinerVent(dt) {   // traînées de vent : leur vitesse et leur densité montrent où ça souffle
+  if (!partie) return;
+  const vg = partie.vent || 8, c = Math.cos(VENT.dir), sn = Math.sin(VENT.dir);
+  ctx.lineCap = 'round';
+  for (const k of traits) {
+    const v = ventLocal(k.x, k.y, vg), vit = 18 + v * 11;
+    k.x += c * vit * dt; k.y += sn * vit * dt;
+    if (k.x > W + 60 || k.y < -60 || k.y > H + 60 || k.x < -60) { k.x = rand(-60, W * .6); k.y = rand(-40, H + 40); if (Math.random() < .5) k.x = -50; }
+    const a = clamp((v - 2.5) / 12, 0, 1) * (.1 + .12 * Math.sin(horloge * 2 + k.ph));
+    if (a <= .01) continue;
+    const L = (8 + v * 3.2) * k.l, ond = Math.sin(horloge * 3 + k.ph) * 2;
+    ctx.strokeStyle = `rgba(255,255,255,${a})`; ctx.lineWidth = 1.3;
+    ctx.beginPath(); ctx.moveTo(k.x - c * L, k.y - sn * L); ctx.quadraticCurveTo(k.x - c * L / 2 - sn * ond, k.y - sn * L / 2 + c * ond, k.x, k.y); ctx.stroke();
+  }
+}
+
 function dessinerMer() {
   const g = ctx.createLinearGradient(0, 0, W, H);
   g.addColorStop(0, '#0e5a85'); g.addColorStop(.55, '#0b4a70'); g.addColorStop(1, '#083854');
@@ -1884,6 +2239,7 @@ function dessinerZonesEA() {
 }
 
 function dessinerBase() {
+  if (!baseActive()) return;   // Sprint : pas de logistique, pas de base
   ctx.save();
   ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.setLineDash([6, 8]); ctx.lineWidth = 2; ctx.lineDashOffset = -horloge * 12;
   ctx.beginPath(); ctx.moveTo(BASE.x - 40, BASE.y + 20); ctx.lineTo(-20, H + 20); ctx.stroke(); ctx.setLineDash([]);
@@ -1909,11 +2265,49 @@ function dessinerCables() {
     ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(e.x, e.y); ctx.stroke();
   }
   ctx.setLineDash([]);
+  if (partie && partie.oss.panne) {
+    const pul = .5 + .5 * Math.sin(horloge * 7);
+    ctx.fillStyle = `rgba(255,77,94,${.18 + .2 * pul})`; ctx.beginPath(); ctx.ellipse(OSS.x, OSS.y + 4, 30 + pul * 6, 13 + pul * 2, 0, 0, 6.28); ctx.fill();
+  }
   ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(OSS.x - 13, OSS.y - 6, 30, 20);
   ctx.fillStyle = '#ffcc33'; ctx.fillRect(OSS.x - 15, OSS.y - 10, 30, 20);
   ctx.fillStyle = '#e3e8ec'; ctx.fillRect(OSS.x - 11, OSS.y - 20, 22, 12);
   ctx.fillStyle = '#c0392b'; ctx.beginPath(); ctx.arc(OSS.x, OSS.y - 2, 4, 0, 6.28); ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = '700 11px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('OSS', OSS.x, OSS.y + 24);
+}
+
+function dessinerOSSPremierPlan(survol, rangs) {
+  if (!partie) return;
+  ctx.textAlign = 'center';
+  if (partie.oss.panne) {
+    const by = OSS.y - 46 + Math.sin(horloge * 5) * 2.5;
+    ctx.fillStyle = '#ff4d5e'; ctx.beginPath(); ctx.arc(OSS.x, by, 13, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(OSS.x - 4, by + 10); ctx.lineTo(OSS.x, by + 17); ctx.lineTo(OSS.x + 4, by + 10); ctx.fill();
+    ctx.font = '14px sans-serif'; ctx.fillText('⚡', OSS.x, by + 5);
+    ctx.font = '700 11px Inter, sans-serif'; ctx.fillStyle = '#ffb3ba'; ctx.fillText('−50 %', OSS.x + 34, by + 4);
+  }
+  ctx.font = '700 10px Inter, sans-serif';
+  if (M.ossDepot) {
+    const lib = '📦 ' + partie.oss.stock, lw = ctx.measureText(lib).width + 12;
+    ctx.fillStyle = 'rgba(6,38,58,.8)'; ctx.beginPath(); ctx.roundRect(OSS.x + 16, OSS.y - 2, lw, 16, 8); ctx.fill();
+    ctx.fillStyle = partie.oss.stock ? '#ffd23f' : '#a9cfe4'; ctx.textAlign = 'left'; ctx.fillText(lib, OSS.x + 22, OSS.y + 10); ctx.textAlign = 'center';
+  }
+  rangs.forEach((r, i) => {
+    const bx = OSS.x - 26 - i * 16, by = OSS.y - 14;
+    ctx.fillStyle = r.encours ? '#ffd23f' : 'rgba(255,255,255,.92)';
+    ctx.beginPath(); ctx.arc(bx, by, 7.5, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#0b2a3f'; ctx.font = '700 10px Inter, sans-serif'; ctx.fillText(r.n, bx, by + 3.5);
+  });
+  if (partie.encours && partie.encours.o.e === OSS_CIBLE && partie.encours.phase === 'travail') {
+    ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(OSS.x, OSS.y - 6, 28, 0, 6.28); ctx.stroke();
+    ctx.strokeStyle = partie.encours.o.type === 'repOss' ? '#ff7a1a' : '#ffd23f';
+    ctx.beginPath(); ctx.arc(OSS.x, OSS.y - 6, 28, -1.5708, -1.5708 + Math.min(1, partie.encours.p) * 6.28); ctx.stroke();
+  }
+  if (survol) {
+    ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -horloge * 20;
+    ctx.beginPath(); ctx.arc(OSS.x, OSS.y - 6, 30, 0, 6.28); ctx.stroke(); ctx.setLineDash([]);
+  }
 }
 
 function dessinerZoneMeteo(z) {
@@ -1980,7 +2374,7 @@ function dessinerEolienne(e, survol, rangs) {
   const { x, y } = e, hy = y - 44, tourne = e.marche && !e.coupe;
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(0,20,35,.25)'; ctx.beginPath(); ctx.ellipse(x + 18, y + 3, 22, 4, -.15, 0, 6.28); ctx.fill();
-  if (!e.marche) {
+  if (!e.marche && (e.arret || e.detruite || e.panne === CABLE)) {
     const pul = .5 + .5 * Math.sin(horloge * 8);
     ctx.fillStyle = `rgba(255,77,94,${.2 + .22 * pul})`; ctx.beginPath(); ctx.ellipse(x, y + 1, 20 + pul * 5, 8 + pul * 2, 0, 0, 6.28); ctx.fill();
   }
@@ -1999,11 +2393,24 @@ function dessinerEolienne(e, survol, rangs) {
   ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(x, y - 8, 5, 2, 0, 0, 6.28); ctx.fill();
   if (or) { const gm = ctx.createLinearGradient(x - 3, 0, x + 3, 0); gm.addColorStop(0, '#fff2b8'); gm.addColorStop(1, '#d19a00'); ctx.fillStyle = gm; } else ctx.fillStyle = '#eef3f6';
   ctx.beginPath(); ctx.moveTo(x - 2.8, y - 8); ctx.lineTo(x - 1.4, hy + 1); ctx.lineTo(x + 1.4, hy + 1); ctx.lineTo(x + 2.8, y - 8); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = !e.marche ? '#ffd0d5' : or ? '#ffc933' : '#f1f5f8'; ctx.beginPath(); ctx.roundRect(x - 3.5, hy - 3, 10, 6, 2.5); ctx.fill();
+  if (e.detruite) {   // après l'explosion : mât calciné, plus de pales
+    ctx.fillStyle = 'rgba(20,20,22,.55)'; ctx.beginPath(); ctx.ellipse(x, y + 1, 18, 6, 0, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#3b3b3f'; ctx.beginPath(); ctx.moveTo(x - 2.8, y - 8); ctx.lineTo(x - 1.6, hy + 10); ctx.lineTo(x + 1, hy + 6); ctx.lineTo(x + 2.8, y - 8); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#1c1c1e'; ctx.beginPath(); ctx.roundRect(x - 3, hy + 4, 7, 5, 2); ctx.fill();
+    ctx.strokeStyle = '#2a2a2c'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, hy + 6); ctx.lineTo(x + 7, hy + 1); ctx.moveTo(x, hy + 6); ctx.lineTo(x - 5, hy + 12); ctx.stroke();
+  }
+  if (!e.detruite) {
+  if (e.feu) {   // halo de l'incendie
+    const g = ctx.createRadialGradient(x - 3, hy, 0, x - 3, hy, 30);
+    g.addColorStop(0, `rgba(255,140,40,${.45 + .2 * Math.sin(horloge * 13)})`); g.addColorStop(1, 'rgba(255,90,20,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x - 3, hy, 30, 0, 6.28); ctx.fill();
+  }
+  ctx.fillStyle = !e.marche ? (e.feu ? '#5a3a30' : e.arret ? '#ffd0d5' : '#ffe2b0') : or ? '#ffc933' : '#f1f5f8'; ctx.beginPath(); ctx.roundRect(x - 3.5, hy - 3, 10, 6, 2.5); ctx.fill();
   ctx.save(); ctx.translate(x - 3.5, hy); ctx.rotate(e.angle);
-  ctx.fillStyle = tourne ? ['#ffffff', '#ffe27a', '#ffc21a'][e.niveau] : e.coupe ? '#ffd9a8' : '#e8c1c6';
+  ctx.fillStyle = e.coupe ? '#8fa3b3' : e.marche || !e.arret ? ['#ffffff', '#ffe27a', '#ffc21a'][e.niveau] : e.feu ? '#6b5650' : '#e8c1c6';   // string coupé : pales grisées
   for (let i = 0; i < 3; i++) { pale(25); ctx.rotate(2.0944); }
   ctx.restore();
+  }
   if (e.niveau === 2) {   // scintillement des éoliennes au maximum
     for (let i = 0; i < 2; i++) {
       const ph = (horloge * .9 + i * .5 + e.x * .003) % 1, a = Math.sin(ph * Math.PI);
@@ -2027,11 +2434,11 @@ function dessinerEolienne(e, survol, rangs) {
   }
   if (!e.marche) {
     const by = hy - 34 + Math.sin(horloge * 5 + e.x) * 2.5;
-    ctx.fillStyle = e.panne === CABLE ? '#ff8c1a' : '#ff4d5e';
+    ctx.fillStyle = e.detruite ? '#4a4a50' : e.feu ? '#ff7a1a' : e.panne === CABLE ? '#ff8c1a' : e.arret ? '#ff4d5e' : '#f5a623';
     ctx.beginPath(); ctx.arc(x, by, 12, 0, 6.28); ctx.fill();
     ctx.beginPath(); ctx.moveTo(x - 4, by + 9); ctx.lineTo(x, by + 16); ctx.lineTo(x + 4, by + 9); ctx.fill();
-    ctx.font = '13px sans-serif'; ctx.fillText(PANNES[e.panne].ico, x, by + 5);
-    if (e.depuisPanne > partie.dureeShift / 6) { ctx.font = '600 10px Inter, sans-serif'; ctx.fillStyle = '#ffb3ba'; ctx.fillText(dureeTxt(e.depuisPanne), x + 34, by + 4); }
+    ctx.font = '13px sans-serif'; ctx.fillText(e.detruite ? '💥' : e.feu ? '🔥' : PANNES[e.panne].ico, x, by + 5);
+    if (partie.mode === 'carriere' && e.depuisPanne > partie.dureeShift / 6) { ctx.font = '600 10px Inter, sans-serif'; ctx.fillStyle = '#ffb3ba'; ctx.fillText(dureeTxt(e.depuisPanne), x + 34, by + 4); }
   } else if (e.alerte > 0) {
     const by = hy - 34, pul = .6 + .4 * Math.sin(horloge * 10);
     ctx.fillStyle = `rgba(255,210,63,${pul})`; ctx.beginPath(); ctx.arc(x, by, 11, 0, 6.28); ctx.fill();
@@ -2081,6 +2488,10 @@ function dessinerParticules() {
     const a = p.vie / p.max;
     if (p.type === 'sillage') { ctx.fillStyle = `rgba(255,255,255,${a * .35})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
     else if (p.type === 'fumee') { ctx.fillStyle = `rgba(60,60,70,${a * .45})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
+    else if (p.type === 'fumeeNoire') { ctx.fillStyle = `rgba(30,28,30,${a * .55})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
+    else if (p.type === 'flamme') { ctx.fillStyle = `rgba(255,${Math.round(120 + 110 * a)},40,${a})`; ctx.beginPath(); ctx.arc(p.x, p.y, 2 + a * 3.5, 0, 6.28); ctx.fill(); }
+    else if (p.type === 'debris') { ctx.fillStyle = `rgba(70,70,75,${a})`; ctx.fillRect(p.x, p.y, 3.5, 2.5); }
+    else if (p.type === 'onde') { ctx.strokeStyle = `rgba(255,220,150,${a})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.ellipse(p.x, p.y, p.r, p.r * .55, 0, 0, 6.28); ctx.stroke(); }
     else { ctx.fillStyle = `rgba(255,220,90,${a})`; ctx.fillRect(p.x, p.y, 2.5, 2.5); }
   }
 }
@@ -2110,12 +2521,13 @@ function dessiner() {
   const sx = secousse ? rand(-secousse, secousse) : 0, sy = secousse ? rand(-secousse, secousse) : 0;
   ctx.setTransform(dpr * echelle, 0, 0, dpr * echelle, dpr * (decX + sx * echelle), dpr * (decY + sy * echelle));
   dessinerMer();
+  dessinerVent(Math.min(.05, horloge - (dessiner.h || horloge))); dessiner.h = horloge;
   dessinerZonesEA();
   dessinerCables();
   if (partie) for (const z of partie.zones) if (z.age >= z.prev) dessinerZoneMeteo(z);
+  dessinerVieMer();
   dessinerBase();
-  dessinerParticules();
-  const survol = etat === 'jeu' ? (menuPour || eolienneSous(souris.x, souris.y)) : null;
+  const survol = etat === 'jeu' ? (menuPour || (surOSS(souris.x, souris.y) ? OSS_CIBLE : eolienneSous(souris.x, souris.y))) : null;
   const rangs = new Map();
   if (partie) {
     const tous = (partie.encours ? [{ o: partie.encours.o, encours: true }] : []).concat(partie.file.map(o => ({ o })));
@@ -2123,6 +2535,9 @@ function dessiner() {
   }
   const objets = [...eoliennes, { bateau: true, y: bateau.y + 6 }].sort((a, b) => a.y - b.y);
   for (const o of objets) o.bateau ? dessinerBateau() : dessinerEolienne(o, o === survol, rangs.get(o) || []);
+  dessinerParticules();
+  dessinerOSSPremierPlan(survol === OSS_CIBLE, rangs.get(OSS_CIBLE) || []);
+  dessinerMouettes();
   if (partie) for (const z of partie.zones) if (z.age < z.prev) dessinerZoneMeteo(z);
   lumiere(partie ? heureJeu() : 10);
   dessinerTextes();
@@ -2138,8 +2553,11 @@ function majHud() {
   $('hShiftJauge').style.width = (100 * partie.tShift / partie.dureeShift) + '%';
   $('hScore').textContent = fmt(partie.points + partie.bonusCombo);
   $('hPuiss').textContent = fmt(partie.puissance);
+  $('hVent').textContent = Math.round(partie.vent || 0); $('hFleche').style.transform = 'rotate(' + VENT.dir + 'rad)';
   $('hDispo').textContent = partie.enService + '/64';
   $('hPic').textContent = partie.pic ? t('pic') : '';
+  $('hBateau').hidden = !M.pieces && !M.carburant;
+  $('hPieces').parentElement.hidden = !M.pieces; $('hCarbu').parentElement.parentElement.hidden = !M.carburant;
   const p = $('hPieces');
   if (p.children.length !== M.stock) p.innerHTML = '<i></i>'.repeat(M.stock);
   [...p.children].forEach((el, i) => el.classList.toggle('on', i < partie.stock));
@@ -2167,33 +2585,31 @@ function majRebours() {
 }
 
 function majBoutonJouer() {
-  const locale = carriereLocale(), p = $('pseudo').value.trim();
-  const suite = modeChoisi === 'carriere' && locale && (!p || cleNom(locale.pseudo) === cleNom(p));
-  $('btnJouer').textContent = modeChoisi === 'rapide' ? t('btnSprint') : suite ? t('btnCarriereSuite', { n: locale.jour }) : t('btnCarriereNew');
-  $('carCodeLigne').hidden = !!suite;
-  if (suite && !p) $('pseudo').value = locale.pseudo;
+  const c = carriereDe($('pseudo').value);
+  $('btnJouer').textContent = modeChoisi === 'rapide' ? t('btnSprint') : c ? t('btnCarriereSuite', { n: c.jour }) : t('btnCarriereNew');
+  majCarteCarriere(true);
 }
-function majCarteCarriere() {
-  const locale = carriereLocale(), el = $('carLocal');
-  el.hidden = !locale;
-  if (locale) {
-    el.innerHTML = t('carLocal', { pseudo: echapper(locale.pseudo), jour: locale.jour, budget: fmt(locale.budget) }) + ' ';
+function majCarteCarriere(sansBouton) {
+  const c = carriereDe($('pseudo').value), el = $('carLocal');
+  $('boiteCarriere').hidden = modeChoisi !== 'carriere' || !c;
+  if (c) {
+    el.hidden = false;
+    el.innerHTML = t('carLocal', { pseudo: echapper(c.pseudo), jour: c.jour, budget: fmt(c.budget) }) + ' ';
     const b = document.createElement('button'); b.className = 'lien'; b.type = 'button'; b.textContent = t('carNouvelle');
     b.addEventListener('click', () => {
-      if (!confirm(t('carNouvelleConfirm'))) return;
-      stock.del('eq_carriere'); carriere = null; $('pseudo').value = ''; $('code').value = '';
-      majCarteCarriere(); majBoutonJouer(); $('pseudo').focus();
+      if (!confirm(t('carNouvelleConfirm', { pseudo: c.pseudo }))) return;
+      delete BD.carrieres[cleNom(c.pseudo)]; enregistrer();
+      majBoutonJouer(); rafraichirClassements(); $('pseudo').focus();
     });
     el.append(b);
   }
-  majBoutonJouer();
+  if (!sansBouton) majBoutonJouer();
 }
 function choisirMode(m) {
   modeChoisi = m; stock.set('eq_mode', m);
   document.querySelectorAll('#modes .mode').forEach(b => b.classList.toggle('actif', b.dataset.mode === m));
-  $('boiteCarriere').hidden = m !== 'carriere';
   $('infoErreur').textContent = '';
-  majCarteCarriere();
+  majBoutonJouer();
 }
 document.querySelectorAll('#modes .mode').forEach(b => b.addEventListener('click', () => choisirMode(b.dataset.mode)));
 function ongletAccueil(id) {
@@ -2208,17 +2624,16 @@ function appliquerLangue() {
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   $('btnLangue').textContent = langue === 'fr' ? 'EN' : 'FR';
-  majInfoLogin();
-  majRebours(); majCarteCarriere();
-  for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
+  majRebours(); majBoutonJouer(); majEtatDonnees();
+  rafraichirClassements();
 }
 $('btnLangue').addEventListener('click', () => { langue = langue === 'fr' ? 'en' : 'fr'; stock.set('eq_langue', langue); appliquerLangue(); });
 
 /* =====================================================================
    Panneau organisateur (5 clics rapides sur le logo) — en français
-   Les droits sont vérifiés par Supabase avec le mot de passe (voir supabase.sql).
+   Il agit sur les fichiers JSON du dossier relié.
    ===================================================================== */
-const admin = { mdp: '', vue: 'parties', lignes: [] };
+const admin = { vue: 'parties' };
 let clicsLogo = 0, dernierClicLogo = 0;
 $('logo').addEventListener('click', () => {
   const n = performance.now();
@@ -2228,95 +2643,81 @@ $('logo').addEventListener('click', () => {
   if (clicsLogo >= 5) { clicsLogo = 0; ouvrirAdmin(); }
 });
 
-const duree = s => { s = +s || 0; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ' h ' : '') + (h || m ? String(m).padStart(h ? 2 : 1, '0') + ' min ' : '') + (h ? '' : String(x).padStart(2, '0') + ' s'); };
+const duree = s => { s = Math.round(+s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ' h ' : '') + (h || m ? String(m).padStart(h ? 2 : 1, '0') + ' min ' : '') + (h ? '' : String(x).padStart(2, '0') + ' s'); };
+const frN = n => Math.round(n).toLocaleString('fr-FR');
 function msgAdmin(txt, erreur) { $('adMsg').textContent = txt; $('adMsg').classList.toggle('err', !!erreur); }
-function ouvrirAdmin() {   // sans mot de passe côté Supabase, le panneau s'ouvre directement
-  $('ecranAdmin').hidden = false; $('adConnexion').hidden = true;
-  chargerAdmin();
-}
-function fermerAdmin() {
-  $('ecranAdmin').hidden = true;
-  for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
-  if (!$('ecranFin').hidden) chargerClassement('listeFin');
-}
+function ouvrirAdmin() { $('ecranAdmin').hidden = false; majEtatDonnees(); afficherAdmin(); msgAdmin(''); }
+function fermerAdmin() { $('ecranAdmin').hidden = true; rafraichirClassements(); majBoutonJouer(); }
 $('adFermer').addEventListener('click', fermerAdmin);
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('ecranAdmin').hidden) fermerAdmin(); });
-$('adConnexion').addEventListener('submit', e => { e.preventDefault(); admin.mdp = $('adMdp').value; admin.saisi = true; $('adMdp').value = ''; chargerAdmin(); });
 for (const v of ['parties', 'carrieres']) $('adVue' + v.charAt(0).toUpperCase() + v.slice(1)).addEventListener('click', () => {
   admin.vue = v;
   $('adVueParties').classList.toggle('actif', v === 'parties'); $('adVueCarrieres').classList.toggle('actif', v === 'carrieres');
   $('adVider').hidden = v !== 'parties';
-  if (admin.mdp) chargerAdmin();
+  afficherAdmin();
+});
+$('adDossierBtn').addEventListener('click', () => relierDossier('changer').then(afficherAdmin));
+$('adExporter').addEventListener('click', () => {
+  for (const [nom, data] of [[CONFIG.fichiers.scores, { v: 1, parties: BD.parties }], [CONFIG.fichiers.carrieres, { v: 1, carrieres: BD.carrieres }]]) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' }));
+    a.download = nom; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
 });
 
-function erreurAdmin(e) {
-  if (/Mot de passe incorrect/.test(e.message)) {
-    admin.mdp = ''; $('adConnexion').hidden = false; $('adContenu').hidden = true;
-    msgAdmin(admin.saisi ? 'Mot de passe incorrect.' : 'Un mot de passe organisateur est défini dans Supabase.', !!admin.saisi); $('adMdp').focus();
-  } else if (/check constraint/.test(e.message)) msgAdmin('Valeur refusée : le score doit être entre 0 et 100 000, le pseudo faire 1 à 24 caractères.', true);
-  else if (e.reseau) msgAdmin('Impossible de joindre Supabase (' + CONFIG.supabaseUrl + ') depuis ce poste : le réseau de l\'entreprise, un proxy ou la page (SharePoint) bloque la connexion. Ouvrez la console (F12) pour voir le message exact.', true);
-  else msgAdmin('Erreur : ' + e.message, true);
-}
-
-async function chargerAdmin(message) {
-  msgAdmin('Chargement…');
-  try {
-    admin.lignes = await sb('/rest/v1/rpc/' + (admin.vue === 'parties' ? 'admin_scores' : 'admin_carrieres'), { mdp: admin.mdp });
-    $('adConnexion').hidden = true; $('adContenu').hidden = false;
-    msgAdmin(message || '');
-    afficherAdmin();
-  } catch (e) { erreurAdmin(e); }
+async function sauverAdmin(message) {
+  const ok = await enregistrer();
+  afficherAdmin();
+  msgAdmin(message + (ok ? '' : ' (gardé dans le navigateur : le dossier n\'est pas relié)'), !ok);
 }
 
 function afficherAdmin() {
   const f = $('adFiltre').value.trim().toLowerCase();
-  const lignes = admin.lignes.filter(l => !f || (l.login || '').includes(f) || l.pseudo.toLowerCase().includes(f));
   const parties = admin.vue === 'parties';
+  const toutes = parties ? [...BD.parties].reverse() : classementCarriere();
+  const lignes = toutes.filter(l => !f || cleNom(l.pseudo).includes(f));
   $('adTete').innerHTML = parties
-    ? '<tr><th><input type="checkbox" id="adTout"></th><th>Date</th><th>Login</th><th>Pseudo</th><th>Mode</th><th>Score</th><th>🔧</th><th>🛡️</th><th>🔁</th><th>Dispo</th><th>⏱ Temps</th><th>Langue</th><th></th></tr>'
-    : '<tr><th><input type="checkbox" id="adTout"></th><th>Pseudo</th><th>Login</th><th>Jour</th><th>Énergie cumulée</th><th>Budget</th><th>⏱ Temps total</th><th>Créée le</th><th>Dernière partie</th></tr>';
+    ? '<tr><th><input type="checkbox" id="adTout"></th><th>Date</th><th>Pseudo</th><th>Mode</th><th>Score</th><th>🔧</th><th>🛡️</th><th>💥</th><th>🔁</th><th>Dispo</th><th>⏱ Temps</th><th>Langue</th><th></th></tr>'
+    : '<tr><th><input type="checkbox" id="adTout"></th><th>Pseudo</th><th>Jour</th><th>Énergie cumulée</th><th>Budget</th><th>⏱ Temps total</th><th>Dernière partie</th></tr>';
   $('adTout').addEventListener('change', () => { document.querySelectorAll('.adCoche').forEach(c => { c.checked = $('adTout').checked; }); majSelection(); });
   const tb = $('adLignes'); tb.replaceChildren();
   const cellule = (tr, contenu, cls) => { const td = document.createElement('td'); if (cls) td.className = cls; td.append(contenu); tr.append(td); return td; };
   const date = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
   for (const l of lignes) {
-    const tr = document.createElement('tr'); tr.dataset.id = parties ? l.id : l.cle;
+    const tr = document.createElement('tr'); tr.dataset.id = parties ? l.id : cleNom(l.pseudo);
     const coche = document.createElement('input'); coche.type = 'checkbox'; coche.className = 'adCoche';
     cellule(tr, coche);
     if (!parties) {
-      cellule(tr, l.pseudo); cellule(tr, l.login || '—', 'login-c'); cellule(tr, 'J' + l.jour);
-      const fr = n => Math.round(n).toLocaleString('fr-FR');
-      cellule(tr, fr(l.total_mwh) + ' MWh'); cellule(tr, fr(l.budget) + ' k€'); cellule(tr, duree(l.temps_jeu));
-      cellule(tr, date(l.cree_le)); cellule(tr, date(l.maj));
+      cellule(tr, l.pseudo); cellule(tr, 'J' + l.jour); cellule(tr, frN(l.totalMWh) + ' MWh'); cellule(tr, frN(l.budget) + ' k€');
+      cellule(tr, duree(l.tempsJeu)); cellule(tr, date(l.maj));
       tb.append(tr); continue;
     }
-    cellule(tr, date(l.created_at));
-    cellule(tr, l.login, 'login-c').title = l.login + ({ windows: ' (Windows)', sharepoint: ' (Microsoft 365)' }[l.source] || ' (saisi)');
+    cellule(tr, date(l.date));
     const ps = document.createElement('input'); ps.type = 'text'; ps.maxLength = 24; ps.value = l.pseudo;
     cellule(tr, ps);
     cellule(tr, l.mode === 'carriere' ? '🧭 carrière J' + l.jour : '⚡ sprint');
     const sc = document.createElement('input'); sc.type = 'number'; sc.min = 0; sc.max = 100000; sc.value = l.score;
     cellule(tr, sc);
-    cellule(tr, String(l.reparations)); cellule(tr, String(l.ameliorations)); cellule(tr, '×' + l.combo_max);
-    cellule(tr, l.disponibilite + ' %'); cellule(tr, duree(l.temps_jeu)); cellule(tr, l.langue || '');
+    cellule(tr, String(l.reparations)); cellule(tr, String(l.ameliorations)); cellule(tr, String(l.explosions || 0)); cellule(tr, '×' + l.comboMax);
+    cellule(tr, l.dispo + ' %'); cellule(tr, duree(l.temps)); cellule(tr, l.langue || '');
     const actions = document.createElement('span');
     const enr = document.createElement('button'); enr.className = 'btn ok'; enr.type = 'button'; enr.textContent = '💾'; enr.title = 'Enregistrer'; enr.disabled = true;
     const sup = document.createElement('button'); sup.className = 'btn danger'; sup.type = 'button'; sup.textContent = '🗑'; sup.title = 'Supprimer'; sup.style.marginLeft = '6px';
     actions.append(enr, sup); cellule(tr, actions);
     const changer = () => { const m = ps.value.trim() !== l.pseudo || +sc.value !== l.score; enr.disabled = !m; tr.classList.toggle('modifie', m); };
     ps.addEventListener('input', changer); sc.addEventListener('input', changer);
-    enr.addEventListener('click', async () => {
-      try {
-        await sb('/rest/v1/rpc/admin_modifier', { mdp: admin.mdp, p_id: l.id, p_pseudo: ps.value, p_score: Math.round(+sc.value) });
-        await chargerAdmin('Partie de « ' + ps.value.trim() + ' » enregistrée.');
-      } catch (e) { erreurAdmin(e); }
+    enr.addEventListener('click', () => {
+      const p = ps.value.trim().slice(0, 24), v = Math.round(+sc.value);
+      if (!p || !(v >= 0 && v <= 100000)) { msgAdmin('Valeur refusée : pseudo de 1 à 24 caractères, score entre 0 et 100 000.', true); return; }
+      l.pseudo = p; l.score = v;
+      sauverAdmin('Partie de « ' + p + ' » enregistrée.');
     });
     sup.addEventListener('click', () => supprimerAdmin([l.id]));
     tb.append(tr);
   }
   if (!lignes.length) { const tr = document.createElement('tr'); const td = cellule(tr, f ? 'Aucune ligne ne correspond.' : 'Rien pour l\'instant.', 'vide'); td.colSpan = 13; tb.append(tr); }
-  const total = lignes.reduce((s, l) => s + (+l.temps_jeu || 0), 0);
-  $('adCompte').textContent = lignes.length + ' / ' + admin.lignes.length + (parties ? ' parties' : ' carrières') + ' · ⏱ ' + duree(total) + ' de jeu';
+  const total = lignes.reduce((s, l) => s + (+(parties ? l.temps : l.tempsJeu) || 0), 0);
+  $('adCompte').textContent = lignes.length + ' / ' + toutes.length + (parties ? ' parties' : ' carrières') + ' · ⏱ ' + duree(total) + ' de jeu';
   majSelection();
 }
 
@@ -2324,25 +2725,20 @@ function selectionAdmin() { return [...document.querySelectorAll('.adCoche:check
 function majSelection() { const n = selectionAdmin().length; $('adSuppr').disabled = !n; $('adSuppr').textContent = '🗑 Supprimer la sélection' + (n ? ' (' + n + ')' : ''); }
 $('adLignes').addEventListener('change', e => { if (e.target.classList.contains('adCoche')) majSelection(); });
 $('adFiltre').addEventListener('input', afficherAdmin);
-$('adRafraichir').addEventListener('click', () => chargerAdmin());
+$('adRafraichir').addEventListener('click', () => relierDossier(false).then(afficherAdmin));
 $('adSuppr').addEventListener('click', () => supprimerAdmin(selectionAdmin()));
 
-async function supprimerAdmin(ids) {
+function supprimerAdmin(ids) {
   const parties = admin.vue === 'parties';
   if (!ids.length || !confirm('Supprimer définitivement ' + ids.length + (parties ? ' partie(s) ?' : ' carrière(s) ?'))) return;
-  try {
-    const n = parties
-      ? await sb('/rest/v1/rpc/admin_supprimer', { mdp: admin.mdp, p_ids: ids.map(Number) })
-      : await sb('/rest/v1/rpc/admin_supprimer_carrieres', { mdp: admin.mdp, p_cles: ids });
-    await chargerAdmin(n + (parties ? ' partie(s) supprimée(s).' : ' carrière(s) supprimée(s).'));
-  } catch (e) { erreurAdmin(e); }
+  if (parties) BD.parties = BD.parties.filter(x => !ids.includes(x.id));
+  else for (const k of ids) delete BD.carrieres[k];
+  sauverAdmin(ids.length + (parties ? ' partie(s) supprimée(s).' : ' carrière(s) supprimée(s).'));
 }
-$('adVider').addEventListener('click', async () => {
+$('adVider').addEventListener('click', () => {
   if (prompt('Cela supprime TOUTES les parties (les carrières restent).\nTapez EFFACER pour confirmer :') !== 'EFFACER') return;
-  try {
-    const n = await sb('/rest/v1/rpc/admin_vider', { mdp: admin.mdp });
-    await chargerAdmin('Parties remises à zéro (' + n + ' supprimées).');
-  } catch (e) { erreurAdmin(e); }
+  const n = BD.parties.length; BD.parties = [];
+  sauverAdmin('Parties remises à zéro (' + n + ' supprimées).');
 });
 
 /* =====================================================================
@@ -2360,8 +2756,6 @@ function boucle(maintenant) {
 $('pseudo').value = joueur.pseudo;
 $('pseudo').addEventListener('input', () => { $('infoErreur').textContent = ''; majBoutonJouer(); });
 $('pseudo').addEventListener('keydown', e => { if (e.key === 'Enter') demarrer(); });
-$('code').addEventListener('input', () => { $('code').value = $('code').value.replace(/\D/g, '').slice(0, 4); });
-$('code').addEventListener('keydown', e => { if (e.key === 'Enter') demarrer(); });
 $('btnJouer').addEventListener('click', demarrer);
 $('btnRejouer').addEventListener('click', lancerJournee);
 function retourAccueil() {
@@ -2369,19 +2763,23 @@ function retourAccueil() {
   for (const id of ['ecranFin', 'ecranBase', 'ecranReleve', 'hud', 'file']) $(id).hidden = true;
   $('ecranAccueil').hidden = false; ongletAccueil('pAccueil');
   eoliennes.forEach(e => { e.marche = true; e.coupe = false; e.alerte = 0; });
-  majCarteCarriere();
-  for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
+  $('pseudo').value = ''; joueur.pseudo = '';   // stand : on laisse la place au joueur suivant
+  majBoutonJouer(); rafraichirClassements();
 }
 $('btnAccueil').addEventListener('click', retourAccueil);
 $('btnBaseAccueil').addEventListener('click', retourAccueil);
-addEventListener('keydown', e => { if (etat === 'fin' && !$('ecranFin').hidden && $('ecranAdmin').hidden && e.key === 'Enter') lancerJournee(); });
+addEventListener('keydown', e => {
+  if (e.key !== 'Enter' || !$('ecranAdmin').hidden) return;
+  if (etat === 'regles') $('btnGo').click();
+  else if (etat === 'fin' && !$('ecranFin').hidden) lancerJournee();
+});
 addEventListener('resize', redimensionner);
 redimensionner();
 setInterval(majRebours, 1000);
-carriere = carriereLocale();
+Object.assign(BD, lireLocal());
 choisirMode(modeChoisi);
 appliquerLangue();
-detecterCompteSharePoint();
+relierDossier(false);
 requestAnimationFrame(boucle);
 </script>
 </body>
