@@ -21,7 +21,8 @@ SharePoint**, avec le compte de la personne : le jeu sait qui joue et peut enreg
 2. Créez dans ce dossier un sous-dossier **`donnees`**. Le premier joueur le crée sinon, s'il en a le droit.
 3. Partagez **`QualityWeek2026` en lecture** et **`donnees` en modification** avec les participants
    (par exemple « Personnes d'EDF disposant du lien »).
-4. Partagez le lien vers `index.html`.
+4. Partagez le lien vers `index.html`. Si vous le partagez par **Teams**, précisez de l'ouvrir dans **Edge** (« … » › Ouvrir dans le navigateur) :
+   Teams n'a pas de barre de favoris. L'écran d'accueil du lien le rappelle, en français et en anglais (bouton FR / EN).
 
 **Pour jouer (participants)**
 1. Ouvrir le lien partagé : l'aperçu affiche un **mode d'emploi** avec un gros bouton jaune « ⬆ Glissez-moi dans la barre des favoris ».
