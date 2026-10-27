@@ -111,6 +111,10 @@ et le **planificateur** : 8 puis 10 ordres dans la barre du bas, et le bouton «
   On y voit d'un coup d'œil que quelques éoliennes « plus exposées » font l'essentiel des défauts.
 - À chaque **relève**, un compte rendu du shift s'affiche à côté du bilan : interventions du shift, récidives depuis le matin,
   coût de la non-qualité et préconisation de l'équipe pour le shift suivant.
+- Après ce compte rendu, **📋 Planifier le shift** : jeu en pause, on remplit la barre d'ordres sur la carte (réparer les éoliennes
+  en défaut, fiabiliser celles revenues 2 fois), avec les préconisations de l'équipe en rouge et le trajet affiché, puis on valide.
+- Le Chef d'Équipe CTV estime le **carburant gaspillé** : la route réellement faite comparée à un enchaînement des éoliennes voisines
+  (≈ 6 L/km), avec un exemple d'aller-retour inutile (« depuis E06, on est parti à A09 alors que C06 était à 2 km »).
 - En fin de journée, le compte rendu de la réunion **s'affiche tout seul** (« Voir mes résultats ▶ » pour passer au score) ; le bouton **📋 Compte rendu** le rouvre : le Chef d'Équipe CTV dit ce qui a été réparé et fiabilisé,
   le Responsable Qualité interprète (« ça fait 3 fois qu'on la répare : il y a un vrai souci, il faut la fiabiliser au plus tôt demain »),
   le Superviseur SCADA donne le Pareto et le coût de la non-qualité, puis viennent les **préconisations de l'équipe** pour demain, point par point (au joueur de décider).
