@@ -293,6 +293,14 @@
     box-shadow: 0 8px 24px rgba(0,0,0,.3); transition: opacity .3s; }
   .inter-legende:empty { opacity: 0; }
   .inter-passer { position: absolute; right: 18px; bottom: 18px; padding: 9px 16px; font-size: 15px; background: rgba(6,20,45,.55); }
+  .pareto-svg { display: block; width: 100%; height: auto; margin: 0 0 4px; }
+  .pareto-svg text { fill: #c9d8ec; font: 600 9.5px Inter, sans-serif; text-anchor: middle; }
+  .pareto-svg text.nb { fill: #fff; font-size: 9px; }
+  .pareto-svg text.ax { text-anchor: start; font-size: 9px; fill: #9fb4d1; }
+  .pareto-legende { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 12px; color: var(--doux); margin-bottom: 8px; }
+  .pareto-legende i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .pareto-legende i.ligne { height: 2px; width: 14px; background: #fff; vertical-align: 3px; }
+  .pareto-vide { color: var(--doux); font-size: 13px; margin-bottom: 6px; }
   .merci { background: linear-gradient(135deg, rgba(0,169,233,.2), rgba(242,183,5,.14)); }
   .merci b { color: var(--jaune); }
   .merci .autre-jeu { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center; margin-top: 10px; padding: 8px; border-radius: 12px;
@@ -976,6 +984,7 @@ const I18N = {
     envoi: 'Envoi du score…', rangTxt: '<b>{a}</b> sur {b} aujourd\'hui · <b>{c}</b> sur {d} au général', rangCarriere: 'Carrière sauvegardée ✔',
     errSpam: 'Score non enregistré : deux parties trop rapprochées.', errHorsLigneScore: 'Classement hors ligne : score gardé sur ce poste.',
     pareto: '📊 <b>Pareto</b> : {f} éoliennes sur 64 ({pc} %) ont concentré <b>{part} %</b> des défauts. Vous en avez fiabilisé <b>{n}</b>.',
+    paretoVide: 'Aucun défaut aujourd\'hui : rien à trier !', paretoAutres: 'autres', paretoLegFiab: 'fiabilisée', paretoLegExpo: 'plus exposée', paretoLegAutre: 'autre', paretoLegCumul: '% cumulé des défauts',
     paretoPeu: ' Les repérer tôt grâce à leur historique (badge ×N), c\'est la clé.', paretoBien: ' Bien vu !',
     profils: [
       ['🏆 Pilote de la performance durable', 'Vous avez repéré les éoliennes à problèmes et traité les causes : le parc a tourné pendant que vous gardiez la main.'],
@@ -1122,6 +1131,7 @@ const I18N = {
     envoi: 'Sending score…', rangTxt: '<b>{a}</b> of {b} today · <b>{c}</b> of {d} all time', rangCarriere: 'Career saved ✔',
     errSpam: 'Score not saved: two games too close together.', errHorsLigneScore: 'Leaderboard offline: score kept on this computer.',
     pareto: '📊 <b>Pareto</b>: {f} turbines out of 64 ({pc}%) accounted for <b>{part}%</b> of faults. You reinforced <b>{n}</b> of them.',
+    paretoVide: 'No faults today: nothing to sort!', paretoAutres: 'others', paretoLegFiab: 'reinforced', paretoLegExpo: 'more exposed', paretoLegAutre: 'other', paretoLegCumul: 'cumulative % of faults',
     paretoPeu: ' Spotting them early through their history (×N badge) is the key.', paretoBien: ' Well spotted!',
     profils: [
       ['🏆 Sustainable performance pilot', 'You spotted the problem turbines and fixed the causes: the farm kept turning while you stayed in control.'],
@@ -2106,6 +2116,34 @@ async function demarrer() {
   lancerJournee();
 }
 
+/* Diagramme de Pareto de la partie : défauts par éolienne, du plus fréquent au plus rare, et courbe cumulée */
+function grapheParetoSvg() {
+  const liste = eoliennes.filter(e => e.nbPannes > 0).sort((a, b) => b.nbPannes - a.nbPannes || a.id.localeCompare(b.id));
+  const total = liste.reduce((s, e) => s + e.nbPannes, 0);
+  if (!total) return '<div class="pareto-vide">' + t('paretoVide') + '</div>';
+  const MAXB = 20, barres = liste.slice(0, MAXB).map(e => ({ id: e.id, n: e.nbPannes, c: e.niveau > 0 ? '#f2b705' : e.fragile ? '#ff8a5c' : '#7fa6d6' }));
+  if (liste.length > MAXB) barres.push({ id: t('paretoAutres'), n: liste.slice(MAXB).reduce((s, e) => s + e.nbPannes, 0), c: '#55708f' });
+  const L = 540, Hg = 150, g = 26, d = 34, h = 10, b = 22, lb = (L - g - d) / barres.length, hm = Hg - h - b;
+  const max = Math.max(...barres.map(x => x.n));
+  let svg = `<svg class="pareto-svg" viewBox="0 0 ${L} ${Hg}" role="img" aria-label="Pareto">`;
+  const y80 = h + hm * .2;
+  svg += `<line x1="${g}" x2="${L - d}" y1="${y80}" y2="${y80}" stroke="rgba(255,255,255,.45)" stroke-dasharray="4 4"/><text x="${L - d + 4}" y="${y80 + 4}" class="ax">80 %</text>`;
+  svg += `<text x="${L - d + 4}" y="${h + 4}" class="ax">100 %</text><line x1="${g}" x2="${L - d}" y1="${h + hm}" y2="${h + hm}" stroke="rgba(255,255,255,.3)"/>`;
+  let cum = 0; const pts = [];
+  barres.forEach((x, i) => {
+    const bh = hm * x.n / max, xb = g + i * lb + lb * .14, w = lb * .72;
+    svg += `<rect x="${xb.toFixed(1)}" y="${(h + hm - bh).toFixed(1)}" width="${w.toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="${x.c}"/>`;
+    svg += `<text x="${(xb + w / 2).toFixed(1)}" y="${(h + hm - bh - 3).toFixed(1)}" class="nb">${x.n}</text>`;
+    svg += `<text x="${(xb + w / 2).toFixed(1)}" y="${Hg - 8}" class="id">${echapper(x.id)}</text>`;
+    cum += x.n; pts.push([g + i * lb + lb / 2, h + hm * (1 - cum / total)]);
+  });
+  svg += `<polyline points="${pts.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="#fff" stroke-width="2"/>`;
+  svg += pts.map(([x, y]) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.6" fill="#fff"/>`).join('');
+  svg += `<text x="${g - 4}" y="${h + 8}" class="ax" text-anchor="end">${max}</text></svg>`;
+  return svg + '<div class="pareto-legende"><span><i style="background:#f2b705"></i>' + t('paretoLegFiab') + '</span><span><i style="background:#ff8a5c"></i>' + t('paretoLegExpo')
+    + '</span><span><i style="background:#7fa6d6"></i>' + t('paretoLegAutre') + '</span><span><i class="ligne"></i>' + t('paretoLegCumul') + '</span></div>';
+}
+
 function terminer() {
   etat = 'fin';
   sons.fin();
@@ -2129,8 +2167,8 @@ function terminer() {
   $('fEtoiles').innerHTML = partie.shifts.map((s, i) => '<div><b>' + etoilesDispo(s.dispo) + '</b>' + t('shiftTitre')[i] + ' · ' + s.dispo + ' %</div>').join('');
   const fragiles = eoliennes.filter(e => e.fragile), fiabF = fragiles.filter(e => e.niveau > 0).length;
   const partF = partie.pannes ? Math.round(100 * partie.pannesFragiles / partie.pannes) : 0;
-  $('fPareto').innerHTML = t('pareto', { f: fragiles.length, pc: Math.round(100 * fragiles.length / 64), part: partF, n: fiabF })
-    + t(fiabF < fragiles.length / 2 ? 'paretoPeu' : 'paretoBien');
+  $('fPareto').innerHTML = grapheParetoSvg() + '<div>' + t('pareto', { f: fragiles.length, pc: Math.round(100 * fragiles.length / 64), part: partF, n: fiabF })
+    + t(fiabF < fragiles.length / 2 ? 'paretoPeu' : 'paretoBien') + '</div>';
   const ratio = fiabF / Math.max(1, fragiles.length);
   const [titre, txt] = t('profils')[ratio >= .6 ? 0 : ratio >= .3 ? 1 : res.ameliorations >= 1 ? 2 : 3];
   $('fProfil').textContent = titre; $('fProfilTxt').textContent = txt;
