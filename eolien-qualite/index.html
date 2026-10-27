@@ -612,7 +612,7 @@
 <div class="voile" id="ecranAdmin" hidden>
   <div class="carte admin">
     <div class="admin-tete">
-      <h2>🔐 Gestion des classements</h2>
+      <h2>🔐 Gestion des classements <small id="adVersion" style="font-size:13px;font-weight:500;color:var(--doux)"></small></h2>
       <div class="outils">
         <button class="btn actif" id="adVueParties" type="button">Parties</button>
         <button class="btn" id="adVueCarrieres" type="button">Carrières</button>
@@ -660,7 +660,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.3'
+  version: '2026.4'
 };
 
 const PARAMS = {
@@ -2656,7 +2656,7 @@ $('logo').addEventListener('click', () => {
 const duree = s => { s = Math.round(+s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ' h ' : '') + (h || m ? String(m).padStart(h ? 2 : 1, '0') + ' min ' : '') + (h ? '' : String(x).padStart(2, '0') + ' s'); };
 const frN = n => Math.round(n).toLocaleString('fr-FR');
 function msgAdmin(txt, erreur) { $('adMsg').textContent = txt; $('adMsg').classList.toggle('err', !!erreur); }
-function ouvrirAdmin() { $('ecranAdmin').hidden = false; majEtatDonnees(); afficherAdmin(); msgAdmin(''); }
+function ouvrirAdmin() { $('ecranAdmin').hidden = false; $('adVersion').textContent = 'version ' + CONFIG.version; majEtatDonnees(); afficherAdmin(); msgAdmin(''); }
 function fermerAdmin() { $('ecranAdmin').hidden = true; rafraichirClassements(); majBoutonJouer(); }
 $('adFermer').addEventListener('click', fermerAdmin);
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('ecranAdmin').hidden) fermerAdmin(); });
