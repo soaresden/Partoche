@@ -4,16 +4,49 @@ Jeu HTML en un seul fichier, en français et en anglais, pour la Semaine mondial
 sur le thème « Quality: Powering Performance ». Il reprend la vraie implantation du parc éolien en mer du Calvados :
 64 éoliennes, 13 strings, l'OSS et les distances réelles.
 
-**Principe : le jeu tourne sur le PC du stand.** Les scores sont écrits dans des fichiers JSON, à côté du jeu,
-dans le dossier OneDrive synchronisé. Seul ce PC écrit dans ces fichiers : les joueurs ne peuvent pas les modifier.
+Le jeu fonctionne de deux façons, avec le même fichier `index.html` :
+
+- **Lien partagé + favori** : chacun joue depuis son PC, identifié par son compte EDF.
+- **Stand** : le jeu tourne sur un PC, ouvert en local.
+
+## 1. Lien partagé + favori (chacun sur son PC)
+
+**Pourquoi un favori ?** Ouvert depuis un lien OneDrive ou SharePoint, un `.html` s'affiche dans un *aperçu isolé*
+qui n'a le droit ni d'écrire ni de parler à SharePoint. Le favori charge le jeu **à l'intérieur de la vraie page
+SharePoint**, avec le compte de la personne : le jeu sait qui joue et peut enregistrer son score.
+
+**Mise en place (organisateur)**
+1. `index.html` est dans le dossier OneDrive `QualityWeek2026`. Son chemin est réglé dans `CONFIG.sharepoint.dossier` :
+   mettez-le à jour si vous déplacez le dossier.
+2. Créez dans ce dossier un sous-dossier **`donnees`**. Le premier joueur le crée sinon, s'il en a le droit.
+3. Partagez **`QualityWeek2026` en lecture** et **`donnees` en modification** avec les participants
+   (par exemple « Personnes d'EDF disposant du lien »).
+4. Partagez le lien vers `index.html`.
+
+**Pour jouer (participants)**
+1. Ouvrir le lien partagé : l'aperçu affiche le jeu avec un bouton jaune **⭐ Jeu Qualité 2026**.
+2. **Glisser ce bouton dans la barre des favoris** d'Edge (Ctrl+Maj+B pour l'afficher).
+3. Ouvrir le dossier `QualityWeek2026` dans le navigateur, puis **cliquer sur le favori** : le jeu se lance,
+   le nom est déjà rempli et les scores s'enregistrent.
+
+**Données et anti-triche**
+- Chaque joueur écrit **uniquement son fichier** : `donnees/joueur-<adresse e-mail>.json` (ses parties, sa carrière, son temps de jeu).
+- Chaque fichier est **signé**. Un fichier modifié à la main ne passe plus le contrôle : ses scores sont écartés des classements
+  et apparaissent grisés avec ⚠ dans le panneau organisateur. Les scores impossibles (trop élevés, partie trop courte) sont écartés aussi.
+- SharePoint garde l'historique des versions et l'auteur de chaque modification.
+- Limite honnête : un développeur déterminé pourrait recalculer une signature. Pour un jeu interne, c'est largement suffisant.
+
+## 2. Stand (le jeu tourne sur un PC)
+
+Le jeu écrit des fichiers JSON à côté de lui, dans le dossier OneDrive synchronisé. Seul ce PC écrit dans ces fichiers :
+les joueurs ne peuvent pas les modifier.
 
 | Fichier | Rôle |
 | --- | --- |
-| `index.html` | le jeu complet |
 | `qualite2026-scores.json` | créé par le jeu : toutes les parties (nom, mode, score, temps de jeu…) |
 | `qualite2026-carrieres.json` | créé par le jeu : les carrières, une par nom de joueur |
 
-## Mise en route sur le PC du stand
+**Mise en route**
 
 1. Placez `index.html` dans le dossier OneDrive synchronisé (par exemple `QualityWeek2026`).
 2. Ouvrez-le avec **Edge** (ou Chrome) **depuis l'Explorateur Windows** : clic droit › Ouvrir avec › Microsoft Edge.
@@ -54,12 +87,13 @@ en haut du script : une éolienne négligée s'arrêtera alors simplement.
 ## Panneau organisateur
 
 Sur l'accueil, **cliquez 5 fois rapidement sur le logo du parc** (en haut à gauche). Il n'y a pas de mot de passe.
+On y trouve aussi le bouton **⭐ Favori à partager**, à glisser dans sa barre de favoris.
 
 - **Parties** : date, nom, mode, score, temps de jeu. On peut corriger un nom ou un score, supprimer des lignes ou tout effacer.
 - **Carrières** : jour atteint, énergie cumulée, budget, temps total. On peut supprimer des carrières.
 - On peut aussi changer le dossier des scores et télécharger les deux fichiers JSON.
 
-Toutes les modifications sont aussitôt écrites dans les fichiers du dossier.
+Toutes les modifications sont aussitôt écrites : dans les fichiers du dossier (stand) ou dans le fichier du joueur concerné (lien partagé).
 
 ## Réglages utiles (dans `index.html`, objet `CONFIG` et `PARAMS`)
 

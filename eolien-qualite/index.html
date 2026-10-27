@@ -217,7 +217,29 @@
   #ecranAccueil .bloc-jeu { position: relative; }
   #ecranAccueil .pastille { background: var(--pc-cyan); box-shadow: 0 6px 16px rgba(0,169,233,.28); }
   #ecranAccueil .bloc-jeu h1 { color: var(--pc-bleu); font-family: inherit; font-weight: 800; letter-spacing: -.02em; line-height: .98; }
-  #ecranAccueil .bloc-jeu h1 em { background: none; -webkit-background-clip: border-box; background-clip: border-box; color: var(--pc-cyan); }
+  #ecranAccueil .bloc-jeu h1 em { background: linear-gradient(100deg, var(--pc-cyan) 38%, #a8e8ff 50%, var(--pc-cyan) 62%) 0 0 / 260% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent; animation: brille 4.5s linear infinite; }
+  @keyframes brille { from { background-position: 100% 0; } to { background-position: -160% 0; } }
+  /* ---------- Ambiance « fête de la qualité » : guirlande, confettis, ballons, macaron ---------- */
+  #fete { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 6; }
+  #ecranAccueil .panneaux { padding-top: 26px; }
+  .guirlande { position: absolute; left: 0; right: 0; top: -2px; height: 46px; pointer-events: none; z-index: 4; overflow: visible; }
+  .guirlande svg { display: block; width: 100%; height: 46px; overflow: visible; }
+  .guirlande .fanion { transform-box: fill-box; transform-origin: 50% 0; animation: fanion 2.6s ease-in-out infinite alternate; }
+  @keyframes fanion { from { transform: rotate(-7deg); } to { transform: rotate(7deg); } }
+  #ecranAccueil .pastille { animation: trepigne 6s ease-in-out infinite; transform-origin: 50% 100%; }
+  @keyframes trepigne { 0%, 82%, 100% { transform: none; } 86% { transform: rotate(-4deg) scale(1.06); } 90% { transform: rotate(4deg) scale(1.06); } 94% { transform: rotate(-2deg); } }
+  #ecranAccueil #rbS { animation: tic 1s ease-out infinite; }
+  @keyframes tic { 0% { transform: scale(1.18); color: var(--pc-cyan); } 40%, 100% { transform: none; } }
+  .sticker { position: absolute; right: 34px; top: 78px; width: 112px; height: 112px; border-radius: 50%; display: grid; place-items: center; text-align: center;
+    padding: 10px; border: 0; font: 600 13px/1.2 "Fira Sans", Inter, sans-serif; color: #3a2400; cursor: pointer;
+    background: radial-gradient(circle at 35% 30%, #ffe27a, #f2b705 70%); box-shadow: 0 0 0 5px #fff, 0 0 0 8px var(--pc-cyan, #00a9e9), 0 12px 26px rgba(2,85,161,.25);
+    transform: rotate(-10deg); animation: sticker 3.2s ease-in-out infinite; }
+  .sticker b { font-weight: 800; font-size: 16px; color: var(--pc-bleu, #0255a1); }
+  .sticker::before { content: '🎉'; position: absolute; top: -10px; right: -4px; font-size: 30px; transform: rotate(18deg); }
+  .sticker:hover { animation-play-state: paused; transform: rotate(0) scale(1.08); }
+  @keyframes sticker { 0%, 100% { transform: rotate(-10deg) translateY(0); } 50% { transform: rotate(-6deg) translateY(-5px); } }
+  @media (prefers-reduced-motion: reduce) { .guirlande .fanion, #ecranAccueil .pastille, #ecranAccueil #rbS, .sticker, #ecranAccueil .bloc-jeu h1 em { animation: none; } }
   #ecranAccueil .bloc-jeu .fr { font-family: inherit; font-style: normal; font-weight: 600; color: var(--pc-cyan); }
   #ecranAccueil .bloc-jeu .intro, #ecranAccueil .tete-panneau p, #ecranAccueil .theme p, #ecranAccueil .etapes li { color: var(--pc-gris); }
   #ecranAccueil h3, #ecranAccueil .theme h4, #ecranAccueil .etapes b, #ecranAccueil .classements h4 { color: var(--pc-bleu); font-family: inherit; }
@@ -250,6 +272,18 @@
   #ecranAccueil .piliers .theme .ic { background: #e6f4fc; }
   .etat-donnees { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--pc-ligne, rgba(255,255,255,.2)); font-size: 12.5px; color: var(--pc-gris, #c6d4ee); }
   .etat-donnees.alerte { color: #b26a00; }
+  .favori-carte h2 { font-size: 30px; }
+  .zone-favori { display: grid; justify-items: center; gap: 8px; margin: 14px 0 6px; padding: 16px; border: 2px dashed rgba(242,183,5,.7); border-radius: 18px; background: rgba(242,183,5,.08); text-align: center; }
+  .zone-favori .fleche { font-size: 15px; font-weight: 700; color: var(--c-jaune); animation: monte 1.2s ease-in-out infinite alternate; }
+  @keyframes monte { from { transform: translateY(4px); } to { transform: translateY(-4px); } }
+  .zone-favori a.favori { font-size: 22px; padding: 12px 26px; margin: 0; box-shadow: 0 8px 22px rgba(242,183,5,.35); }
+  .zone-favori small { color: var(--doux); font-size: 13px; min-height: 18px; }
+  .secours { margin-top: 12px; font-size: 14px; color: var(--doux); }
+  .secours summary { cursor: pointer; color: var(--encre); }
+  .secours textarea { width: 100%; margin: 8px 0; font: 11px/1.3 monospace; border-radius: 8px; padding: 6px; resize: none; }
+  .fv-boutons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .favori-carte .cta.sec { color: #fff; }
+  a.favori { display: inline-block; margin: 6px 0 0; padding: 6px 12px; border-radius: 99px; background: #f2b705; color: #3a2400 !important; font-weight: 700; text-decoration: none; cursor: grab; }
   #ecranAccueil .piliers .theme { border-top: 5px solid var(--c); }
   #ecranAccueil .themes { align-content: center; }
   @media (max-width: 760px) { #ecranAccueil .sep { display: none; } #ecranAccueil .logo-secret img, #ecranAccueil .logo-secret { height: 48px; } }
@@ -371,6 +405,7 @@
     #pAccueil, #pJouer { grid-template-columns: 1fr; }
     .bloc { overflow: visible; }
     .rebours div { min-width: 34px; } .rebours b { font-size: 19px; }
+    .sticker { display: none; }
   }
   @media (max-width: 760px) {
     .panneau, .themes, .themes.piliers, .boutique, .modes { grid-template-columns: 1fr; }
@@ -418,6 +453,7 @@
 
 <!-- ======================= Accueil : une seule page, en onglets ======================= -->
 <div id="ecranAccueil">
+  <canvas id="fete" aria-hidden="true"></canvas>
   <header class="barre-haut">
     <button class="logo-secret" id="logo" type="button" aria-label="Parc éolien en mer du Calvados"><img src="data:image/webp;base64,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" alt="Parc éolien en mer du Calvados"></button>
     <div class="sep"></div>
@@ -438,6 +474,7 @@
     <button type="button" data-tab="pTheme" style="--c: var(--c-jaune)"><i class="pt"></i><span data-i18n="tabTheme"></span></button>
   </nav>
   <main class="panneaux">
+    <div class="guirlande" id="guirlande" aria-hidden="true"></div>
     <section class="panneau-acc actif" id="pAccueil">
       <div class="bloc bloc-jeu">
         <div class="helices" aria-hidden="true"><svg viewBox="-44 -44 88 88"><g fill="#0255a1"><path d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><path transform="rotate(120)" d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><path transform="rotate(240)" d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><circle r="6.5"/></g></svg><svg viewBox="-44 -44 88 88"><g fill="#0255a1"><path d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><path transform="rotate(120)" d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><path transform="rotate(240)" d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><circle r="6.5"/></g></svg><svg viewBox="-44 -44 88 88"><g fill="#0255a1"><path d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><path transform="rotate(120)" d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><path transform="rotate(240)" d="M-4 1 C-5 -14 -2 -29 1 -41 C4 -40 6 -38 5.5 -35 C3.5 -23 3 -11 4.5 1 Z"/><circle r="6.5"/></g></svg></div>
@@ -458,6 +495,7 @@
           <div class="info" id="carLocal" style="margin:0"></div>
         </div>
         <div class="info err" id="infoErreur"></div>
+        <button class="sticker" id="sticker" type="button"><span data-i18n-html="sticker"></span></button>
       </div>
       <div class="bloc classements">
         <h3 data-i18n="lbTitre"></h3>
@@ -531,6 +569,35 @@
       <h2 id="rgTitre"></h2>
       <ul class="etapes" id="rgListe"></ul>
       <button class="cta" id="btnGo" data-i18n="btnGo" style="margin-top:16px"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= Mode d'emploi du favori (aperçu OneDrive / SharePoint) ======================= -->
+<div class="voile" id="ecranFavori" hidden>
+  <div class="panneau seul">
+    <div class="carte releve regles favori-carte">
+      <div class="surtitre" data-i18n="fvSur"></div>
+      <h2 data-i18n="fvTitre"></h2>
+      <p class="detail" data-i18n="fvChapeau"></p>
+      <div class="zone-favori">
+        <span class="fleche" data-i18n="fvGlissezMoi"></span>
+        <a class="favori" id="fvLien" href="#"></a>
+        <small id="fvAide"></small>
+      </div>
+      <ul class="etapes">
+        <li><span class="ico">⌨️</span><span data-i18n-html="fvEtape1"></span></li>
+        <li><span class="ico">⭐</span><span data-i18n-html="fvEtape2"></span></li>
+        <li><span class="ico">👆</span><span data-i18n-html="fvEtape3"></span></li>
+        <li><span class="ico">🔁</span><span data-i18n-html="fvEtape4"></span></li>
+      </ul>
+      <details class="secours">
+        <summary data-i18n="fvSecours"></summary>
+        <p data-i18n-html="fvSecoursTexte"></p>
+        <textarea id="fvCode" rows="3" readonly></textarea>
+        <button class="cta sec" id="fvCopier" type="button" data-i18n="fvCopier"></button>
+      </details>
+      <div class="fv-boutons"><button class="cta sec" id="fvFermer" type="button" data-i18n="fvFermer"></button></div>
     </div>
   </div>
 </div>
@@ -621,7 +688,7 @@
     </div>
     <div class="outils" style="justify-content:space-between">
       <span class="compte-ad" id="adDossier"></span>
-      <span class="outils"><button class="btn" id="adDossierBtn" type="button">📁 Choisir le dossier des scores</button><button class="btn" id="adExporter" type="button">⬇ Télécharger les JSON</button></span>
+      <span class="outils"><a class="btn favori" id="adFavori" href="#" title="Glissez ce bouton dans la barre des favoris, puis partagez-le">⭐ Favori à partager</a><button class="btn" id="adDossierBtn" type="button">📁 Choisir le dossier des scores</button><button class="btn" id="adExporter" type="button">⬇ Télécharger les JSON</button></span>
     </div>
     <div id="adContenu">
       <div class="outils">
@@ -649,7 +716,9 @@
    Réglages
    ===================================================================== */
 const CONFIG = {
-  fichiers: { scores: 'qualite2026-scores.json', carrieres: 'qualite2026-carrieres.json' },   // écrits dans le dossier du jeu
+  fichiers: { scores: 'qualite2026-scores.json', carrieres: 'qualite2026-carrieres.json' },   // mode stand : écrits dans le dossier du jeu
+  // lien partagé : le favori charge le jeu depuis ce dossier SharePoint ; chaque joueur écrit son fichier dans « donnees »
+  sharepoint: { dossier: '/personal/denis_soares_externe_edf-power_com/Documents/Documents/Synced/Claude/QualityWeek2026', sousDossier: 'donnees' },
   debutSemaine: '2026-11-09T00:00:00',
   finSemaine: '2026-11-14T00:00:00',
   journeeMondiale: '2026-11-12',
@@ -660,7 +729,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.4'
+  version: '2026.5'
 };
 
 const PARAMS = {
@@ -733,7 +802,7 @@ const CITATIONS = {
    ===================================================================== */
 const I18N = {
   fr: {
-    dates: '📅 9 – 13 novembre 2026',
+    dates: '🎉 9 – 13 novembre 2026',
     sousTitre: 'La qualité, moteur de la performance',
     intro: 'Cette année, la qualité se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
     marque: 'Semaine mondiale de la qualité 2026', marqueSous: '9 – 13 novembre · Journée mondiale de la qualité le jeudi 12',
@@ -796,7 +865,7 @@ const I18N = {
     errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
     errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
     errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
-    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Le jeu est ouvert dans un aperçu (OneDrive, SharePoint…) qui interdit d\'écrire des fichiers. Ouvrez <b>index.html</b> directement dans Edge depuis l\'Explorateur Windows (dossier OneDrive synchronisé).', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
+    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Cet aperçu ne peut pas enregistrer les scores. Pour jouer pour de vrai : <b>glissez ce bouton dans votre barre de favoris</b>, ouvrez le dossier QualityWeek2026 dans le navigateur, puis cliquez sur le favori.', donneesSp: '💾 Connecté à SharePoint ({login}) · {n} joueur(s) au classement.', donneesSpCharge: '⏳ Chargement des scores depuis SharePoint…', spDroits: 'pas le droit d\'écrire dans le dossier des scores : demandez l\'accès en modification à l\'organisateur', favoriNom: 'Jeu Qualité 2026', sticker: 'C\'est la <b>fête</b><br>de la <b>Qualité</b> !', fvSur: 'Mode d\'emploi · 30 secondes', fvTitre: 'Pour jouer et entrer au classement', fvChapeau: 'Cet aperçu OneDrive ne peut pas enregistrer les scores. Installez une fois le favori ci-dessous : il ouvre le jeu dans SharePoint, avec votre compte EDF.', fvGlissezMoi: '⬆ Glissez-moi dans la barre des favoris ⬆', fvNePasCliquer: 'Ne cliquez pas : maintenez le bouton et glissez-le vers le haut, dans la barre des favoris.', fvEtape1: 'Affichez la barre des favoris d\'Edge : <b>Ctrl + Maj + B</b>.', fvEtape2: '<b>Glissez le bouton jaune</b> dans cette barre, puis relâchez.', fvEtape3: '<b>Cliquez sur le favori « ⭐ Jeu Qualité 2026 »</b> : le jeu s\'ouvre avec votre nom et vos scores comptent.', fvEtape4: 'Les fois suivantes : ouvrez ce lien ou le dossier QualityWeek2026, puis cliquez sur le favori.', fvSecours: 'Le glisser ne marche pas ?', fvSecoursTexte: 'Ajoutez n\'importe quelle page aux favoris (<b>Ctrl + D</b>), puis faites un clic droit sur ce favori › <b>Modifier</b>. Nommez-le « Jeu Qualité 2026 » et collez ce code à la place de l\'URL :', fvCopier: '📋 Copier le code', fvCopie: '✅ Code copié', fvFermer: 'Jouer sans enregistrer', donneesApercuCourt: '⚠️ Dans cet aperçu, les scores ne sont pas enregistrés.', fvOuvrir: '⭐ Mode d\'emploi', favoriGlisser: 'Glissez ce bouton dans la barre des favoris (Ctrl+Maj+B pour l\'afficher). Ouvrez ensuite le dossier QualityWeek2026 dans le navigateur et cliquez sur le favori.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
     piliersTitre: 'Les 4 piliers de la performance',
     piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
     p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> le défaut au lieu de le subir.',
@@ -879,7 +948,7 @@ const I18N = {
     scadaNiv: ['aucune', 'historique des défauts cumulé visible (Pareto)', 'alarmes prédictives avant le défaut']
   },
   en: {
-    dates: '📅 9 – 13 November 2026',
+    dates: '🎉 9 – 13 November 2026',
     sousTitre: 'Quality as the engine of performance',
     intro: 'This year, quality plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
     marque: 'World Quality Week 2026', marqueSous: '9 – 13 November · World Quality Day on Thursday 12th',
@@ -942,7 +1011,7 @@ const I18N = {
     errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
     errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
     errHorsLigne: 'Offline: the career is kept on this computer only.',
-    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ The game is open in a preview (OneDrive, SharePoint…) that forbids writing files. Open <b>index.html</b> directly in Edge from Windows Explorer (synced OneDrive folder).', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
+    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ This preview cannot save scores. To play for real: <b>drag this button to your favorites bar</b>, open the QualityWeek2026 folder in the browser, then click the favorite.', donneesSp: '💾 Connected to SharePoint ({login}) · {n} player(s) on the leaderboard.', donneesSpCharge: '⏳ Loading scores from SharePoint…', spDroits: 'no permission to write to the scores folder: ask the organiser for edit access', favoriNom: 'Quality Game 2026', sticker: 'Let\'s <b>celebrate</b><br><b>Quality</b>!', fvSur: 'How to · 30 seconds', fvTitre: 'To play and join the leaderboard', fvChapeau: 'This OneDrive preview cannot save scores. Install the favorite below once: it opens the game in SharePoint, with your EDF account.', fvGlissezMoi: '⬆ Drag me to the favorites bar ⬆', fvNePasCliquer: 'Don\'t click: hold the button and drag it up into the favorites bar.', fvEtape1: 'Show the Edge favorites bar: <b>Ctrl + Shift + B</b>.', fvEtape2: '<b>Drag the yellow button</b> onto that bar, then release.', fvEtape3: '<b>Click the "⭐ Quality Game 2026" favorite</b>: the game opens with your name and your scores count.', fvEtape4: 'Next time: open this link or the QualityWeek2026 folder, then click the favorite.', fvSecours: 'Dragging doesn\'t work?', fvSecoursTexte: 'Add any page to your favorites (<b>Ctrl + D</b>), then right-click that favorite › <b>Edit</b>. Name it "Quality Game 2026" and paste this code in place of the URL:', fvCopier: '📋 Copy the code', fvCopie: '✅ Code copied', fvFermer: 'Play without saving', donneesApercuCourt: '⚠️ Scores are not saved in this preview.', fvOuvrir: '⭐ How to', favoriGlisser: 'Drag this button to the favorites bar (Ctrl+Shift+B to show it). Then open the QualityWeek2026 folder in the browser and click the favorite.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
     piliersTitre: 'The 4 Pillars of Performance',
     piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
     p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> faults instead of suffering them.',
@@ -1054,8 +1123,10 @@ const echapper = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '
 /* =====================================================================
    Joueur : sur le stand, chacun saisit son nom (le PC est celui de l'organisateur)
    ===================================================================== */
-const joueur = { pseudo: stock.get('eq_pseudo') || '' };
+const joueur = { pseudo: stock.get('eq_pseudo') || '', login: '' };
 const cleNom = p => String(p).trim().toLowerCase();
+const cleJoueur = () => (SP.actif ? joueur.login : cleNom(joueur.pseudo));   // sur SharePoint, l'identité est le compte, pas le nom saisi
+const cleDe = x => x.login || cleNom(x.pseudo);
 let modeChoisi = stock.get('eq_mode') === 'carriere' ? 'carriere' : 'rapide';
 
 /* =====================================================================
@@ -1101,10 +1172,105 @@ async function ecrireJSON(nom, data) {
   await w.write(JSON.stringify(data, null, 1)); await w.close();
 }
 
+/* ---------- Lien partagé : jeu chargé par le favori dans une page SharePoint ----------
+   Chaque joueur écrit uniquement donnees/joueur-<compte>.json. Le fichier est signé :
+   modifié à la main, il ne passe plus le contrôle et ses scores sont écartés. */
+const SP = { actif: false, site: '', dossier: '', donnees: '', digest: '', digestT: 0 };
+function detecterSharePoint() {
+  let d = null;
+  try { if (window.parent !== window && window.parent.QW_DOSSIER) d = window.parent.QW_DOSSIER; } catch (e) { /* aperçu isolé : pas d'accès */ }
+  if (!d && window.QW_DOSSIER) d = window.QW_DOSSIER;
+  if (!d) return false;
+  SP.actif = true; SP.dossier = d; SP.donnees = d + '/' + CONFIG.sharepoint.sousDossier;
+  SP.site = self.origin + d.split('/').slice(0, 3).join('/');
+  return true;
+}
+const spChemin = c => encodeURI(c).replace(/'/g, "''");
+async function spFetch(chemin, opts = {}) {
+  const r = await fetch(SP.site + chemin, { credentials: 'include', cache: 'no-store', ...opts, headers: { Accept: 'application/json;odata=nometadata', ...(opts.headers || {}) } });
+  if (!r.ok) { const e = new Error('SharePoint ' + r.status); e.status = r.status; throw e; }
+  return r;
+}
+async function spJeton() {
+  if (Date.now() - SP.digestT > 15 * 60e3) { const c = await (await spFetch('/_api/contextinfo', { method: 'POST' })).json(); SP.digest = c.FormDigestValue; SP.digestT = Date.now(); }
+  return SP.digest;
+}
+const spListe = async () => (await (await spFetch(`/_api/web/GetFolderByServerRelativeUrl('${spChemin(SP.donnees)}')/Files?$select=Name`)).json()).value;
+const spLire = async nom => JSON.parse(await (await spFetch(`/_api/web/GetFileByServerRelativeUrl('${spChemin(SP.donnees + '/' + nom)}')/$value`, { headers: { Accept: '*/*' } })).text());
+async function spEcrire(nom, data) {
+  await spFetch(`/_api/web/GetFolderByServerRelativeUrl('${spChemin(SP.donnees)}')/Files/add(url='${spChemin(nom)}',overwrite=true)`,
+    { method: 'POST', headers: { 'X-RequestDigest': await spJeton(), 'Content-Type': 'application/json;charset=utf-8' }, body: JSON.stringify(data, null, 1) });
+}
+async function spSupprimer(nom) {
+  await spFetch(`/_api/web/GetFileByServerRelativeUrl('${spChemin(SP.donnees + '/' + nom)}')`, { method: 'POST', headers: { 'X-RequestDigest': await spJeton(), 'X-HTTP-Method': 'DELETE', 'IF-MATCH': '*' } });
+}
+async function spCreerDossier() { await spFetch(`/_api/web/folders/add('${spChemin(SP.donnees)}')`, { method: 'POST', headers: { 'X-RequestDigest': await spJeton() } }); }
+
+/* signature d'un fichier joueur (le sel reste dans le code : il arrête les retouches à la main, pas un développeur décidé) */
+function hacher53(str) {
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < str.length; i++) { const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
+}
+const signer = d => hacher53('QW26·Courseulles·⚓·' + JSON.stringify([d.login, d.parties, d.carriere]));
+// contrôle de vraisemblance : un score hors de portée du jeu est écarté
+const plausible = x => x.score >= 0 && (x.mode === 'rapide' ? x.score <= 7500 && x.temps >= 60 : x.score <= 9000 && x.temps >= 120);
+const nomFichier = login => 'joueur-' + login.replace(/[^a-z0-9._-]/gi, '_') + '.json';
+
+async function chargerSharePoint() {
+  let fichiers;
+  try { fichiers = await spListe(); }
+  catch (e) {
+    if (e.status === 404) { try { await spCreerDossier(); fichiers = []; } catch (e2) { throw e; } }
+    else throw e;
+  }
+  const lus = [];
+  const noms = fichiers.map(f => f.Name).filter(n => /^joueur-.*\.json$/.test(n));
+  for (let i = 0; i < noms.length; i += 6) lus.push(...await Promise.all(noms.slice(i, i + 6).map(n => spLire(n).catch(() => null))));
+  BD.parties = []; BD.carrieres = {};
+  for (const d of lus) {
+    if (!d || !d.login) continue;
+    const signe = d.sig === signer(d);
+    for (const x of d.parties || []) BD.parties.push({ ...x, login: d.login, suspect: !signe || !plausible(x) });
+    if (d.carriere) BD.carrieres[d.login] = { ...d.carriere, login: d.login, suspect: !signe };
+  }
+  BD.parties.sort((a, b) => a.date - b.date);
+}
+async function ecrireJoueur(login) {
+  const parties = BD.parties.filter(x => x.login === login).map(({ login: _l, suspect: _s, ...x }) => x);
+  const c = BD.carrieres[login];
+  const d = { v: 1, login, pseudo: (c && c.pseudo) || (parties.at(-1) || {}).pseudo || login, maj: new Date().toISOString(),
+    parties, carriere: c ? (({ login: _l, suspect: _s, ...x }) => x)(c) : null };
+  if (!parties.length && !d.carriere) { await spSupprimer(nomFichier(login)).catch(() => {}); return; }
+  d.sig = signer(d);
+  await spEcrire(nomFichier(login), d);
+}
+async function initSharePoint() {
+  donnees.etat = 'sp-charge'; majEtatDonnees();
+  try {
+    const u = await (await spFetch('/_api/web/currentuser')).json();
+    joueur.login = (u.Email || u.UserPrincipalName || String(u.LoginName || '').split('|').pop() || '').trim().toLowerCase();
+    // le nom affiché vient du compte (ou du nom que cette personne a choisi la dernière fois), jamais du joueur précédent
+    $('pseudo').value = (stock.get('eq_pseudo_' + joueur.login) || String(u.Title || '').trim() || joueur.login).slice(0, 24);
+    joueur.pseudo = $('pseudo').value;
+    await chargerSharePoint();
+    donnees.etat = 'sp';
+  } catch (e) { console.warn('SharePoint', e); donnees.etat = 'erreur'; donnees.erreur = e.status === 403 ? t('spDroits') : e.message; }
+  majEtatDonnees(); majBoutonJouer(); rafraichirClassements();
+}
+
+/* le favori à partager : il charge index.html depuis le dossier SharePoint et l'affiche en plein écran dans la page */
+function codeFavori() {
+  const d = CONFIG.sharepoint.dossier.replace(/'/g, "\\'");
+  return 'javascript:' + encodeURIComponent(`(async()=>{const d='${d}';if(!/\\.sharepoint\\.com$/.test(location.hostname)){alert('Ouvrez d\\'abord le dossier QualityWeek2026 dans OneDrive / SharePoint (navigateur), puis cliquez sur ce favori.');return}try{const s=d.split('/').slice(0,3).join('/');const r=await fetch(location.origin+s+"/_api/web/GetFileByServerRelativeUrl('"+encodeURI(d+'/index.html').replace(/'/g,"''")+"')/$value",{credentials:'include',cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const h=await r.text();window.QW_DOSSIER=d;const f=document.createElement('iframe');f.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483647;background:#fff';f.allow='autoplay';f.srcdoc=h;document.body.append(f);document.documentElement.style.overflow='hidden'}catch(e){alert('Impossible de charger le jeu : '+e.message)}})()`);
+}
+
 /* Relie le dossier des scores. Sans geste de l'utilisateur, on ne fait que vérifier l'autorisation déjà donnée. */
 async function relierDossier(interactif) {
+  if (dansUnApercu()) { donnees.etat = 'apercu'; majEtatDonnees(); return; }   // aperçu OneDrive / SharePoint : l'écriture y est interdite (le cas SharePoint est traité avant)
   if (!window.showDirectoryPicker) { donnees.etat = 'indispo'; majEtatDonnees(); return; }
-  if (dansUnApercu()) { donnees.etat = 'apercu'; majEtatDonnees(); return; }   // aperçu OneDrive / SharePoint : l'écriture de fichiers y est interdite
   try {
     let h = interactif === 'changer' ? null : (donnees.dossier || await idbLire('dossier'));
     if (h && (await h.queryPermission({ mode: 'readwrite' })) !== 'granted') {
@@ -1136,7 +1302,17 @@ async function relierDossier(interactif) {
 }
 
 /* Écrit les deux fichiers (à la suite, jamais en parallèle) et garde une copie dans le navigateur */
-function enregistrer() {
+function enregistrer(logins) {
+  if (SP.actif) {
+    if (donnees.etat !== 'sp') return Promise.resolve(false);
+    const qui = [...new Set(logins || [joueur.login])].filter(Boolean);
+    donnees.ecriture = donnees.ecriture.then(async () => { for (const l of qui) await ecrireJoueur(l); return true; }).catch(e => {
+      console.warn('Écriture SharePoint impossible', e);
+      donnees.etat = 'erreur'; donnees.erreur = e.status === 403 ? t('spDroits') : e.message; majEtatDonnees();
+      return false;
+    });
+    return donnees.ecriture;
+  }
   garderLocal();
   if (donnees.etat !== 'ok') return Promise.resolve(false);
   const maj = new Date().toISOString();
@@ -1153,16 +1329,38 @@ function enregistrer() {
   return donnees.ecriture;
 }
 
+let modeEmploiVu = false;
+function majModeEmploi() {
+  const a = $('fvLien'); a.href = codeFavori(); a.textContent = '⭐ ' + t('favoriNom');
+  $('fvCode').value = codeFavori();
+}
+function ouvrirModeEmploi() { majModeEmploi(); $('fvAide').textContent = ''; $('ecranFavori').hidden = false; }
+$('fvLien').addEventListener('click', ev => { ev.preventDefault(); $('fvAide').textContent = t('fvNePasCliquer'); });
+$('fvFermer').addEventListener('click', () => { $('ecranFavori').hidden = true; });
+$('fvCopier').addEventListener('click', async () => {
+  const z = $('fvCode'); z.focus(); z.select();
+  let ok = false;
+  try { await navigator.clipboard.writeText(z.value); ok = true; } catch (e) { try { ok = document.execCommand('copy'); } catch (e2) {} }
+  if (ok) $('fvCopier').textContent = t('fvCopie');
+});
+
 function majEtatDonnees() {
   const el = $('etatDonnees'); if (!el) return;
   const e = donnees.etat, nom = echapper(donnees.nom || '');
-  el.className = 'etat-donnees ' + (e === 'ok' ? 'ok' : 'alerte');
-  el.innerHTML = e === 'ok' ? t('donneesOk', { nom }) : e === 'relier' ? t('donneesRelier', { nom }) : e === 'erreur' ? t('donneesErreur', { err: echapper(donnees.erreur) })
-    : e === 'indispo' ? t('donneesIndispo') : e === 'apercu' ? t('donneesApercu') : t('donneesLocal');
-  if (e !== 'ok' && e !== 'indispo' && e !== 'apercu') {
+  el.className = 'etat-donnees ' + (e === 'ok' || e === 'sp' ? 'ok' : 'alerte');
+  el.innerHTML = e === 'sp' ? t('donneesSp', { login: echapper(joueur.login), n: new Set(BD.parties.map(cleDe)).size }) : e === 'sp-charge' ? t('donneesSpCharge')
+    : e === 'ok' ? t('donneesOk', { nom }) : e === 'relier' ? t('donneesRelier', { nom }) : e === 'erreur' ? t('donneesErreur', { err: echapper(donnees.erreur) })
+    : e === 'indispo' ? t('donneesIndispo') : e === 'apercu' ? t('donneesApercuCourt') : t('donneesLocal');
+  if (e === 'apercu') {   // le mode d'emploi du favori, ouvert une fois tout seul puis à la demande
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'lien'; b.textContent = t('fvOuvrir');
+    b.addEventListener('click', ouvrirModeEmploi);
+    el.append(' ', b);
+    majModeEmploi();
+    if (!modeEmploiVu) { modeEmploiVu = true; ouvrirModeEmploi(); }
+  } else if (!['ok', 'sp', 'sp-charge', 'indispo'].includes(e)) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'lien';
     b.textContent = t(e === 'relier' ? 'donneesBtnRelier' : e === 'erreur' ? 'donneesBtnReessayer' : 'donneesBtnChoisir');
-    b.addEventListener('click', () => relierDossier(true));
+    b.addEventListener('click', () => (SP.actif ? initSharePoint() : relierDossier(true)));
     el.append(' ', b);
   }
   if ($('adDossier')) $('adDossier').innerHTML = el.innerHTML.replace(/<button[\s\S]*<\/button>/, '');
@@ -1174,20 +1372,20 @@ function avecRangs(liste, val) { let r = 0; return liste.map((x, i) => ({ ...x, 
 function meilleursSprint(periode, sauf) {
   const auj = jourIso(Date.now()), m = new Map();
   for (const x of BD.parties) {
-    if (x.mode !== 'rapide' || (periode === 'jour' && jourIso(x.date) !== auj)) continue;
-    const k = cleNom(x.pseudo); if (k === sauf) continue;
+    if (x.mode !== 'rapide' || x.suspect || (periode === 'jour' && jourIso(x.date) !== auj)) continue;
+    const k = cleDe(x); if (k === sauf) continue;
     const y = m.get(k); if (!y || x.score > y.score) m.set(k, x);
   }
   return [...m.values()].sort((a, b) => b.score - a.score || a.date - b.date);
 }
-const classementCarriere = () => Object.values(BD.carrieres).sort((a, b) => b.totalMWh - a.totalMWh || a.maj - b.maj);
+const classementCarriere = () => Object.values(BD.carrieres).filter(c => !c.suspect).sort((a, b) => b.totalMWh - a.totalMWh || a.maj - b.maj);
 
 const tableaux = { listeSprint: { p: 'jour', mode: 'rapide', nb: 6 }, listeCarriere: { mode: 'carriere', nb: 5 }, listeFin: { p: 'jour', mode: 'rapide' } };
 function chargerClassement(cible) {
   const ol = $(cible), tb = tableaux[cible], nb = tb.nb || 8;
   const ligne = (rang, pseudo, sous, valeur, unite) => {
     const li = document.createElement('li');
-    if (joueur.pseudo && cleNom(pseudo) === cleNom(joueur.pseudo)) li.className = 'moi';
+    if (joueur.pseudo && cleNom(pseudo) === cleNom(joueur.pseudo)) li.className = 'moi';   // (approximation visuelle : même nom affiché)
     const r = document.createElement('span'); r.className = 'r'; r.textContent = ['🥇', '🥈', '🥉'][rang - 1] || rang;
     const p = document.createElement('span'); p.className = 'p'; p.textContent = pseudo;
     const sm = document.createElement('small'); sm.textContent = sous; p.append(sm);
@@ -1218,14 +1416,14 @@ document.querySelectorAll('.onglets').forEach(o => o.addEventListener('click', e
 
 function enregistrerPartie(res) {
   const ligne = {
-    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: Date.now(), pseudo: joueur.pseudo,
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date: Date.now(), pseudo: joueur.pseudo, ...(SP.actif ? { login: joueur.login } : {}),
     mode: res.mode, jour: res.jour, score: res.score, energie: res.energie, reparations: res.reparations,
     ameliorations: res.ameliorations, evitees: res.evitees, dispo: res.dispo, comboMax: res.comboMax,
     temps: res.temps, explosions: res.explosions, langue, version: CONFIG.version
   };
   BD.parties.push(ligne); BD.attente.push(ligne.id);
   if (res.mode === 'rapide') {
-    const k = cleNom(joueur.pseudo), r = l => ({ rang: 1 + l.filter(x => x.score > res.score).length, n: l.length + 1 });
+    const k = cleJoueur(), r = l => ({ rang: 1 + l.filter(x => x.score > res.score).length, n: l.length + 1 });
     const a = r(meilleursSprint('jour', k)), b = r(meilleursSprint('tout', k));
     $('fRang').innerHTML = t('rangTxt', { a: ordinal(a.rang), b: a.n, c: ordinal(b.rang), d: b.n });
   } else $('fRang').textContent = t('rangCarriere');
@@ -1241,10 +1439,10 @@ function nouvelleCarriere(pseudo) {
   return { v: 1, pseudo, jour: 1, budget: 0, totalMWh: 0, tempsJeu: 0, maj: Date.now(),
     upg: { moteur: 0, soute: 0, reservoir: 0, equipe: 0, radar: 0, scada: 0 }, parc: null, journal: [] };
 }
-const carriereDe = p => (p ? BD.carrieres[cleNom(p)] || null : null);
+const carriereDe = p => (SP.actif ? BD.carrieres[joueur.login] || null : p ? BD.carrieres[cleNom(p)] || null : null);
 function sauverCarriere() {
   carriere.maj = Date.now();
-  BD.carrieres[cleNom(carriere.pseudo)] = carriere;
+  BD.carrieres[SP.actif ? joueur.login : cleNom(carriere.pseudo)] = carriere;
   return enregistrer();
 }
 
@@ -1837,13 +2035,13 @@ async function demarrer() {
   const p = $('pseudo').value.trim().slice(0, 24);
   $('infoErreur').textContent = '';
   if (!p) { $('pseudo').focus(); $('infoErreur').textContent = t('errNom'); return; }
-  joueur.pseudo = p; stock.set('eq_pseudo', p);
+  joueur.pseudo = p; stock.set(SP.actif ? 'eq_pseudo_' + joueur.login : 'eq_pseudo', p);
   initAudio();
   if (modeChoisi === 'rapide') { lancerJournee(); return; }
   // Carrière : reprise par le nom saisi, sinon nouvelle carrière
   carriere = carriereDe(p) || nouvelleCarriere(p);
   carriere.pseudo = p;
-  BD.carrieres[cleNom(p)] = carriere;
+  BD.carrieres[cleJoueur()] = carriere;
   lancerJournee();
 }
 
@@ -2608,7 +2806,7 @@ function majCarteCarriere(sansBouton) {
     const b = document.createElement('button'); b.className = 'lien'; b.type = 'button'; b.textContent = t('carNouvelle');
     b.addEventListener('click', () => {
       if (!confirm(t('carNouvelleConfirm', { pseudo: c.pseudo }))) return;
-      delete BD.carrieres[cleNom(c.pseudo)]; enregistrer();
+      delete BD.carrieres[SP.actif ? joueur.login : cleNom(c.pseudo)]; enregistrer();
       majBoutonJouer(); rafraichirClassements(); $('pseudo').focus();
     });
     el.append(b);
@@ -2656,7 +2854,11 @@ $('logo').addEventListener('click', () => {
 const duree = s => { s = Math.round(+s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ' h ' : '') + (h || m ? String(m).padStart(h ? 2 : 1, '0') + ' min ' : '') + (h ? '' : String(x).padStart(2, '0') + ' s'); };
 const frN = n => Math.round(n).toLocaleString('fr-FR');
 function msgAdmin(txt, erreur) { $('adMsg').textContent = txt; $('adMsg').classList.toggle('err', !!erreur); }
-function ouvrirAdmin() { $('ecranAdmin').hidden = false; $('adVersion').textContent = 'version ' + CONFIG.version; majEtatDonnees(); afficherAdmin(); msgAdmin(''); }
+function ouvrirAdmin() {
+  $('ecranAdmin').hidden = false; $('adVersion').textContent = 'version ' + CONFIG.version;
+  $('adDossierBtn').hidden = SP.actif; $('adFavori').href = codeFavori();
+  majEtatDonnees(); afficherAdmin(); msgAdmin('');
+}
 function fermerAdmin() { $('ecranAdmin').hidden = true; rafraichirClassements(); majBoutonJouer(); }
 $('adFermer').addEventListener('click', fermerAdmin);
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('ecranAdmin').hidden) fermerAdmin(); });
@@ -2675,8 +2877,8 @@ $('adExporter').addEventListener('click', () => {
   }
 });
 
-async function sauverAdmin(message) {
-  const ok = await enregistrer();
+async function sauverAdmin(message, logins) {
+  const ok = await enregistrer(logins);
   afficherAdmin();
   msgAdmin(message + (ok ? '' : ' (gardé dans le navigateur : le dossier n\'est pas relié)'), !ok);
 }
@@ -2694,7 +2896,8 @@ function afficherAdmin() {
   const cellule = (tr, contenu, cls) => { const td = document.createElement('td'); if (cls) td.className = cls; td.append(contenu); tr.append(td); return td; };
   const date = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
   for (const l of lignes) {
-    const tr = document.createElement('tr'); tr.dataset.id = parties ? l.id : cleNom(l.pseudo);
+    const tr = document.createElement('tr'); tr.dataset.id = parties ? l.id : l.login || cleNom(l.pseudo);
+    if (l.suspect) { tr.title = 'Écarté des classements : fichier modifié à la main ou score impossible'; tr.style.opacity = .55; }
     const coche = document.createElement('input'); coche.type = 'checkbox'; coche.className = 'adCoche';
     cellule(tr, coche);
     if (!parties) {
@@ -2702,7 +2905,7 @@ function afficherAdmin() {
       cellule(tr, duree(l.tempsJeu)); cellule(tr, date(l.maj));
       tb.append(tr); continue;
     }
-    cellule(tr, date(l.date));
+    cellule(tr, (l.suspect ? '⚠ ' : '') + date(l.date));
     const ps = document.createElement('input'); ps.type = 'text'; ps.maxLength = 24; ps.value = l.pseudo;
     cellule(tr, ps);
     cellule(tr, l.mode === 'carriere' ? '🧭 carrière J' + l.jour : '⚡ sprint');
@@ -2720,7 +2923,7 @@ function afficherAdmin() {
       const p = ps.value.trim().slice(0, 24), v = Math.round(+sc.value);
       if (!p || !(v >= 0 && v <= 100000)) { msgAdmin('Valeur refusée : pseudo de 1 à 24 caractères, score entre 0 et 100 000.', true); return; }
       l.pseudo = p; l.score = v;
-      sauverAdmin('Partie de « ' + p + ' » enregistrée.');
+      sauverAdmin('Partie de « ' + p + ' » enregistrée.', [l.login]);
     });
     sup.addEventListener('click', () => supprimerAdmin([l.id]));
     tb.append(tr);
@@ -2735,20 +2938,21 @@ function selectionAdmin() { return [...document.querySelectorAll('.adCoche:check
 function majSelection() { const n = selectionAdmin().length; $('adSuppr').disabled = !n; $('adSuppr').textContent = '🗑 Supprimer la sélection' + (n ? ' (' + n + ')' : ''); }
 $('adLignes').addEventListener('change', e => { if (e.target.classList.contains('adCoche')) majSelection(); });
 $('adFiltre').addEventListener('input', afficherAdmin);
-$('adRafraichir').addEventListener('click', () => relierDossier(false).then(afficherAdmin));
+$('adRafraichir').addEventListener('click', () => (SP.actif ? initSharePoint() : relierDossier(false)).then(afficherAdmin));
 $('adSuppr').addEventListener('click', () => supprimerAdmin(selectionAdmin()));
 
 function supprimerAdmin(ids) {
   const parties = admin.vue === 'parties';
   if (!ids.length || !confirm('Supprimer définitivement ' + ids.length + (parties ? ' partie(s) ?' : ' carrière(s) ?'))) return;
+  const logins = parties ? BD.parties.filter(x => ids.includes(x.id)).map(x => x.login) : ids;
   if (parties) BD.parties = BD.parties.filter(x => !ids.includes(x.id));
   else for (const k of ids) delete BD.carrieres[k];
-  sauverAdmin(ids.length + (parties ? ' partie(s) supprimée(s).' : ' carrière(s) supprimée(s).'));
+  sauverAdmin(ids.length + (parties ? ' partie(s) supprimée(s).' : ' carrière(s) supprimée(s).'), logins);
 }
 $('adVider').addEventListener('click', () => {
   if (prompt('Cela supprime TOUTES les parties (les carrières restent).\nTapez EFFACER pour confirmer :') !== 'EFFACER') return;
-  const n = BD.parties.length; BD.parties = [];
-  sauverAdmin('Parties remises à zéro (' + n + ' supprimées).');
+  const n = BD.parties.length, logins = BD.parties.map(x => x.login); BD.parties = [];
+  sauverAdmin('Parties remises à zéro (' + n + ' supprimées).', logins);
 });
 
 /* =====================================================================
@@ -2768,11 +2972,96 @@ $('pseudo').addEventListener('input', () => { $('infoErreur').textContent = ''; 
 $('pseudo').addEventListener('keydown', e => { if (e.key === 'Enter') demarrer(); });
 $('btnJouer').addEventListener('click', demarrer);
 $('btnRejouer').addEventListener('click', lancerJournee);
+/* ---------- La fête : guirlande de fanions, confettis, ballons « Q » à éclater, feux d'artifice ---------- */
+const COUL_FETE = ['#0255a1', '#00a9e9', '#f2b705', '#7fd3f5', '#ff8a5c'];
+function dessinerGuirlande() {
+  const g = $('guirlande'), L = g.clientWidth; if (!L) return;
+  const pans = Math.max(2, Math.round(L / 460)), pas = L / pans, cols = ['#0255a1', '#00a9e9', '#f2b705', '#ffffff'];
+  let svg = `<svg viewBox="0 0 ${L} 46" preserveAspectRatio="none">`, k = 0;
+  for (let i = 0; i < pans; i++) {
+    const x0 = i * pas, x1 = x0 + pas, fl = 12, cy = 22;   // une « guirlande » qui pend entre deux attaches
+    svg += `<path d="M${x0} 2 Q${x0 + pas / 2} ${cy} ${x1} 2" fill="none" stroke="#7b97b8" stroke-width="1.5"/>`;
+    const n = Math.max(5, Math.floor(pas / 34));
+    for (let j = 1; j < n; j++) {
+      const u = j / n, x = x0 + pas * u, y = 2 + 2 * (1 - u) * u * (cy - 2) * 1, c = cols[k++ % cols.length];
+      svg += `<path class="fanion" style="animation-delay:${(-Math.random() * 2.6).toFixed(2)}s" d="M${x - 9} ${y} L${x + 9} ${y} L${x} ${y + 20} Z" fill="${c}" stroke="${c === '#ffffff' ? '#00a9e9' : 'none'}" stroke-width="1.2"/>`;
+    }
+  }
+  g.innerHTML = svg + '</svg>';
+}
+const fete = (() => {
+  const cv = $('fete'), cx = cv.getContext('2d'), sobre = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let L = 0, Ht = 0, avant = 0, pluie = 0, bal = 4, feu = 6;
+  const bouts = [], ballons = [], fusees = [], etinc = [];
+  const r = (a, b) => a + Math.random() * (b - a), pick = a => a[Math.floor(Math.random() * a.length)];
+  function taille() { const d = Math.min(2, devicePixelRatio || 1); L = innerWidth; Ht = innerHeight; cv.width = L * d; cv.height = Ht * d; cx.setTransform(d, 0, 0, d, 0, 0); dessinerGuirlande(); }
+  function bout(x, y, vx, vy, lent) { bouts.push({ x, y, vx, vy, a: r(0, 6.28), va: r(-8, 8), f: r(0, 6.28), w: r(6, 10), h: r(4, 6), c: pick(COUL_FETE.concat('#ffffff')), lent }); }
+  function gerbe(x, y, n, ang, ouv, v) { for (let i = 0; i < n; i++) { const a = ang + r(-ouv, ouv), s = r(v * .45, v); bout(x, y, Math.cos(a) * s, Math.sin(a) * s, false); } }
+  function canons() { gerbe(0, Ht, 70, -1.05, .3, 1050); gerbe(L, Ht, 70, -2.09, .3, 1050); }
+  function fusee() { fusees.push({ x: r(L * .15, L * .85), y: Ht + 10, vy: r(-720, -600), cible: r(Ht * .12, Ht * .38), c: pick(COUL_FETE) }); }
+  function eclate(x, y, c) { for (let i = 0; i < 70; i++) { const a = i / 70 * 6.28, s = r(140, 260); etinc.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, v: 1, c: Math.random() < .2 ? '#f2b705' : c }); } }
+  function eclater(b) { b.mort = true; gerbe(b.x, b.y, 34, -1.57, 3.14, 380); }
+  addEventListener('resize', taille); taille();
+  $('ecranAccueil').addEventListener('pointerdown', e => {   // les ballons s'éclatent d'un clic
+    for (const b of ballons) if (!b.mort && Math.hypot(e.clientX - b.x, e.clientY - b.y) < b.r * 1.2) { eclater(b); break; }
+  });
+  $('sticker').addEventListener('click', e => { const q = e.currentTarget.getBoundingClientRect(); gerbe(q.left + q.width / 2, q.top + q.height / 2, 80, -1.57, 1.1, 820); fusee(); });
+  function boucle(t) {
+    requestAnimationFrame(boucle);
+    const dt = Math.min(.05, (t - avant) / 1000 || 0); avant = t;
+    if ($('ecranAccueil').hidden || document.hidden) { if (bouts.length + ballons.length + etinc.length) { bouts.length = ballons.length = fusees.length = etinc.length = 0; cx.clearRect(0, 0, L, Ht); } return; }
+    if (!sobre) {
+      if ((pluie -= dt) < 0) { pluie = r(.25, .55); bout(r(0, L), -12, r(-15, 15), r(40, 70), true); }
+      if ((bal -= dt) < 0) { bal = r(8, 15); const rr = r(20, 27); ballons.push({ x: r(L * .05, L * .95), y: Ht + 60, r: rr, vy: r(-55, -38), f: r(0, 6.28), c: pick(COUL_FETE), q: Math.random() < .5 }); }
+      const jour = new Date(), iso = jour.getFullYear() + '-' + String(jour.getMonth() + 1).padStart(2, '0') + '-' + String(jour.getDate()).padStart(2, '0');
+      if ((feu -= dt) < 0) { feu = iso === CONFIG.journeeMondiale ? r(1.5, 3) : r(14, 22); fusee(); }
+    }
+    cx.clearRect(0, 0, L, Ht);
+    for (let i = bouts.length - 1; i >= 0; i--) {
+      const p = bouts[i];
+      if (p.lent) { p.f += dt * 2.2; p.x += (p.vx + Math.sin(p.f) * 28) * dt; p.y += p.vy * dt; }
+      else { const fr = Math.exp(-2.6 * dt); p.vx *= fr; p.vy = p.vy * fr + 520 * dt; p.f += dt * 6; p.x += (p.vx + Math.sin(p.f) * 30) * dt; p.y += p.vy * dt; }
+      p.a += p.va * dt;
+      if (p.y > Ht + 20 || p.x < -40 || p.x > L + 40 && p.vx > 0) { bouts.splice(i, 1); continue; }
+      cx.save(); cx.translate(p.x, p.y); cx.rotate(p.a); cx.scale(1, Math.cos(p.f * 1.7));
+      cx.fillStyle = p.c; cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      if (p.c === '#ffffff') { cx.strokeStyle = '#a9d8f2'; cx.lineWidth = 1; cx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h); }
+      cx.restore();
+    }
+    for (let i = ballons.length - 1; i >= 0; i--) {
+      const b = ballons[i]; b.f += dt; b.y += b.vy * dt; const x = b.x + Math.sin(b.f * 1.3) * 14;
+      if (b.mort || b.y < -b.r * 4) { ballons.splice(i, 1); continue; }
+      b.x += (x - b.x) * .02;
+      cx.strokeStyle = '#8aa4c2'; cx.lineWidth = 1.2; cx.beginPath(); cx.moveTo(b.x, b.y + b.r);
+      cx.bezierCurveTo(b.x - 8, b.y + b.r + 20, b.x + 8, b.y + b.r + 36, b.x - 2, b.y + b.r + 58); cx.stroke();
+      cx.fillStyle = b.c; cx.beginPath(); cx.ellipse(b.x, b.y, b.r * .86, b.r, 0, 0, 6.28); cx.fill();
+      cx.beginPath(); cx.moveTo(b.x - 4, b.y + b.r + 5); cx.lineTo(b.x + 4, b.y + b.r + 5); cx.lineTo(b.x, b.y + b.r - 1); cx.fill();
+      cx.fillStyle = 'rgba(255,255,255,.38)'; cx.beginPath(); cx.ellipse(b.x - b.r * .32, b.y - b.r * .4, b.r * .18, b.r * .3, -.5, 0, 6.28); cx.fill();
+      if (b.q) { cx.fillStyle = '#fff'; cx.font = `800 ${Math.round(b.r * 1.05)}px "Fira Sans", sans-serif`; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('Q', b.x, b.y + 1); }
+    }
+    for (let i = fusees.length - 1; i >= 0; i--) {
+      const f = fusees[i]; f.y += f.vy * dt; f.vy *= Math.exp(-.9 * dt);
+      cx.strokeStyle = f.c; cx.lineWidth = 2; cx.beginPath(); cx.moveTo(f.x, f.y); cx.lineTo(f.x, f.y + 18); cx.stroke();
+      if (f.y <= f.cible) { eclate(f.x, f.y, f.c); fusees.splice(i, 1); }
+    }
+    for (let i = etinc.length - 1; i >= 0; i--) {
+      const e = etinc[i], fr = Math.exp(-1.6 * dt); e.vx *= fr; e.vy = e.vy * fr + 90 * dt; e.x += e.vx * dt; e.y += e.vy * dt; e.v -= dt * .75;
+      if (e.v <= 0) { etinc.splice(i, 1); continue; }
+      cx.globalAlpha = e.v; cx.fillStyle = e.c; cx.beginPath(); cx.arc(e.x, e.y, 2.4, 0, 6.28); cx.fill();
+    }
+    cx.globalAlpha = 1;
+  }
+  requestAnimationFrame(boucle);
+  if (!sobre) setTimeout(canons, 500);
+  return { canons, taille };
+})();
+
 function retourAccueil() {
   etat = 'accueil'; partie = null;
   for (const id of ['ecranFin', 'ecranBase', 'ecranReleve', 'hud', 'file']) $(id).hidden = true;
-  $('ecranAccueil').hidden = false; ongletAccueil('pAccueil');
+  $('ecranAccueil').hidden = false; ongletAccueil('pAccueil'); fete.taille();
   eoliennes.forEach(e => { e.marche = true; e.coupe = false; e.alerte = 0; });
+  if (SP.actif) { majBoutonJouer(); rafraichirClassements(); chargerSharePoint().then(() => { majEtatDonnees(); rafraichirClassements(); }).catch(() => {}); return; }
   $('pseudo').value = ''; joueur.pseudo = '';   // stand : on laisse la place au joueur suivant
   majBoutonJouer(); rafraichirClassements();
 }
@@ -2786,10 +3075,10 @@ addEventListener('keydown', e => {
 addEventListener('resize', redimensionner);
 redimensionner();
 setInterval(majRebours, 1000);
-Object.assign(BD, lireLocal());
+if (!detecterSharePoint()) Object.assign(BD, lireLocal());
 choisirMode(modeChoisi);
 appliquerLangue();
-relierDossier(false);
+if (SP.actif) initSharePoint(); else relierDossier(false);
 requestAnimationFrame(boucle);
 </script>
 </body>
