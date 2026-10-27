@@ -109,7 +109,9 @@ et le **planificateur** : 8 puis 10 ordres dans la barre du bas, et le bouton «
 - Les **éoliennes fiabilisées sont dorées**. Des mouettes, des dauphins et un cargo animent la mer.
 - En fin de partie, un vrai **diagramme de Pareto** : les défauts par éolienne, du plus fréquent au plus rare, la courbe cumulée et le seuil de 80 %.
   On y voit d'un coup d'œil que quelques éoliennes « plus exposées » font l'essentiel des défauts.
-- Le bouton **📋 Compte rendu** ouvre la réunion de fin de journée : le chef d'équipe dit ce qui a été réparé et fiabilisé,
+- À chaque **relève**, un compte rendu du shift s'affiche à côté du bilan : interventions du shift, récidives depuis le matin,
+  coût de la non-qualité et préconisation de l'équipe pour le shift suivant.
+- En fin de journée, le compte rendu de la réunion **s'affiche tout seul** (« Voir mes résultats ▶ » pour passer au score) ; le bouton **📋 Compte rendu** le rouvre : le chef d'équipe dit ce qui a été réparé et fiabilisé,
   la référente qualité interprète (« ça fait 3 fois qu'on la répare : il y a un vrai souci, il faut la fiabiliser au plus tôt demain »),
   la supervision donne le Pareto et le coût de la non-qualité, puis viennent les **préconisations de l'équipe** pour demain, point par point (au joueur de décider).
   En Carrière, ces priorités apparaissent au briefing du lendemain (badge rouge « priorité »).
