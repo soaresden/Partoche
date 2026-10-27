@@ -16,11 +16,12 @@ dans le dossier OneDrive synchronisé. Seul ce PC écrit dans ces fichiers : les
 ## Mise en route sur le PC du stand
 
 1. Placez `index.html` dans le dossier OneDrive synchronisé (par exemple `QualityWeek2026`).
-2. Ouvrez-le avec **Edge** (ou Chrome) : double-clic, ou glisser le fichier dans le navigateur.
+2. Ouvrez-le avec **Edge** (ou Chrome) **depuis l'Explorateur Windows** : clic droit › Ouvrir avec › Microsoft Edge.
+   Ne passez pas par l'aperçu du site OneDrive ou SharePoint : il interdit l'écriture de fichiers, et le jeu affiche alors un avertissement.
 3. Dans le cadre « Classements », cliquez sur **« Choisir le dossier des scores »**, sélectionnez ce même dossier,
    puis acceptez l'autorisation de modification. Le message devient « Scores enregistrés dans le dossier … ».
 4. Aux lancements suivants, le jeu retrouve le dossier tout seul. Edge peut redemander l'autorisation :
-   un seul clic sur « Autoriser ».
+   un seul clic sur « Autoriser ». Si le poste interdit au navigateur de mémoriser le dossier, il suffit de le rechoisir à chaque lancement.
 
 - Tant que le dossier n'est pas relié, les scores sont gardés dans le navigateur. Ils sont versés dans les fichiers dès que le dossier est relié.
 - OneDrive conserve l'historique des versions des fichiers : en cas d'erreur, on peut revenir en arrière.

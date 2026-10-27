@@ -796,7 +796,7 @@ const I18N = {
     errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
     errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
     errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
-    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
+    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Le jeu est ouvert dans un aperçu (OneDrive, SharePoint…) qui interdit d\'écrire des fichiers. Ouvrez <b>index.html</b> directement dans Edge depuis l\'Explorateur Windows (dossier OneDrive synchronisé).', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
     piliersTitre: 'Les 4 piliers de la performance',
     piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
     p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> le défaut au lieu de le subir.',
@@ -942,7 +942,7 @@ const I18N = {
     errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
     errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
     errHorsLigne: 'Offline: the career is kept on this computer only.',
-    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
+    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ The game is open in a preview (OneDrive, SharePoint…) that forbids writing files. Open <b>index.html</b> directly in Edge from Windows Explorer (synced OneDrive folder).', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
     piliersTitre: 'The 4 Pillars of Performance',
     piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
     p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> faults instead of suffering them.',
@@ -1081,8 +1081,16 @@ function idbBase() {
     r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error);
   });
 }
-async function idbLire(k) { const db = await idbBase(); return new Promise(ok => { const r = db.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); }); }
-async function idbEcrire(k, v) { const db = await idbBase(); return new Promise(ok => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = () => ok(); tx.onerror = () => ok(); }); }
+// mémoire du dossier choisi : si le navigateur la refuse, on garde le dossier pour la séance seulement
+async function idbLire(k) {
+  try { const db = await idbBase(); return await new Promise(ok => { const r = db.transaction('kv').objectStore('kv').get(k); r.onsuccess = () => ok(r.result); r.onerror = () => ok(null); }); }
+  catch (e) { return null; }
+}
+async function idbEcrire(k, v) {
+  try { const db = await idbBase(); await new Promise(ok => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = () => ok(); tx.onerror = () => ok(); }); }
+  catch (e) { /* pas de mémoire : il faudra rechoisir le dossier au prochain lancement */ }
+}
+const dansUnApercu = () => { try { return window.top !== window || location.origin === 'null' && location.protocol !== 'file:'; } catch (e) { return true; } };
 
 async function lireJSON(nom) {
   try { return JSON.parse(await (await (await donnees.dossier.getFileHandle(nom)).getFile()).text() || 'null'); }
@@ -1096,8 +1104,9 @@ async function ecrireJSON(nom, data) {
 /* Relie le dossier des scores. Sans geste de l'utilisateur, on ne fait que vérifier l'autorisation déjà donnée. */
 async function relierDossier(interactif) {
   if (!window.showDirectoryPicker) { donnees.etat = 'indispo'; majEtatDonnees(); return; }
+  if (dansUnApercu()) { donnees.etat = 'apercu'; majEtatDonnees(); return; }   // aperçu OneDrive / SharePoint : l'écriture de fichiers y est interdite
   try {
-    let h = interactif === 'changer' ? null : await idbLire('dossier');
+    let h = interactif === 'changer' ? null : (donnees.dossier || await idbLire('dossier'));
     if (h && (await h.queryPermission({ mode: 'readwrite' })) !== 'granted') {
       if (!interactif || (await h.requestPermission({ mode: 'readwrite' })) !== 'granted') { donnees.etat = 'relier'; donnees.nom = h.name; majEtatDonnees(); return; }
     }
@@ -1120,6 +1129,7 @@ async function relierDossier(interactif) {
     await enregistrer();
   } catch (e) {
     if (e.name === 'AbortError') return;   // sélection annulée
+    if (e.name === 'SecurityError') { donnees.etat = 'apercu'; majEtatDonnees(); return; }
     console.warn('Dossier des scores', e); donnees.etat = 'erreur'; donnees.erreur = e.message;
   }
   majEtatDonnees(); rafraichirClassements();
@@ -1148,8 +1158,8 @@ function majEtatDonnees() {
   const e = donnees.etat, nom = echapper(donnees.nom || '');
   el.className = 'etat-donnees ' + (e === 'ok' ? 'ok' : 'alerte');
   el.innerHTML = e === 'ok' ? t('donneesOk', { nom }) : e === 'relier' ? t('donneesRelier', { nom }) : e === 'erreur' ? t('donneesErreur', { err: echapper(donnees.erreur) })
-    : e === 'indispo' ? t('donneesIndispo') : t('donneesLocal');
-  if (e !== 'ok' && e !== 'indispo') {
+    : e === 'indispo' ? t('donneesIndispo') : e === 'apercu' ? t('donneesApercu') : t('donneesLocal');
+  if (e !== 'ok' && e !== 'indispo' && e !== 'apercu') {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'lien';
     b.textContent = t(e === 'relier' ? 'donneesBtnRelier' : e === 'erreur' ? 'donneesBtnReessayer' : 'donneesBtnChoisir');
     b.addEventListener('click', () => relierDossier(true));
