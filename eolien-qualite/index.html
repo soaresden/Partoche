@@ -1,0 +1,2260 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quality: Powering Performance · Gardez le parc en mouvement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --nuit: #06263a;
+    --encre: #f4fbff;
+    --doux: #a9cfe4;
+    --gris: #cfd8d8;
+    --jaune: #ffd23f;
+    --orange: #ff7a1a;
+    --vert: #3ddc97;
+    --rouge: #ff4d5e;
+    --theme: #d42a2a;
+    --verre: rgba(6, 38, 58, .86);
+    --bord: rgba(169, 207, 228, .25);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: var(--nuit); color: var(--encre);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif; -webkit-user-select: none; user-select: none; }
+  canvas#jeu { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
+  button { font: inherit; cursor: pointer; }
+  [hidden] { display: none !important; }
+
+  /* ---------- HUD ---------- */
+  #hud { position: fixed; top: 0; left: 0; right: 0; display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: start; gap: 12px; padding: 10px 16px; pointer-events: none; }
+  .chip { background: var(--verre); border: 1px solid var(--bord); border-radius: 16px; padding: 8px 14px;
+    backdrop-filter: blur(6px); box-shadow: 0 6px 20px rgba(0,0,0,.25); }
+  .hud-l { justify-self: start; }
+  .hud-r { justify-self: end; display: flex; gap: 10px; align-items: center; }
+  .heure { font-size: 30px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .heure.urgent { color: var(--rouge); }
+  .lbl { font-size: 11px; color: var(--doux); text-transform: uppercase; letter-spacing: .08em; }
+  .mini-jauge { height: 5px; border-radius: 9px; background: rgba(255,255,255,.12); margin-top: 6px; overflow: hidden; }
+  .mini-jauge > div { height: 100%; width: 0; background: var(--doux); border-radius: 9px; }
+  .hud-c { text-align: center; min-width: 300px; }
+  .score-hud { font-size: 30px; font-weight: 800; color: var(--jaune); line-height: 1; font-variant-numeric: tabular-nums; }
+  .score-hud small { font-size: 13px; color: var(--doux); font-weight: 500; }
+  .pic { color: #ffb86b; font-weight: 700; }
+  .bord-bateau { display: grid; gap: 6px; min-width: 170px; }
+  .bord-bateau .rang-b { display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: 6px; font-size: 14px; }
+  .pieces { display: flex; gap: 3px; flex-wrap: wrap; }
+  .pieces i { width: 12px; height: 12px; border-radius: 3px; background: rgba(255,255,255,.15); }
+  .pieces i.on { background: var(--jaune); }
+  .carbu { height: 10px; border-radius: 9px; background: rgba(255,255,255,.15); overflow: hidden; }
+  .carbu > div { height: 100%; border-radius: 9px; background: var(--vert); transition: width .2s; }
+  .bas .carbu > div { background: var(--rouge); }
+  #btnSon { pointer-events: auto; border: 1px solid var(--bord); background: var(--verre); color: var(--encre);
+    border-radius: 12px; width: 42px; height: 42px; font-size: 19px; }
+
+  /* file d'ordres façon « Diner Dash » */
+  #file { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 8px; align-items: center;
+    padding: 8px 10px; max-width: calc(100vw - 24px); }
+  #file .titre-file { font-size: 11px; color: var(--doux); text-transform: uppercase; letter-spacing: .08em; padding: 0 4px; }
+  .ordre { position: relative; display: grid; place-items: center; width: 64px; height: 54px; border-radius: 12px; border: 1px solid var(--bord);
+    background: rgba(255,255,255,.07); color: var(--encre); font-size: 12px; font-weight: 600; line-height: 1.1; padding: 4px; overflow: hidden; }
+  .ordre .i { font-size: 19px; }
+  .ordre.encours { border-color: var(--jaune); background: rgba(255,210,63,.14); }
+  .ordre .barre { position: absolute; left: 0; bottom: 0; height: 4px; width: 0; background: var(--jaune); }
+  .ordre .etat { position: absolute; top: 2px; right: 4px; font-size: 12px; }
+  button.ordre:hover::after { content: '✕'; position: absolute; inset: 0; display: grid; place-items: center; background: rgba(212,42,42,.85); font-size: 20px; }
+  .ordre.vide { border-style: dashed; color: var(--doux); font-weight: 400; }
+
+  /* menu contextuel d'une éolienne */
+  #menu { position: fixed; z-index: 5; width: 290px; padding: 12px; border-radius: 16px; background: rgba(6,38,58,.96);
+    border: 1px solid var(--bord); box-shadow: 0 14px 40px rgba(0,0,0,.45); animation: pop .12s ease-out; }
+  #menu .m-titre { font-weight: 700; font-size: 16px; }
+  #menu .m-sous { font-size: 13px; color: var(--doux); margin: 2px 0 8px; line-height: 1.4; }
+  #menu .m-sous b { color: #ffb3ba; }
+  #menu .m-sous .alerte { color: var(--jaune); font-weight: 700; }
+  #menu .act { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; align-items: center; width: 100%; text-align: left;
+    border: 1px solid var(--bord); background: rgba(255,255,255,.06); color: var(--encre); border-radius: 12px; padding: 9px 10px; margin-top: 6px; font-size: 14px; }
+  #menu .act:hover { border-color: var(--jaune); background: rgba(255,210,63,.12); }
+  #menu .act:disabled { opacity: .45; cursor: default; }
+  #menu .act .ico { font-size: 19px; text-align: center; }
+  #menu .act small { display: block; color: var(--doux); font-size: 12px; font-weight: 400; }
+  #menu .act .cout { font-size: 12px; color: var(--jaune); text-align: right; white-space: nowrap; line-height: 1.4; }
+  #menu .act.fiab { border-color: rgba(61,220,151,.5); }
+  #menu .act.fiab .cout { color: var(--vert); }
+
+  #astuce { position: fixed; left: 50%; bottom: 90px; transform: translate(-50%, 20px); opacity: 0; transition: .3s;
+    max-width: min(720px, calc(100vw - 32px)); text-align: center; font-size: 16px; pointer-events: none; line-height: 1.35; }
+  #astuce.on { opacity: 1; transform: translate(-50%, 0); }
+  #bandeau { position: fixed; left: 50%; top: 96px; transform: translateX(-50%) scale(.8); opacity: 0; transition: .35s;
+    font-size: 21px; font-weight: 700; pointer-events: none; text-align: center; max-width: calc(100vw - 32px); }
+  #bandeau.on { opacity: 1; transform: translateX(-50%) scale(1); }
+  #toasts { position: fixed; right: 16px; top: 100px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; width: min(320px, calc(100vw - 32px)); }
+  .toast { font-size: 14px; animation: entre .3s ease-out; border-left: 4px solid var(--vert); line-height: 1.35; }
+  .toast b { color: var(--vert); }
+
+  /* ---------- Accueil, dans l'esprit de l'identité « Quality: Powering Performance » ---------- */
+  #ecranAccueil { position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden;
+    background: radial-gradient(ellipse at 30% 20%, #56625f, #3e4847 55%, #2b3334); }
+  #reseau { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; }
+  #btnLangue { position: fixed; top: 18px; right: 18px; z-index: 2; border: 2px solid rgba(255,255,255,.6); background: rgba(0,0,0,.15);
+    color: #fff; border-radius: 99px; padding: 8px 16px; font-weight: 700; letter-spacing: .06em; }
+  #btnLangue:hover { background: rgba(255,255,255,.12); }
+  .hero { position: relative; min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(320px, .9fr); gap: 40px;
+    align-items: center; max-width: 1360px; margin: 0 auto; padding: 72px 28px 56px; }
+  .hero-in { text-align: center; }
+  .pastille { display: inline-flex; align-items: center; gap: 10px; padding: 12px 26px; border-radius: 99px; background: var(--theme);
+    color: #fff; font-weight: 700; font-size: 18px; box-shadow: 0 8px 24px rgba(212,42,42,.35); }
+  .hero h1 { font-family: "Playfair Display", Georgia, serif; font-weight: 800; font-size: clamp(42px, 6.6vw, 96px); line-height: 1; margin: 28px 0 10px; letter-spacing: -.01em; }
+  .hero .fr { font-family: "Playfair Display", Georgia, serif; font-style: italic; font-size: clamp(19px, 2.2vw, 28px); color: #e9eeee; margin: 0 0 16px; }
+  .hero p.intro { font-size: clamp(15px, 1.5vw, 19px); color: #e3e9e9; line-height: 1.5; max-width: 760px; margin: 0 auto 26px; }
+  .hero .boutons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-rouge { border: 0; border-radius: 10px; padding: 16px 30px; background: var(--theme); color: #fff; font-weight: 700; font-size: 18px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.3); transition: transform .12s, background .12s; }
+  .btn-rouge:hover { background: #e23535; transform: translateY(-2px); }
+  .btn-rouge.contour { background: transparent; border: 2px solid rgba(255,255,255,.7); }
+  .btn-rouge:disabled { opacity: .6; cursor: wait; transform: none; }
+  .rebours { display: flex; gap: clamp(16px, 3.4vw, 40px); justify-content: center; margin-top: 36px; }
+  .rebours div { text-align: center; }
+  .rebours b { display: block; font-size: clamp(36px, 5vw, 62px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .rebours span { font-size: 13px; letter-spacing: .14em; color: var(--gris); text-transform: uppercase; }
+  .rebours-msg { margin-top: 34px; font-size: clamp(20px, 2.6vw, 28px); font-weight: 700; }
+  .defile { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); color: var(--gris); font-size: 13px; animation: flotte 1.6s infinite alternate; }
+
+  .carte { background: rgba(20,30,32,.74); border: 1px solid rgba(255,255,255,.14); border-radius: 22px; padding: 22px 24px;
+    backdrop-filter: blur(10px); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+  .carte h3 { font-family: "Playfair Display", Georgia, serif; font-size: 28px; margin: 4px 0 12px; line-height: 1.1; }
+  .classements h3 { margin-bottom: 4px; }
+  .classements h4 { margin: 16px 0 6px; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .classements h4 small { font-weight: 500; color: var(--gris); font-size: 12px; }
+  .onglets { display: flex; gap: 6px; margin-bottom: 6px; }
+  .onglets button { flex: 1; border: 1px solid rgba(255,255,255,.2); background: transparent; color: var(--gris); border-radius: 10px; padding: 5px; font-size: 13px; }
+  .onglets button.actif { background: rgba(212,42,42,.22); color: #fff; border-color: var(--theme); }
+  ol.liste { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 5px; }
+  ol.liste li { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 11px; background: rgba(255,255,255,.06); font-size: 14.5px; }
+  ol.liste li.moi { background: rgba(255,210,63,.18); outline: 1px solid var(--jaune); }
+  ol.liste .r { font-weight: 700; text-align: center; color: var(--gris); }
+  ol.liste .p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  ol.liste .p small { color: var(--gris); margin-left: 6px; font-size: 12px; }
+  ol.liste .s { font-weight: 700; color: var(--jaune); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  ol.liste .s small { font-weight: 500; color: var(--gris); font-size: 11px; }
+  ol.liste li.vide { display: block; color: var(--gris); font-size: 14px; padding: 12px 4px; text-align: center; background: none; }
+
+  .section { position: relative; max-width: 1120px; margin: 0 auto; padding: 24px 16px 56px; }
+  .section h2.grand { font-family: "Playfair Display", Georgia, serif; font-size: clamp(30px, 4vw, 46px); text-align: center; margin: 10px 0 8px; }
+  .section p.chapeau { text-align: center; color: #d5dede; max-width: 780px; margin: 0 auto 26px; font-size: 17px; line-height: 1.5; }
+  .grille-jeu { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .surtitre { color: #ff8a8a; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+  .etapes { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 12px; }
+  .etapes li { display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: center; font-size: 15px; line-height: 1.4; }
+  .etapes .ico { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 21px; background: rgba(255,255,255,.08); }
+  .etapes b { color: #fff; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 14px; }
+  .mode { text-align: left; border: 2px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: var(--encre); border-radius: 14px; padding: 12px 14px; }
+  .mode b { display: block; font-size: 17px; margin-bottom: 3px; }
+  .mode span { font-size: 13px; color: var(--gris); line-height: 1.35; display: block; }
+  .mode.actif { border-color: var(--theme); background: rgba(212,42,42,.16); }
+  label.nom { display: block; font-size: 13px; color: var(--gris); margin: 10px 0 6px; }
+  .ligne { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .champ { flex: 1 1 180px; min-width: 0; font: inherit; font-size: 17px; padding: 12px 14px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: var(--encre); outline: none; -webkit-user-select: text; user-select: text; }
+  .champ:focus { border-color: var(--theme); }
+  .champ.code { flex: 0 0 120px; letter-spacing: .4em; text-align: center; font-variant-numeric: tabular-nums; }
+  .info { font-size: 13px; color: var(--gris); margin-top: 8px; min-height: 18px; line-height: 1.4; }
+  .info b { color: #fff; }
+  .info.err { color: #ffb3b3; }
+  .lien { background: none; border: 0; color: #ff9a9a; text-decoration: underline; padding: 0; font-size: 13px; }
+  .boite-carriere { margin-top: 10px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px dashed rgba(255,255,255,.2); }
+
+  .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .themes.piliers { grid-template-columns: repeat(4, 1fr); }
+  .theme { background: rgba(20,30,32,.6); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 20px; }
+  .piliers .theme { border-top: 4px solid var(--theme); }
+  .theme .ic { font-size: 28px; }
+  .theme h4 { font-size: 18px; margin: 10px 0 6px; }
+  .theme p { margin: 0; color: #d5dede; font-size: 14.5px; line-height: 1.5; }
+  .theme p em { color: #ffb3b3; font-style: normal; font-weight: 600; }
+  .pied { text-align: center; color: #aab6b6; font-size: 13px; padding: 10px 16px 40px; }
+
+  /* ---------- Panneaux de jeu (relève, fin, base) ---------- */
+  .voile { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; overflow-y: auto;
+    background: radial-gradient(ellipse at center, rgba(6,38,58,.5), rgba(6,38,58,.88)); }
+  .panneau { width: min(1040px, 100%); display: grid; grid-template-columns: 1.35fr 1fr; gap: 18px; animation: entre .4s ease-out; }
+  .panneau.seul { width: min(660px, 100%); grid-template-columns: 1fr; }
+  .voile .carte { background: var(--verre); border-color: var(--bord); }
+  .score { font-size: clamp(44px, 7vw, 66px); font-weight: 800; color: var(--jaune); line-height: 1; margin: 6px 0 4px; font-variant-numeric: tabular-nums; }
+  .score small { font-size: 20px; color: var(--doux); font-weight: 500; }
+  .detail { color: var(--doux); font-size: 14px; margin-bottom: 4px; line-height: 1.4; }
+  .detail b { color: var(--encre); }
+  .rang { color: var(--doux); min-height: 22px; margin-bottom: 12px; }
+  .rang b { color: var(--encre); }
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+  .stat { background: rgba(255,255,255,.06); border-radius: 14px; padding: 9px 10px; }
+  .stat .v { font-size: 23px; font-weight: 800; }
+  .stat .t { font-size: 12px; color: var(--doux); line-height: 1.25; }
+  .etoiles { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+  .etoiles div { flex: 1; min-width: 120px; background: rgba(255,255,255,.06); border-radius: 12px; padding: 8px 10px; font-size: 13px; color: var(--doux); }
+  .etoiles b { display: block; color: var(--jaune); font-size: 18px; letter-spacing: 2px; }
+  .encadre { border-radius: 14px; padding: 12px 14px; margin-bottom: 12px; background: rgba(255,255,255,.06); line-height: 1.4; font-size: 15px; }
+  .profil { background: linear-gradient(135deg, rgba(61,220,151,.2), rgba(255,210,63,.12)); }
+  .profil .titre { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .profil p { margin: 0; color: #d9edf7; }
+  .compte table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
+  .compte td { padding: 4px 0; }
+  .compte td:last-child { text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .compte tr.total td { border-top: 1px solid var(--bord); padding-top: 8px; font-weight: 800; font-size: 16px; }
+  .compte .plus { color: var(--vert); } .compte .moins { color: #ffb3ba; }
+  .compte .note { font-size: 13px; color: var(--doux); margin-top: 6px; }
+  .morale { font-size: 16px; font-style: italic; margin: 0 0 14px; padding-left: 12px; border-left: 3px solid var(--theme); line-height: 1.4; }
+  .citation { font-family: "Playfair Display", Georgia, serif; font-style: italic; font-size: 19px; line-height: 1.4; margin: 0 0 14px; padding: 0 0 0 14px; border-left: 3px solid var(--theme); }
+  .citation cite { display: block; font-family: Inter, sans-serif; font-style: normal; font-size: 13px; color: var(--doux); margin-top: 4px; }
+  .cta { border: 0; border-radius: 12px; padding: 13px 22px; font-size: 17px; font-weight: 700; color: #fff; background: var(--theme);
+    box-shadow: 0 8px 20px rgba(212,42,42,.3); }
+  .cta:hover { background: #e23535; }
+  .cta.sec { background: rgba(255,255,255,.1); box-shadow: none; border: 1px solid var(--bord); }
+  .cta.or { background: linear-gradient(180deg, #ffe27a, var(--jaune)); color: #3a2400; box-shadow: 0 8px 20px rgba(255,210,63,.25); }
+  .releve h2, .base h2 { font-family: "Playfair Display", Georgia, serif; font-size: 34px; margin: 4px 0 6px; }
+  .prevision { display: grid; gap: 6px; margin: 6px 0 0; padding: 0; list-style: none; font-size: 15px; }
+
+  .base { width: min(1100px, 100%); }
+  .budget { font-size: 30px; font-weight: 800; color: var(--jaune); }
+  .boutique { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0 16px; }
+  .ameli { display: flex; flex-direction: column; gap: 6px; background: rgba(255,255,255,.06); border: 1px solid var(--bord); border-radius: 16px; padding: 14px; }
+  .ameli .tete { display: flex; gap: 10px; align-items: center; }
+  .ameli .ic { font-size: 28px; }
+  .ameli .nom { font-weight: 700; font-size: 16px; }
+  .ameli .pilier { font-size: 11px; color: #ff9a9a; text-transform: uppercase; letter-spacing: .06em; }
+  .ameli .niv { display: flex; gap: 4px; }
+  .ameli .niv i { width: 22px; height: 6px; border-radius: 4px; background: rgba(255,255,255,.15); }
+  .ameli .niv i.on { background: var(--vert); }
+  .ameli .eff { font-size: 13px; color: var(--doux); line-height: 1.35; flex: 1; }
+  .ameli .eff b { color: var(--encre); font-weight: 600; }
+  .ameli button { border: 0; border-radius: 10px; padding: 9px; font-weight: 700; background: var(--jaune); color: #3a2400; }
+  .ameli button:disabled { background: rgba(255,255,255,.12); color: var(--doux); cursor: default; }
+
+  /* ---------- Panneau organisateur ---------- */
+  #ecranAdmin { z-index: 20; background: rgba(6,38,58,.93); }
+  .admin { width: min(1200px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; gap: 12px; animation: entre .3s ease-out; }
+  .admin-tete { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .admin h2 { margin: 0; font-size: 22px; }
+  .admin input[type=text], .admin input[type=password], .admin input[type=number] {
+    font: inherit; font-size: 15px; padding: 8px 10px; border-radius: 10px; border: 1px solid var(--bord);
+    background: rgba(255,255,255,.08); color: var(--encre); outline: none; min-width: 0; -webkit-user-select: text; user-select: text; }
+  .admin input:focus { border-color: var(--jaune); }
+  .admin .btn { border: 1px solid var(--bord); background: rgba(255,255,255,.08); color: var(--encre); border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+  .admin .btn:disabled { opacity: .4; cursor: default; }
+  .admin .btn.danger { border-color: rgba(255,77,94,.6); color: #ffb3ba; }
+  .admin .btn.ok { border-color: var(--vert); color: var(--vert); }
+  .admin .btn.actif { border-color: var(--jaune); color: var(--jaune); }
+  .admin .outils { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .admin .outils #adFiltre { flex: 1 1 220px; }
+  .admin .compte-ad { color: var(--doux); font-size: 14px; }
+  #adContenu { display: contents; }
+  .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--bord); min-height: 120px; }
+  .admin table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .admin th { position: sticky; top: 0; background: #0a3350; text-align: left; padding: 8px; color: var(--doux); font-weight: 500; white-space: nowrap; }
+  .admin td { padding: 5px 8px; border-top: 1px solid rgba(169,207,228,.12); white-space: nowrap; }
+  .admin td.login-c { color: var(--doux); max-width: 160px; overflow: hidden; text-overflow: ellipsis; }
+  .admin td.vide { text-align: center; color: var(--doux); padding: 16px; }
+  .admin td input[type=text] { width: 140px; }
+  .admin td input[type=number] { width: 86px; }
+  .admin tr.modifie td { background: rgba(255,210,63,.08); }
+  .admin #adMsg { min-height: 20px; font-size: 14px; color: var(--doux); }
+  .admin #adMsg.err { color: #ffb3ba; }
+  .logo-secret { position: absolute; top: 14px; left: 16px; z-index: 2; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%;
+    background: none; cursor: default; -webkit-tap-highlight-color: transparent; }
+  .logo-secret:focus { outline: none; }
+  .logo-secret svg { display: block; width: 100%; height: 100%; }
+  .logo-secret .rotor { transform-origin: 32px 25px; animation: tourne 3s linear infinite; }
+  .logo-secret.tic { animation: tic .15s; }
+
+  @keyframes entre { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes pop { from { opacity: 0; transform: scale(.92); } }
+  @keyframes tourne { to { transform: rotate(360deg); } }
+  @keyframes tic { 50% { transform: scale(.9); } }
+  @keyframes flotte { to { transform: translate(-50%, 6px); } }
+
+  @media (max-width: 1100px) {
+    .hero { grid-template-columns: 1fr; padding-top: 84px; }
+    .themes.piliers, .boutique { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 760px) {
+    .grille-jeu, .panneau, .themes, .themes.piliers, .boutique, .modes { grid-template-columns: 1fr; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .hero { padding: 84px 16px 48px; gap: 28px; }
+    #hud { grid-template-columns: auto 1fr auto; padding: 6px; gap: 6px; }
+    .hud-c { min-width: 0; }
+    .heure, .score-hud { font-size: 21px; }
+    .chip { padding: 6px 9px; }
+    .bord-bateau { min-width: 110px; }
+    #toasts { display: none; }
+    .ordre { width: 46px; height: 46px; font-size: 11px; }
+    #file .titre-file { display: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="jeu"></canvas>
+
+<!-- ======================= HUD ======================= -->
+<div id="hud" hidden>
+  <div class="hud-l"><div class="chip">
+    <div class="heure" id="hHeure">06:00</div>
+    <div class="lbl" id="hShift"></div>
+    <div class="mini-jauge"><div id="hShiftJauge"></div></div>
+  </div></div>
+  <div class="hud-c chip">
+    <div class="score-hud"><span id="hScore">0</span> <small>pts</small></div>
+    <div class="lbl"><span id="hPuiss">0</span> MW · <span id="hDispo">64/64</span> <span data-i18n="enService"></span> <span id="hPic" class="pic"></span></div>
+  </div>
+  <div class="hud-r">
+    <div class="chip bord-bateau" id="hBateau">
+      <div class="rang-b"><span>📦</span><span class="pieces" id="hPieces"></span></div>
+      <div class="rang-b"><span>⛽</span><span class="carbu"><div id="hCarbu"></div></span></div>
+    </div>
+    <button id="btnSon">🔊</button>
+  </div>
+</div>
+<div id="file" class="chip" hidden></div>
+<div id="menu" hidden></div>
+<div id="astuce" class="chip"></div>
+<div id="bandeau" class="chip"></div>
+<div id="toasts"></div>
+
+<!-- ======================= Accueil ======================= -->
+<div id="ecranAccueil">
+  <canvas id="reseau"></canvas>
+  <button class="logo-secret" id="logo" type="button" aria-label="World Quality Week 2026">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="31" fill="#d42a2a"/>
+      <path d="M6 50 q6.5-5 13 0 t13 0 t13 0 t13 0 V64 H6z" fill="#8f1717"/>
+      <path d="M30.5 26 h3 l1.6 25 h-6.2z" fill="#fff"/>
+      <g class="rotor" fill="#fff">
+        <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z"/>
+        <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z" transform="rotate(120 32 25)"/>
+        <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z" transform="rotate(240 32 25)"/>
+        <circle cx="32" cy="25" r="2.6" fill="#f3d0d0"/>
+      </g>
+    </svg>
+  </button>
+  <button id="btnLangue" type="button">EN</button>
+
+  <section class="hero">
+    <div class="hero-in">
+      <div class="pastille" data-i18n="dates"></div>
+      <h1>Quality: Powering Performance</h1>
+      <p class="fr" data-i18n="sousTitre"></p>
+      <p class="intro" data-i18n="intro"></p>
+      <div class="boutons">
+        <button class="btn-rouge" data-aller="jouer" data-i18n="btnJouerHero"></button>
+        <button class="btn-rouge contour" data-aller="piliers" data-i18n="btnTheme"></button>
+      </div>
+      <div class="rebours" id="rebours">
+        <div><b id="rbJ">00</b><span data-i18n="jours"></span></div>
+        <div><b id="rbH">00</b><span data-i18n="heures"></span></div>
+        <div><b id="rbM">00</b><span data-i18n="minutes"></span></div>
+        <div><b id="rbS">00</b><span data-i18n="secondes"></span></div>
+      </div>
+      <div class="rebours-msg" id="reboursMsg" hidden></div>
+    </div>
+    <div class="carte classements">
+      <h3 data-i18n="lbTitre"></h3>
+      <h4><span>⚡ Sprint 90 s</span><small data-i18n="lbSprintSous"></small></h4>
+      <div class="onglets" data-cible="listeSprint" data-cle="p">
+        <button data-v="jour" class="actif" data-i18n="ongletJour"></button>
+        <button data-v="tout" data-i18n="ongletTout"></button>
+      </div>
+      <ol class="liste" id="listeSprint"><li class="vide">…</li></ol>
+      <h4><span data-i18n="lbCarriere"></span><small data-i18n="lbCarriereSous"></small></h4>
+      <ol class="liste" id="listeCarriere"><li class="vide">…</li></ol>
+    </div>
+    <div class="defile" data-i18n="defile"></div>
+  </section>
+
+  <section class="section" id="jouer">
+    <h2 class="grand" data-i18n="jouerTitre"></h2>
+    <p class="chapeau" data-i18n="jouerChapeau"></p>
+    <div class="grille-jeu">
+      <div class="carte">
+        <div class="surtitre" data-i18n="commentJouer"></div>
+        <ul class="etapes">
+          <li><span class="ico">👆</span><span data-i18n-html="etape1"></span></li>
+          <li><span class="ico">🧾</span><span data-i18n-html="etape2"></span></li>
+          <li><span class="ico">⚓</span><span data-i18n-html="etape3"></span></li>
+          <li><span class="ico">⛈️</span><span data-i18n-html="etape4"></span></li>
+          <li><span class="ico">🛡️</span><span data-i18n-html="etape5"></span></li>
+        </ul>
+      </div>
+      <div class="carte">
+        <div class="surtitre" data-i18n="choixMode"></div>
+        <div class="modes" id="modes">
+          <button class="mode actif" data-mode="rapide"><b>⚡ Sprint 90 s</b><span data-i18n="modeSprint"></span></button>
+          <button class="mode" data-mode="carriere"><b data-i18n="lbCarriere"></b><span data-i18n="modeCarriere"></span></button>
+        </div>
+        <label class="nom" for="pseudo" data-i18n="nomLabel"></label>
+        <div class="ligne">
+          <input id="pseudo" class="champ" maxlength="24" autocomplete="nickname" data-i18n-ph="nomPh">
+        </div>
+        <div class="boite-carriere" id="boiteCarriere" hidden>
+          <div class="info" id="carLocal" hidden></div>
+          <div id="carCodeLigne">
+            <label class="nom" for="code" style="margin-top:0" data-i18n="carCode"></label>
+            <div class="ligne"><input id="code" class="champ code" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"><span class="info" style="flex:1;margin:0" data-i18n="carAide"></span></div>
+          </div>
+        </div>
+        <div class="ligne" style="margin-top:14px">
+          <button class="btn-rouge" id="btnJouer"></button>
+        </div>
+        <div class="info" id="infoLogin"></div>
+        <div class="info err" id="infoErreur"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="piliers">
+    <h2 class="grand" data-i18n="piliersTitre"></h2>
+    <p class="chapeau" data-i18n="piliersChapeau"></p>
+    <div class="themes piliers">
+      <div class="theme"><div class="ic">🛰️</div><h4 data-i18n="p1t"></h4><p data-i18n-html="p1"></p></div>
+      <div class="theme"><div class="ic">🤝</div><h4 data-i18n="p2t"></h4><p data-i18n-html="p2"></p></div>
+      <div class="theme"><div class="ic">📏</div><h4 data-i18n="p3t"></h4><p data-i18n-html="p3"></p></div>
+      <div class="theme"><div class="ic">🌱</div><h4 data-i18n="p4t"></h4><p data-i18n-html="p4"></p></div>
+    </div>
+  </section>
+
+  <section class="section" id="theme">
+    <h2 class="grand" data-i18n="themeTitre"></h2>
+    <p class="chapeau" data-i18n="themeChapeau"></p>
+    <div class="themes">
+      <div class="theme"><div class="ic">🛡️</div><h4 data-i18n="t1t"></h4><p data-i18n-html="t1"></p></div>
+      <div class="theme"><div class="ic">📊</div><h4 data-i18n="t2t"></h4><p data-i18n-html="t2"></p></div>
+      <div class="theme"><div class="ic">🔁</div><h4 data-i18n="t3t"></h4><p data-i18n-html="t3"></p></div>
+      <div class="theme"><div class="ic">🌦️</div><h4 data-i18n="t4t"></h4><p data-i18n-html="t4"></p></div>
+      <div class="theme"><div class="ic">💶</div><h4 data-i18n="t5t"></h4><p data-i18n-html="t5"></p></div>
+      <div class="theme"><div class="ic">⚡</div><h4 data-i18n="t6t"></h4><p data-i18n-html="t6"></p></div>
+    </div>
+  </section>
+  <div class="pied" data-i18n="pied"></div>
+</div>
+
+<!-- ======================= Relève d'équipe ======================= -->
+<div class="voile" id="ecranReleve" hidden>
+  <div class="panneau seul">
+    <div class="carte releve">
+      <div class="surtitre" id="rSur"></div>
+      <h2 id="rTitre"></h2>
+      <div class="etoiles" style="margin-top:10px">
+        <div><b id="rEtoiles"></b><span data-i18n="dispo"></span> <span id="rDispo"></span></div>
+        <div><b id="rEnergie"></b><span data-i18n="ptsShift"></span></div>
+        <div><b id="rCombo"></b><span data-i18n="meilleurCombo"></span></div>
+      </div>
+      <div class="encadre" id="rMessage"></div>
+      <div class="encadre"><b id="rPrevTitre"></b><ul class="prevision" id="rPrev"></ul></div>
+      <blockquote class="citation" id="rCitation"></blockquote>
+      <button class="cta" id="btnReleve" data-i18n="btnReleve"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= Fin de journée ======================= -->
+<div class="voile" id="ecranFin" hidden>
+  <div class="panneau">
+    <div class="carte">
+      <div class="surtitre" id="fSur"></div>
+      <div class="score"><span id="fScore">0</span> <small>pts</small></div>
+      <div class="detail" id="fDetail"></div>
+      <div class="rang" id="fRang">&nbsp;</div>
+      <div class="encadre compte" id="fCompte" hidden></div>
+      <div class="stats">
+        <div class="stat"><div class="v" id="fRep">0</div><div class="t" data-i18n="statRep"></div></div>
+        <div class="stat"><div class="v" id="fAme">0</div><div class="t" data-i18n="statFiab"></div></div>
+        <div class="stat"><div class="v" id="fCombo">0</div><div class="t" data-i18n="statCombo"></div></div>
+        <div class="stat"><div class="v" id="fDispo">0 %</div><div class="t" data-i18n="statDispo"></div></div>
+      </div>
+      <div class="etoiles" id="fEtoiles"></div>
+      <div class="encadre" id="fPareto"></div>
+      <div class="encadre profil"><div class="titre" id="fProfil"></div><p id="fProfilTxt"></p></div>
+      <p class="morale" data-i18n="morale"></p>
+      <div class="ligne">
+        <button class="cta" id="btnRejouer" data-i18n="btnRejouer"></button>
+        <button class="cta or" id="btnBase" hidden></button>
+        <button class="cta" id="btnJourSuivant" hidden></button>
+        <button class="cta sec" id="btnAccueil" data-i18n="btnAccueil"></button>
+      </div>
+    </div>
+    <div class="carte classements">
+      <h3 id="fTitreLb"></h3>
+      <div class="onglets" data-cible="listeFin" data-cle="p" id="fOnglets">
+        <button data-v="jour" class="actif" data-i18n="ongletJour"></button>
+        <button data-v="tout" data-i18n="ongletTout"></button>
+      </div>
+      <ol class="liste" id="listeFin"><li class="vide">…</li></ol>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= Base : améliorations du bateau (carrière) ======================= -->
+<div class="voile" id="ecranBase" hidden>
+  <div class="carte base">
+    <div class="surtitre" id="bSur"></div>
+    <div class="ligne" style="justify-content:space-between">
+      <h2 data-i18n="baseTitre"></h2>
+      <div class="budget">💶 <span id="bBudget">0</span> k€</div>
+    </div>
+    <div class="detail" data-i18n="baseIntro"></div>
+    <div class="boutique" id="boutique"></div>
+    <div class="ligne">
+      <button class="cta" id="btnBaseJour"></button>
+      <button class="cta sec" id="btnBaseAccueil" data-i18n="btnAccueil"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ======================= Organisateur (5 clics sur le logo) ======================= -->
+<div class="voile" id="ecranAdmin" hidden>
+  <div class="carte admin">
+    <div class="admin-tete">
+      <h2>🔐 Gestion des classements</h2>
+      <div class="outils">
+        <button class="btn actif" id="adVueParties" type="button">Parties</button>
+        <button class="btn" id="adVueCarrieres" type="button">Carrières</button>
+        <button class="btn" id="adFermer" type="button">Fermer ✕</button>
+      </div>
+    </div>
+    <form id="adConnexion" class="outils" autocomplete="off">
+      <input id="adMdp" type="password" placeholder="Mot de passe organisateur" autocomplete="current-password">
+      <button class="btn ok" type="submit">Ouvrir</button>
+    </form>
+    <div id="adContenu" hidden>
+      <div class="outils">
+        <input id="adFiltre" type="text" placeholder="Filtrer par login ou pseudo…">
+        <span class="compte-ad" id="adCompte"></span>
+        <button class="btn" id="adRafraichir" type="button">↻ Actualiser</button>
+        <button class="btn danger" id="adSuppr" type="button" disabled>🗑 Supprimer la sélection</button>
+        <button class="btn danger" id="adVider" type="button">Tout effacer</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead id="adTete"></thead>
+          <tbody id="adLignes"></tbody>
+        </table>
+      </div>
+    </div>
+    <div id="adMsg"></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* =====================================================================
+   Réglages
+   ===================================================================== */
+const CONFIG = {
+  supabaseUrl: 'https://pqfescnjjdqxujldfxkh.supabase.co',
+  supabaseKey: 'sb_publishable_DGUia1ATpu1B-0RYX0Ou4A_TPapsXj1',
+  debutSemaine: '2026-11-09T00:00:00',
+  finSemaine: '2026-11-14T00:00:00',
+  journeeMondiale: '2026-11-12',
+  dureeShift: { rapide: 30, carriere: 60 },   // secondes par shift (3 shifts par journée)
+  prixMWh: .08,       // k€ : 80 € le MWh vendu
+  prixPiece: 4,       // k€ par pièce de rechange consommée
+  prixPlein: 3,       // k€ par passage à la base (carburant)
+  version: '2026.3'
+};
+
+const PARAMS = {
+  vitesse: 430, stock: 8, conso: .7, tRep: 1.8, tFiab: [2.0, 2.8], tBase: 3, coutFiab: 1,
+  risqueFragile: 1 / 22, risqueNormal: 1 / 2500, rampe: 1, usure: .5, usureMax: 3,
+  effets: { brouillard: .65, houle: 1.3 }, cable: false, freqMeteo: 15, maxZones: 2, prevision: 3, scada: 0,
+  meteo: [['brouillard'], ['houle', 'brouillard'], ['houle', 'brouillard']]
+};
+
+const AMELIORATIONS = [
+  { cle: 'moteur', ico: '🚤', prix: [120, 220, 350], effet: n => '+' + 12 * n + ' %' },
+  { cle: 'soute', ico: '📦', prix: [100, 180, 300], effet: n => '+' + 2 * n },
+  { cle: 'reservoir', ico: '⛽', prix: [80, 160], effet: n => '−' + [0, 30, 50][n] + ' %' },
+  { cle: 'equipe', ico: '👷', prix: [150, 260, 400], effet: n => '−' + 10 * n + ' %' },
+  { cle: 'radar', ico: '📡', prix: [120, 240], effet: n => [3, 6, 10][n] + ' s' },
+  { cle: 'scada', ico: '🛰️', prix: [200, 450], effet: n => n }
+];
+
+const MW = 7;                // puissance unitaire des éoliennes du parc
+const NB_FRAGILES = 12;      // ~20 % du parc au départ
+const PIC = [19, 21];        // pic de consommation : points x1,5
+const FILE_MAX = 6;
+const FACTEUR_NIVEAU = [1, .12, .03];   // fiabilisée : 8x moins de pannes, puis quasi plus
+const CABLE = 6;
+const DISSIPATION = 2;
+
+const PANNES = [
+  { ico: '🌡️', fr: ['Surchauffe génératrice', 'Refroidissement renforcé'], en: ['Generator overheating', 'Upgraded cooling'] },
+  { ico: '💧', fr: ['Fuite hydraulique', 'Joints fiabilisés'], en: ['Hydraulic leak', 'Reinforced seals'] },
+  { ico: '📡', fr: ['Capteur de vent HS', 'Capteur redondant'], en: ['Wind sensor failure', 'Redundant sensor'] },
+  { ico: '⚡', fr: ['Défaut convertisseur', 'Convertisseur mis à jour'], en: ['Converter fault', 'Converter upgrade'] },
+  { ico: '⚙️', fr: ['Usure de roulement', 'Graissage automatique'], en: ['Bearing wear', 'Automatic lubrication'] },
+  { ico: '🌀', fr: ['Calage des pales', 'Pitch recalibré'], en: ['Blade pitch fault', 'Pitch recalibration'] },
+  { ico: '🔌', fr: ['Défaut câble inter-éolienne', 'Connectique refaite'], en: ['Array cable fault', 'Connectors redone'] }
+];
+
+const METEO = {
+  brouillard: { ico: '🌫️', r: [150, 210], duree: [16, 24], fr: ['Brouillard', 'vitesse réduite'], en: ['Fog', 'reduced speed'] },
+  houle: { ico: '🌊', r: [120, 165], duree: [16, 24], fr: ['Houle', 'interventions plus longues'], en: ['Swell', 'slower interventions'] },
+  grain: { ico: '⛈️', r: [95, 125], duree: [12, 18], fr: ['Grain', 'Hs > 1,5 m : transfert impossible'], en: ['Squall', 'Hs > 1.5 m: no transfer'] },
+  dauphins: { ico: '🐬', r: [80, 110], duree: [14, 22], fr: ['Mammifères marins', 'vitesse limitée'], en: ['Marine mammals', 'speed limit'] }
+};
+
+const CITATIONS = {
+  fr: [
+    ['La qualité n\'est jamais un accident ; c\'est toujours le résultat d\'un effort intelligent.', 'John Ruskin'],
+    ['La qualité est gratuite. Ce qui coûte cher, ce sont les choses sans qualité.', 'Philip B. Crosby'],
+    ['Nous sommes ce que nous faisons de manière répétée. L\'excellence n\'est donc pas un acte, mais une habitude.', 'Will Durant, d\'après Aristote'],
+    ['Il n\'est pas nécessaire de changer. La survie n\'est pas obligatoire.', 'W. Edwards Deming'],
+    ['Sans données, vous n\'êtes qu\'une personne de plus avec une opinion.', 'attribué à W. Edwards Deming'],
+    ['Un problème bien posé est à moitié résolu.', 'John Dewey']
+  ],
+  en: [
+    ['Quality is never an accident; it is always the result of intelligent effort.', 'John Ruskin'],
+    ['Quality is free. What costs money are the unquality things.', 'Philip B. Crosby'],
+    ['We are what we repeatedly do. Excellence, then, is not an act, but a habit.', 'Will Durant, after Aristotle'],
+    ['It is not necessary to change. Survival is not mandatory.', 'W. Edwards Deming'],
+    ['Without data, you\'re just another person with an opinion.', 'attributed to W. Edwards Deming'],
+    ['A problem well put is half solved.', 'John Dewey']
+  ]
+};
+
+/* =====================================================================
+   Textes FR / EN
+   ===================================================================== */
+const I18N = {
+  fr: {
+    dates: '📅 9 – 13 novembre 2026',
+    sousTitre: 'La qualité, moteur de la performance',
+    intro: 'Semaine mondiale de la qualité 2026 : partout dans le monde, on célèbre le rôle de la qualité dans la performance des organisations et de la société. Chez nous, elle se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
+    btnJouerHero: 'Jouer ▶', btnTheme: 'Explorer le thème',
+    jours: 'jours', heures: 'heures', minutes: 'minutes', secondes: 'secondes', defile: '▼ faites défiler',
+    msgSemaine: '🎉 C\'est la Semaine de la qualité !', msgJournee: '🌍 Aujourd\'hui, c\'est la Journée mondiale de la qualité !', msgMerci: 'Merci à toutes et à tous pour cette Semaine de la qualité !',
+    lbTitre: '🏆 Classements', lbSprintSous: 'meilleur score', lbCarriere: '🧭 Carrière', lbCarriereSous: 'énergie cumulée',
+    ongletJour: 'Aujourd\'hui', ongletTout: 'Général',
+    lbVide: 'Aucune partie pour l\'instant : à vous de jouer !', lbVideCarriere: 'Aucune carrière encore : lancez la vôtre !',
+    lbHorsLigne: 'Classement hors ligne.', lbRecord: 'Votre record sur ce poste : {n} pts', jourCourt: 'J{n}',
+    jouerTitre: 'Gardez le parc en mouvement',
+    jouerChapeau: 'Une journée de maintenance, de 6 h à 22 h, en trois shifts, sur la vraie implantation du parc : 64 éoliennes, 13 strings, un poste électrique en mer, des distances réelles.',
+    commentJouer: 'Comment jouer',
+    etape1: '<b>Cliquez sur une éolienne</b> et choisissez : réparer, ou réparer <i>et</i> fiabiliser. Le bateau y va tout seul.',
+    etape2: '<b>Enchaînez les ordres</b> : la file en bas de l\'écran s\'exécute dans l\'ordre. Même panne à la suite = <b>combo</b>, plus rapide.',
+    etape3: '<b>Repassez à la base</b> pour recharger pièces et carburant.',
+    etape4: '<b>Surveillez la météo</b> : brouillard, houle, grains… les zones sont annoncées avant d\'arriver.',
+    etape5: '<b>Repérez les récidivistes</b> (badge ×N) : quelques éoliennes font l\'essentiel des pannes. Fiabilisez-les !',
+    choixMode: 'Choisissez votre partie',
+    modeSprint: 'Une journée en 90 secondes. Le classement du jour.',
+    modeCarriere: 'Jour après jour : vendez votre électricité, améliorez votre bateau, affrontez une météo de plus en plus rude. Sauvegardée.',
+    nomLabel: 'Votre nom pour le classement', nomPh: 'Prénom N.',
+    btnSprint: 'Larguer les amarres ▶', btnCarriereNew: 'Commencer ma carrière ▶', btnCarriereSuite: 'Continuer · jour {n} ▶', patience: 'Connexion…',
+    carCode: 'Code de reprise (4 chiffres)', carAide: 'Avec votre nom et ce code, reprenez votre carrière depuis n\'importe quel poste.',
+    carLocal: 'Carrière sur ce poste : <b>{pseudo}</b>, jour {jour}, {budget} k€.', carNouvelle: 'Nouvelle carrière',
+    carNouvelleConfirm: 'Recommencer une nouvelle carrière ? La sauvegarde de ce poste sera oubliée (celle en ligne reste accessible avec son code).',
+    errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
+    errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
+    errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
+    infoLoginWin: 'Connecté en tant que <b>{login}</b> (session Windows)', infoLoginAstuce: 'Astuce : lancez le jeu avec <b>Jouer.bat</b> pour être reconnu automatiquement.',
+    piliersTitre: 'Les 4 piliers de la performance',
+    piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
+    p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> la panne au lieu de la subir.',
+    p2t: 'Personnes & culture', p2: 'Formation de l\'équipe, relève, retour d\'expérience : la performance se <em>construit et se transmet</em> d\'un shift à l\'autre.',
+    p3t: 'Gouvernance & conformité', p3: 'Pas de transfert au-delà de 1,5 m de houle, vitesse limitée près des mammifères marins : les <em>règles protègent</em> les équipes et le milieu.',
+    p4t: 'Durabilité & impact', p4: 'Chaque MWh livré alimente des foyers en énergie renouvelable. Le bilan final le traduit en <em>impact concret</em>.',
+    themeTitre: 'Ce que le jeu raconte',
+    themeChapeau: 'La qualité n\'est pas qu\'une affaire de conformité : c\'est un levier pour décider, prévenir et créer de la valeur. Chaque mécanique illustre une idée.',
+    t1t: 'Traiter la cause, pas le symptôme', t1: 'Réparer remet l\'éolienne en route. La <em>fiabiliser</em> évite que la panne revienne. Le temps investi aujourd\'hui est rendu au centuple demain.',
+    t2t: 'Pareto : 20 % des causes, 80 % des effets', t2: 'Quelques éoliennes « fragiles » concentrent l\'essentiel des pannes. Les repérer grâce à leur <em>historique</em> et agir dessus en priorité, c\'est là que se gagne la performance.',
+    t3t: 'Capitaliser l\'expérience', t3: 'Traiter des pannes identiques à la suite va plus vite : c\'est l\'effet <em>retour d\'expérience</em>. Le combo récompense l\'organisation, pas la précipitation.',
+    t4t: 'Anticiper les aléas', t4: 'Les zones météo sont annoncées avant d\'arriver. Lire les <em>signaux faibles</em> et planifier évite de se retrouver bloqué au mauvais endroit.',
+    t5t: 'Le coût de la non-qualité', t5: 'En carrière, chaque réparation coûte des pièces. Ce que vous ne dépensez pas en pannes répétées, vous l\'<em>investissez</em> dans votre bateau.',
+    t6t: 'Mesurer ce qui compte', t6: 'Le score, c\'est l\'énergie livrée au réseau, pas le nombre d\'interventions. Courir partout donne l\'impression d\'agir ; la <em>disponibilité</em> du parc dit la vérité.',
+    pied: 'Semaine mondiale de la qualité · 9 – 13 novembre 2026 · Journée mondiale de la qualité le jeudi 12 novembre · #WQW26',
+    enService: 'en service', pic: '· 🏙️ pic ×1,5', ordres: 'Ordres', annuler: 'Cliquer pour annuler', base: 'Base',
+    shiftNom: ['matin', 'après-midi', 'soir'], shiftTitre: ['shift du matin', 'shift de l\'après-midi', 'shift du soir'],
+    hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Jour {j} · ', modeNom: { rapide: 'Sprint 90 s', carriere: 'Carrière · jour {j}' },
+    depart: '🚤 06:00 · {shift} · {mode}',
+    tutoPanne: '⚠️ <b>{id}</b> est en panne ! <b>Cliquez dessus</b> et donnez un ordre : le bateau ira tout seul.',
+    tutoApres: '👍 Relancée ! Le badge <b>×N</b> sous une éolienne compte ses pannes : les plus fragiles se repèrent vite. Ce sont elles qu\'il faut <b>fiabiliser</b> 🛡️.',
+    tutoRecidive: '🔁 <b>{id}</b> retombe dans la même panne. Certaines éoliennes sont plus fragiles que d\'autres : <b>fiabilisez-les</b> pour casser la répétition.',
+    tutoCombo: '🔁 <b>Combo !</b> Enchaîner les mêmes opérations va de plus en plus vite : c\'est le <b>retour d\'expérience</b>. Changer d\'opération remet le compteur à zéro.',
+    tutoGrain: '⛈️ <b>Grain annoncé</b> : sous le grain, la houle dépasse 1,5 m et le transfert vers les éoliennes est <b>impossible</b>. Anticipez !',
+    tutoCable: '🔌 Un défaut sur le câble de <b>{id}</b> coupe toutes les éoliennes en aval sur le string. <b>Priorité absolue !</b>',
+    bandeauCable: '🔌 Défaut câble sur le string {s} : {n} éoliennes à l\'arrêt !',
+    tutoCarbu0: '⛽ <b>Réservoir vide</b> : le bateau avance au ralenti. Cliquez sur ⚓ la base pour refaire le plein.',
+    tutoCarbu: '⛽ Carburant bas : prévoyez un passage à la base ⚓.',
+    tutoPieces: '📦 <b>Plus assez de pièces à bord</b> : cliquez sur ⚓ la base (en bas à gauche) pour recharger.',
+    tutoAlerte: '🛰️ <b>Alarme prédictive</b> sur {id} : fiabilisez-la avant qu\'elle ne tombe en panne !',
+    filePleine: '🧾 File d\'ordres pleine ({n} max) : laissez l\'équipage avancer.',
+    grainCible: '⛈️ L\'éolienne visée est sous un grain : transfert impossible pour l\'instant.',
+    bandeauPic: '🏙️ Pic de consommation (19 h – 21 h) : chaque MWh compte ×1,5 !',
+    bandeauReleve: '🚤 {shift} : l\'équipe embarque, pleins faits.',
+    encore: '🔁 Encore {id} !', relancee: '✔ {id} relancée', plein: '📦⛽ Plein fait', evitee: '✨ Panne évitée !', suspendu: 'suspendu',
+    prevision: 'Prévision : {ico} {nom} dans {s} s', transfertImpossible: 'transfert impossible',
+    baseNom: 'Base O&M', baseSous: 'pièces · carburant', chargement: '⏳ Chargement…',
+    mTitre: '{id} · {g} · string {s}', mProd: '✔ En production', mCoupe: '⏸ Arrêtée par un défaut câble en amont',
+    mNiv: ['', ' · 🛡️ fiabilisée', ' · 🛡️🛡️ fiabilisation renforcée'],
+    mHisto: ' · <b>{n} panne(s) aujourd\'hui</b>', mTotal: ' · {n} au total', mGrain: '⛈️ Sous un grain : transfert impossible pour l\'instant', mHoule: '🌊 Houle : intervention plus longue',
+    mAlerte: '⚠ Alarme prédictive : panne imminente !',
+    aReparer: 'Réparer', aRepDet: 'remet en route', aRepCable: 'relance tout le string', aRepFiab: 'Réparer et fiabiliser',
+    aFiab: 'Fiabiliser', aFiab2: 'Fiabilisation renforcée', aFiabDet: '{remede} : 8× moins de pannes', aFiab2Det: 'pannes quasi supprimées',
+    aDeja: 'déjà dans la file', aMax: '✨ Rien à faire : fiabilisée au maximum.',
+    dp: ' : ', toastFiab1: '8× moins de pannes', toastFiab2: 'Quasiment plus de pannes',
+    rSur: 'Relève d\'équipe · {h}', rTitre: 'Fin du {shift}', dispo: 'disponibilité', ptsShift: 'points ce shift', meilleurCombo: 'meilleur combo',
+    rFiab: '🛡️ <b>{n}</b> fiabilisation(s) ce shift : ces éoliennes continueront de produire pendant que l\'équipe suivante travaille.',
+    rFiab0: '🚒 Aucune fiabilisation ce shift : les mêmes pannes risquent de revenir.',
+    rPanne: '<br>⚠️ <b>{n}</b> éolienne(s) encore à l\'arrêt : elles attendent l\'équipe suivante.', rOk: '<br>✔ Le parc est transmis en bon état.',
+    rPrev: 'Prévisions pour le {shift}', rCable: '🔌 Risque de <b>défaut câble</b> : tout un string peut s\'arrêter', rPic: '🏙️ <b>Pic de consommation</b> de 19 h à 21 h : points ×1,5',
+    btnReleve: 'Prendre la relève ▶',
+    fSur: 'Fin de journée · 22:00 · {mode}',
+    fDetail: '⚡ {mwh} MWh produits, de quoi alimenter ≈ <b>{foyers}</b> foyers pendant une journée', fPic: ' · 🏙️ +{n} pic', fCombos: ' · 🔁 +{n} combos',
+    statRep: '🔧 réparations', statFiab: '🛡️ fiabilisations', statCombo: '🔁 meilleur combo', statDispo: '⚡ disponibilité',
+    envoi: 'Envoi du score…', rangTxt: '<b>{a}</b> sur {b} aujourd\'hui · <b>{c}</b> sur {d} au général', rangCarriere: 'Carrière sauvegardée ✔',
+    errSpam: 'Score non enregistré : deux parties trop rapprochées.', errHorsLigneScore: 'Classement hors ligne : score gardé sur ce poste.',
+    pareto: '📊 <b>Pareto</b> : {f} éoliennes sur 64 ({pc} %) ont causé <b>{part} %</b> des pannes. Vous en avez fiabilisé <b>{n}</b>.',
+    paretoPeu: ' Les repérer tôt grâce à leur historique (badge ×N), c\'est la clé.', paretoBien: ' Bien vu !',
+    profils: [
+      ['🏆 Pilote de la performance durable', 'Vous avez repéré les éoliennes à problèmes et traité les causes : le parc a tourné pendant que vous gardiez la main.'],
+      ['🧭 Stratège de l\'amélioration continue', 'Vous avez commencé à traiter les causes plutôt que les symptômes. Ciblez encore mieux les récidivistes et le parc tournera presque seul !'],
+      ['🔧 Réparateur avisé', 'Beaucoup d\'incendies éteints… et quelques fiabilisations. Concentrez-les sur les éoliennes qui reviennent sans cesse : l\'effet est spectaculaire.'],
+      ['🚒 Pompier du parc', 'Vous avez couru d\'une panne à l\'autre sans traiter la cause. Les mêmes éoliennes sont retombées encore et encore. Au prochain tour, fiabilisez !']
+    ],
+    morale: 'Réparer, c\'est utile. Éviter que la panne revienne, c\'est ça qui fait la performance.',
+    btnRejouer: 'Rejouer ↻', btnAccueil: 'Accueil', btnBase: '⚓ Améliorer le bateau', btnJour: 'Jour {n} ▶',
+    lbFinSprint: '🏆 Sprint 90 s', lbFinCarriere: '🏆 Carrière',
+    compteTitre: 'Compte du jour {j}', cVentes: 'Ventes d\'électricité ({mwh} MWh)', cPieces: 'Pièces de rechange ({n})', cCarbu: 'Carburant ({n} pleins)',
+    cResultat: 'Résultat du jour', cBudget: 'Budget disponible',
+    cCopq: '💸 Dont <b>coût de la non-qualité</b> : {n} réparations = {k} k€ partis en pannes répétables.',
+    cVieux: '🕰️ Vieillissement : {ids} montrent des signes de fatigue.',
+    demain: '📅 Demain : {txt}', nouveautes: { 2: '🐬 zones de mammifères marins (vitesse limitée)', 3: '⛈️ grains : transfert impossible au-delà de 1,5 m de houle', 4: '🔌 défauts de câble : tout un string peut tomber' }, plusDur: 'des pannes un peu plus fréquentes',
+    baseTitre: '⚓ Base O&M · le chantier', baseIntro: 'Investissez le résultat de vos journées dans le bateau et l\'équipe. Les améliorations sont gardées pour toute la carrière.',
+    bSur: 'Carrière de {pseudo} · avant le jour {j}', niveau: 'Niveau {n}/{max}', actuel: 'Actuel', prochain: 'Prochain', acheter: 'Améliorer · {p} k€', max: 'Niveau maximum',
+    ameli: {
+      moteur: ['Moteurs', 'Vitesse du bateau'], soute: ['Soute à pièces', 'Pièces à bord'], reservoir: ['Réservoir', 'Consommation de carburant'],
+      equipe: ['Formation de l\'équipe', 'Temps d\'intervention'], radar: ['Radar météo', 'Prévisions à l\'avance'], scada: ['Supervision SCADA', '']
+    },
+    pilierAmeli: { equipe: 'Personnes & culture', radar: 'Anticiper', scada: 'Innovation & technologie' },
+    scadaNiv: ['aucune', 'historique de pannes cumulé visible (Pareto)', 'alarmes prédictives avant la panne']
+  },
+  en: {
+    dates: '📅 9 – 13 November 2026',
+    sousTitre: 'World Quality Week 2026',
+    intro: 'A global celebration of the role quality plays in driving organizational and societal performance. Here, it plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
+    btnJouerHero: 'Play ▶', btnTheme: 'Explore the theme',
+    jours: 'days', heures: 'hours', minutes: 'minutes', secondes: 'seconds', defile: '▼ scroll down',
+    msgSemaine: '🎉 It\'s World Quality Week!', msgJournee: '🌍 Today is World Quality Day!', msgMerci: 'Thank you all for World Quality Week!',
+    lbTitre: '🏆 Leaderboards', lbSprintSous: 'best score', lbCarriere: '🧭 Career', lbCarriereSous: 'total energy',
+    ongletJour: 'Today', ongletTout: 'All time',
+    lbVide: 'No games yet: your turn!', lbVideCarriere: 'No careers yet: start yours!',
+    lbHorsLigne: 'Leaderboard offline.', lbRecord: 'Your best on this computer: {n} pts', jourCourt: 'D{n}',
+    jouerTitre: 'Keep the Farm Turning',
+    jouerChapeau: 'A maintenance day from 6 am to 10 pm, in three shifts, on the real farm layout: 64 turbines, 13 strings, an offshore substation, real distances.',
+    commentJouer: 'How to play',
+    etape1: '<b>Click a turbine</b> and choose: repair, or repair <i>and</i> reinforce. The boat sails there on its own.',
+    etape2: '<b>Chain your orders</b>: the queue at the bottom runs in order. Same fault in a row = <b>combo</b>, faster.',
+    etape3: '<b>Head back to base</b> to reload spare parts and fuel.',
+    etape4: '<b>Watch the weather</b>: fog, swell, squalls… zones are forecast before they arrive.',
+    etape5: '<b>Spot the repeat offenders</b> (×N badge): a few turbines cause most failures. Reinforce them!',
+    choixMode: 'Choose your game',
+    modeSprint: 'One day in 90 seconds. Today\'s leaderboard.',
+    modeCarriere: 'Day after day: sell your power, upgrade your boat, face rougher weather. Saved.',
+    nomLabel: 'Your name for the leaderboard', nomPh: 'First name L.',
+    btnSprint: 'Cast off ▶', btnCarriereNew: 'Start my career ▶', btnCarriereSuite: 'Continue · day {n} ▶', patience: 'Connecting…',
+    carCode: 'Resume code (4 digits)', carAide: 'With your name and this code, resume your career from any computer.',
+    carLocal: 'Career on this computer: <b>{pseudo}</b>, day {jour}, €{budget}k.', carNouvelle: 'New career',
+    carNouvelleConfirm: 'Start a new career? The save on this computer will be forgotten (the online one stays available with its code).',
+    errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
+    errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
+    errHorsLigne: 'Offline: the career is kept on this computer only.',
+    infoLoginWin: 'Signed in as <b>{login}</b> (Windows session)', infoLoginAstuce: 'Tip: launch the game with <b>Jouer.bat</b> to be recognised automatically.',
+    piliersTitre: 'The 4 Pillars of Performance',
+    piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
+    p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> failures instead of suffering them.',
+    p2t: 'People & Culture', p2: 'Crew training, shift handovers, lessons learned: performance is <em>built and passed on</em> from one shift to the next.',
+    p3t: 'Governance & Compliance', p3: 'No transfer above 1.5 m of swell, speed limits near marine mammals: <em>rules protect</em> crews and the environment.',
+    p4t: 'Sustainability & Impact', p4: 'Every MWh delivered powers homes with renewable energy. The final report turns it into <em>concrete impact</em>.',
+    themeTitre: 'What the game tells',
+    themeChapeau: 'Quality is not just about compliance: it is a lever to decide, prevent and create value. Each mechanic illustrates an idea.',
+    t1t: 'Fix the cause, not the symptom', t1: 'Repairing gets the turbine back online. <em>Reinforcing</em> it stops the failure from coming back. Time invested today pays back many times over.',
+    t2t: 'Pareto: 20% of causes, 80% of effects', t2: 'A few "fragile" turbines cause most failures. Spotting them through their <em>history</em> and acting on them first is where performance is won.',
+    t3t: 'Learn from experience', t3: 'Handling identical faults in a row gets faster: that is <em>lessons learned</em> at work. Combos reward organisation, not haste.',
+    t4t: 'Anticipate the unexpected', t4: 'Weather zones are forecast before they arrive. Reading <em>weak signals</em> and planning ahead keeps you from getting stuck in the wrong place.',
+    t5t: 'The cost of poor quality', t5: 'In career mode, every repair costs parts. What you don\'t spend on recurring failures, you <em>invest</em> in your boat.',
+    t6t: 'Measure what matters', t6: 'Your score is the energy delivered to the grid, not the number of interventions. Running around feels busy; farm <em>availability</em> tells the truth.',
+    pied: 'World Quality Week · 9 – 13 November 2026 · World Quality Day on Thursday 12 November · #WQW26',
+    enService: 'online', pic: '· 🏙️ peak ×1.5', ordres: 'Orders', annuler: 'Click to cancel', base: 'Base',
+    shiftNom: ['morning', 'afternoon', 'evening'], shiftTitre: ['morning shift', 'afternoon shift', 'evening shift'],
+    hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Day {j} · ', modeNom: { rapide: 'Sprint 90 s', carriere: 'Career · day {j}' },
+    depart: '🚤 06:00 · {shift} · {mode}',
+    tutoPanne: '⚠️ <b>{id}</b> is down! <b>Click it</b> and give an order: the boat will go on its own.',
+    tutoApres: '👍 Back online! The <b>×N</b> badge under a turbine counts its failures: fragile ones stand out quickly. Those are the ones to <b>reinforce</b> 🛡️.',
+    tutoRecidive: '🔁 <b>{id}</b> has the same fault again. Some turbines are more fragile than others: <b>reinforce them</b> to break the cycle.',
+    tutoCombo: '🔁 <b>Combo!</b> Chaining the same operations gets faster and faster: that\'s <b>lessons learned</b>. Switching operation resets the counter.',
+    tutoGrain: '⛈️ <b>Squall forecast</b>: under it, swell exceeds 1.5 m and transfers to turbines are <b>impossible</b>. Plan ahead!',
+    tutoCable: '🔌 A cable fault at <b>{id}</b> cuts every turbine downstream on its string. <b>Top priority!</b>',
+    bandeauCable: '🔌 Cable fault on string {s}: {n} turbines down!',
+    tutoCarbu0: '⛽ <b>Out of fuel</b>: the boat crawls. Click ⚓ the base to refuel.',
+    tutoCarbu: '⛽ Fuel low: plan a stop at the base ⚓.',
+    tutoPieces: '📦 <b>Not enough parts on board</b>: click ⚓ the base (bottom left) to reload.',
+    tutoAlerte: '🛰️ <b>Predictive alarm</b> on {id}: reinforce it before it fails!',
+    filePleine: '🧾 Order queue full ({n} max): let the crew catch up.',
+    grainCible: '⛈️ The target turbine is under a squall: no transfer for now.',
+    bandeauPic: '🏙️ Demand peak (7 – 9 pm): every MWh counts ×1.5!',
+    bandeauReleve: '🚤 {shift}: the crew is on board, fully stocked.',
+    encore: '🔁 {id} again!', relancee: '✔ {id} back online', plein: '📦⛽ Restocked', evitee: '✨ Failure avoided!', suspendu: 'on hold',
+    prevision: 'Forecast: {ico} {nom} in {s} s', transfertImpossible: 'no transfer',
+    baseNom: 'O&M base', baseSous: 'parts · fuel', chargement: '⏳ Loading…',
+    mTitre: '{id} · {g} · string {s}', mProd: '✔ Producing', mCoupe: '⏸ Stopped by an upstream cable fault',
+    mNiv: ['', ' · 🛡️ reinforced', ' · 🛡️🛡️ fully reinforced'],
+    mHisto: ' · <b>{n} failure(s) today</b>', mTotal: ' · {n} in total', mGrain: '⛈️ Under a squall: no transfer for now', mHoule: '🌊 Swell: slower intervention',
+    mAlerte: '⚠ Predictive alarm: failure imminent!',
+    aReparer: 'Repair', aRepDet: 'back online', aRepCable: 'restarts the whole string', aRepFiab: 'Repair & reinforce',
+    aFiab: 'Reinforce', aFiab2: 'Deep reinforcement', aFiabDet: '{remede}: 8× fewer failures', aFiab2Det: 'failures almost eliminated',
+    aDeja: 'already queued', aMax: '✨ Nothing to do: fully reinforced.',
+    dp: ': ', toastFiab1: '8× fewer failures', toastFiab2: 'Almost no more failures',
+    rSur: 'Crew change · {h}', rTitre: 'End of the {shift}', dispo: 'availability', ptsShift: 'points this shift', meilleurCombo: 'best combo',
+    rFiab: '🛡️ <b>{n}</b> reinforcement(s) this shift: those turbines will keep producing while the next crew works.',
+    rFiab0: '🚒 No reinforcement this shift: the same failures are likely to come back.',
+    rPanne: '<br>⚠️ <b>{n}</b> turbine(s) still down: they are waiting for the next crew.', rOk: '<br>✔ The farm is handed over in good shape.',
+    rPrev: 'Forecast for the {shift}', rCable: '🔌 Risk of <b>cable faults</b>: a whole string can stop', rPic: '🏙️ <b>Demand peak</b> from 7 to 9 pm: points ×1.5',
+    btnReleve: 'Take over ▶',
+    fSur: 'End of day · 10:00 pm · {mode}',
+    fDetail: '⚡ {mwh} MWh generated, enough to power ≈ <b>{foyers}</b> homes for a day', fPic: ' · 🏙️ +{n} peak', fCombos: ' · 🔁 +{n} combos',
+    statRep: '🔧 repairs', statFiab: '🛡️ reinforcements', statCombo: '🔁 best combo', statDispo: '⚡ availability',
+    envoi: 'Sending score…', rangTxt: '<b>{a}</b> of {b} today · <b>{c}</b> of {d} all time', rangCarriere: 'Career saved ✔',
+    errSpam: 'Score not saved: two games too close together.', errHorsLigneScore: 'Leaderboard offline: score kept on this computer.',
+    pareto: '📊 <b>Pareto</b>: {f} turbines out of 64 ({pc}%) caused <b>{part}%</b> of failures. You reinforced <b>{n}</b> of them.',
+    paretoPeu: ' Spotting them early through their history (×N badge) is the key.', paretoBien: ' Well spotted!',
+    profils: [
+      ['🏆 Sustainable performance pilot', 'You spotted the problem turbines and fixed the causes: the farm kept turning while you stayed in control.'],
+      ['🧭 Continuous improvement strategist', 'You started fixing causes rather than symptoms. Target the repeat offenders even better and the farm will almost run itself!'],
+      ['🔧 Savvy fixer', 'Lots of fires put out… and a few reinforcements. Focus them on the turbines that keep failing: the effect is spectacular.'],
+      ['🚒 Farm firefighter', 'You ran from one failure to the next without fixing the cause. The same turbines failed again and again. Next time, reinforce!']
+    ],
+    morale: 'Repairing is useful. Stopping the failure from coming back is what drives performance.',
+    btnRejouer: 'Play again ↻', btnAccueil: 'Home', btnBase: '⚓ Upgrade the boat', btnJour: 'Day {n} ▶',
+    lbFinSprint: '🏆 Sprint 90 s', lbFinCarriere: '🏆 Career',
+    compteTitre: 'Day {j} account', cVentes: 'Electricity sales ({mwh} MWh)', cPieces: 'Spare parts ({n})', cCarbu: 'Fuel ({n} refills)',
+    cResultat: 'Day result', cBudget: 'Available budget',
+    cCopq: '💸 Of which <b>cost of poor quality</b>: {n} repairs = €{k}k spent on avoidable failures.',
+    cVieux: '🕰️ Ageing: {ids} are showing signs of wear.',
+    demain: '📅 Tomorrow: {txt}', nouveautes: { 2: '🐬 marine mammal zones (speed limit)', 3: '⛈️ squalls: no transfer above 1.5 m of swell', 4: '🔌 cable faults: a whole string can go down' }, plusDur: 'slightly more frequent failures',
+    baseTitre: '⚓ O&M base · the yard', baseIntro: 'Invest your daily results in the boat and the crew. Upgrades are kept for the whole career.',
+    bSur: '{pseudo}\'s career · before day {j}', niveau: 'Level {n}/{max}', actuel: 'Now', prochain: 'Next', acheter: 'Upgrade · €{p}k', max: 'Maximum level',
+    ameli: {
+      moteur: ['Engines', 'Boat speed'], soute: ['Parts hold', 'Parts on board'], reservoir: ['Fuel tank', 'Fuel consumption'],
+      equipe: ['Crew training', 'Intervention time'], radar: ['Weather radar', 'Forecast lead time'], scada: ['SCADA monitoring', '']
+    },
+    pilierAmeli: { equipe: 'People & culture', radar: 'Anticipate', scada: 'Innovation & technology' },
+    scadaNiv: ['none', 'cumulative failure history visible (Pareto)', 'predictive alarms before failures']
+  }
+};
+let langue = (() => { try { const l = localStorage.getItem('eq_langue'); if (l === 'fr' || l === 'en') return l; } catch (e) { /* */ } return /^fr/i.test(navigator.language || 'fr') ? 'fr' : 'en'; })();
+function t(cle, v) {
+  let s = I18N[langue][cle]; if (s === undefined) s = I18N.fr[cle]; if (s === undefined) return cle;
+  return v && typeof s === 'string' ? s.replace(/\{(\w+)\}/g, (_, k) => (v[k] !== undefined ? v[k] : '')) : s;
+}
+const panne = i => ({ ico: PANNES[i].ico, nom: PANNES[i][langue][0], remede: PANNES[i][langue][1] });
+const meteoTxt = type => ({ ico: METEO[type].ico, nom: METEO[type][langue][0], effet: METEO[type][langue][1] });
+
+/* =====================================================================
+   Outils
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = l => l[Math.floor(Math.random() * l.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
+const fmt = n => Math.round(n).toLocaleString(langue === 'fr' ? 'fr-FR' : 'en-GB');
+const ordinal = n => (langue === 'fr' ? (n === 1 ? '1ᵉʳ' : n + 'ᵉ') : n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] || 'th'));
+const heureTxt = h => String(Math.floor(h)).padStart(2, '0') + ':' + String(Math.floor((h % 1) * 60)).padStart(2, '0');
+const stock = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* navigation privée */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* */ } }
+};
+const echapper = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+/* =====================================================================
+   Identité du joueur : login Windows transmis par le lanceur (?login=)
+   ===================================================================== */
+const joueur = (() => {
+  const q = new URLSearchParams(location.search);
+  let viaUrl = (q.get('login') || q.get('user') || '').trim().slice(0, 64);
+  if (/^%.*%$/.test(viaUrl)) viaUrl = '';
+  if (viaUrl) stock.set('eq_login', viaUrl);
+  const login = viaUrl || stock.get('eq_login') || '';
+  return { login, source: login ? 'windows' : 'saisie', pseudo: stock.get('eq_pseudo') || login };
+})();
+let modeChoisi = stock.get('eq_mode') === 'carriere' ? 'carriere' : 'rapide';
+
+/* =====================================================================
+   Supabase (API REST, sans bibliothèque)
+   ===================================================================== */
+async function sb(chemin, corps, entetes = {}) {
+  const r = await fetch(CONFIG.supabaseUrl + chemin, {
+    method: 'POST',
+    headers: { apikey: CONFIG.supabaseKey, 'Content-Type': 'application/json', ...entetes },
+    body: JSON.stringify(corps)
+  });
+  const txt = await r.text();
+  if (!r.ok) { let m = txt; try { m = JSON.parse(txt).message || txt; } catch (e) { /* texte brut */ } const err = new Error(m || r.status); err.serveur = true; throw err; }
+  return txt ? JSON.parse(txt) : null;
+}
+const debutDuJour = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
+
+const tableaux = { listeSprint: { p: 'jour', mode: 'rapide' }, listeCarriere: { mode: 'carriere' }, listeFin: { p: 'jour', mode: 'rapide' } };
+async function chargerClassement(cible) {
+  const ol = $(cible), tb = tableaux[cible];
+  const ligne = (rang, pseudo, sous, valeur, unite) => {
+    const li = document.createElement('li');
+    if (joueur.pseudo && pseudo.toLowerCase() === joueur.pseudo.toLowerCase()) li.className = 'moi';
+    const r = document.createElement('span'); r.className = 'r'; r.textContent = ['🥇', '🥈', '🥉'][rang - 1] || rang;
+    const p = document.createElement('span'); p.className = 'p'; p.textContent = pseudo;
+    const sm = document.createElement('small'); sm.textContent = sous; p.append(sm);
+    const s = document.createElement('span'); s.className = 's'; s.textContent = fmt(valeur) + ' ';
+    const u = document.createElement('small'); u.textContent = unite; s.append(u);
+    li.append(r, p, s); return li;
+  };
+  try {
+    if (tb.mode === 'carriere') {
+      const lignes = await sb('/rest/v1/rpc/classement_carriere', { nb: 8 });
+      ol.replaceChildren(...lignes.map(l => ligne(l.rang, l.pseudo, t('jourCourt', { n: l.jour }), l.total_mwh, 'MWh')));
+      if (!lignes.length) ol.innerHTML = '<li class="vide">' + t('lbVideCarriere') + '</li>';
+    } else {
+      const lignes = await sb('/rest/v1/rpc/classement', { nb: 8, depuis: tb.p === 'jour' ? debutDuJour() : null, p_mode: 'rapide' });
+      ol.replaceChildren(...lignes.map(l => ligne(l.rang, l.pseudo, '🛡️' + l.ameliorations, l.score, 'pts')));
+      if (!lignes.length) ol.innerHTML = '<li class="vide">' + t('lbVide') + '</li>';
+    }
+  } catch (e) {
+    console.warn('Classement indisponible', e);
+    const best = stock.get('eq_best_rapide');
+    ol.innerHTML = '<li class="vide">' + t('lbHorsLigne') + (best && tb.mode !== 'carriere' ? '<br>' + t('lbRecord', { n: fmt(+best) }) : '') + '</li>';
+  }
+}
+document.querySelectorAll('.onglets').forEach(o => o.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  o.querySelectorAll('button').forEach(x => x.classList.toggle('actif', x === b));
+  tableaux[o.dataset.cible][o.dataset.cle] = b.dataset.v;
+  chargerClassement(o.dataset.cible);
+}));
+
+async function envoyerScore(res) {
+  const login = joueur.login || joueur.pseudo;
+  if (res.mode === 'rapide') {
+    const best = +(stock.get('eq_best_rapide') || 0);
+    if (res.score > best) stock.set('eq_best_rapide', res.score);
+  }
+  $('fRang').textContent = t('envoi');
+  try {
+    await sb('/rest/v1/scores', {
+      login, pseudo: joueur.pseudo, source: joueur.source, mode: res.mode, jour: res.jour,
+      score: res.score, energie: res.energie, reparations: res.reparations, ameliorations: res.ameliorations,
+      pannes_evitees: res.evitees, disponibilite: res.dispo, combo_max: res.comboMax, temps_jeu: res.temps,
+      langue, version: CONFIG.version
+    }, { Prefer: 'return=minimal' });
+    if (res.mode === 'rapide') {
+      const [jour, tout] = await Promise.all([
+        sb('/rest/v1/rpc/mon_rang', { p_score: res.score, p_login: login, depuis: debutDuJour(), p_mode: 'rapide' }),
+        sb('/rest/v1/rpc/mon_rang', { p_score: res.score, p_login: login, depuis: null, p_mode: 'rapide' })
+      ]);
+      $('fRang').innerHTML = t('rangTxt', { a: ordinal(jour[0].rang), b: jour[0].joueurs, c: ordinal(tout[0].rang), d: tout[0].joueurs });
+    } else $('fRang').textContent = t('rangCarriere');
+  } catch (e) {
+    console.warn('Score non envoyé', e);
+    $('fRang').textContent = res.mode === 'carriere' ? t('rangCarriere') : /Trop de parties/.test(e.message) ? t('errSpam') : t('errHorsLigneScore');
+  }
+  chargerClassement('listeFin');
+}
+
+/* =====================================================================
+   Carrière : sauvegarde locale + en ligne (pseudo + code à 4 chiffres)
+   ===================================================================== */
+let carriere = null;
+const cleNom = p => p.trim().toLowerCase();
+function nouvelleCarriere(pseudo, code) {
+  return { v: 1, pseudo, code, jour: 1, budget: 0, totalMWh: 0, tempsJeu: 0, maj: Date.now(),
+    upg: { moteur: 0, soute: 0, reservoir: 0, equipe: 0, radar: 0, scada: 0 }, parc: null, journal: [] };
+}
+function carriereLocale() { try { const c = JSON.parse(stock.get('eq_carriere')); if (c && c.v === 1) return c; } catch (e) { /* */ } return null; }
+function sauverCarriere() {
+  carriere.maj = Date.now();
+  stock.set('eq_carriere', JSON.stringify(carriere));
+  return sb('/rest/v1/rpc/sauver_carriere', { p_pseudo: carriere.pseudo, p_code: carriere.code, p_login: joueur.login, p_data: { ...carriere, code: undefined } })
+    .catch(e => console.warn('Sauvegarde en ligne impossible', e));
+}
+
+/* =====================================================================
+   Son (WebAudio, généré)
+   ===================================================================== */
+let audio = null, sonActif = stock.get('eq_son') !== '0';
+function initAudio() {
+  if (!audio) { try { audio = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { /* pas de son */ } }
+  if (audio && audio.state === 'suspended') audio.resume();
+}
+function bip(freq, duree, type = 'sine', vol = .07, delai = 0) {
+  if (!audio || !sonActif) return;
+  const tt = audio.currentTime + delai, o = audio.createOscillator(), g = audio.createGain();
+  o.type = type; o.frequency.setValueAtTime(freq, tt);
+  g.gain.setValueAtTime(vol, tt); g.gain.exponentialRampToValueAtTime(.0001, tt + duree);
+  o.connect(g).connect(audio.destination); o.start(tt); o.stop(tt + duree + .02);
+}
+const sons = {
+  panne() { bip(330, .15, 'square', .035); bip(220, .22, 'square', .035, .13); },
+  alerte() { bip(880, .1, 'sine', .05); bip(880, .1, 'sine', .05, .18); },
+  ordre() { bip(880, .06, 'triangle', .05); },
+  repare() { bip(660, .12, 'triangle', .08); bip(990, .2, 'triangle', .07, .09); },
+  fiabilise() { [523, 659, 784, 1047].forEach((f, i) => bip(f, .2, 'triangle', .07, i * .08)); },
+  combo(n) { for (let i = 0; i < Math.min(n, 5); i++) bip(700 + i * 140, .12, 'sine', .07, i * .06); },
+  outil() { bip(rand(1400, 1800), .03, 'square', .012); },
+  refus() { bip(180, .2, 'sawtooth', .05); },
+  achat() { bip(1047, .1, 'triangle', .08); bip(1319, .18, 'triangle', .08, .08); },
+  fin() { [784, 659, 523, 784, 1047].forEach((f, i) => bip(f, .3, 'triangle', .08, i * .13)); }
+};
+function majBoutonSon() { $('btnSon').textContent = sonActif ? '🔊' : '🔇'; }
+majBoutonSon();
+$('btnSon').addEventListener('click', () => { sonActif = !sonActif; stock.set('eq_son', sonActif ? '1' : '0'); majBoutonSon(); initAudio(); });
+
+/* =====================================================================
+   Canvas et mise à l'échelle
+   ===================================================================== */
+const W = 1600, H = 900;
+const cv = $('jeu'), ctx = cv.getContext('2d');
+let echelle = 1, decX = 0, decY = 0, dpr = 1;
+function redimensionner() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
+  echelle = Math.min(innerWidth / W, innerHeight / H);
+  decX = (innerWidth - W * echelle) / 2; decY = (innerHeight - H * echelle) / 2;
+  dimensionnerReseau();
+}
+const versEcran = (x, y) => ({ x: x * echelle + decX, y: y * echelle + decY });
+
+/* Implantation réelle du parc (reprise de la carte des strings) : éoliennes [id, n° G, x, y, string], câbles, zones */
+const PARC = {"oss":[3638,3004],"eol":[["C06","G011",3565,3140,"W113"],["C05","G012",3270,3095,"W113"],["C04","G013",2974,3054,"W113"],["C03","G014",2678,3012,"W113"],["C02","G015",2383,2970,"W113"],["C01","G016",2086,2928,"W113"],["B05","G006",3712,3444,"W112"],["B04","G007",3416,3402,"W112"],["B03","G008",3120,3361,"W112"],["B02","G009",2825,3320,"W112"],["B01","G010",2530,3278,"W112"],["A05","G001",3859,3751,"W111"],["A04","G002",3562,3710,"W111"],["A03","G003",3267,3669,"W111"],["A02","G004",2972,3626,"W111"],["A01","G005",2676,3585,"W111"],["A06","G060",4154,3794,"W143"],["A07","G061",4450,3836,"W143"],["A08","G062",4746,3876,"W143"],["A09","G063",5042,3919,"W143"],["A10","G064",5379,3966,"W143"],["B06","G055",4008,3486,"W142"],["B07","G056",4306,3530,"W142"],["B08","G057",4599,3570,"W142"],["B09","G058",4904,3612,"W142"],["B10","G059",5190,3654,"W142"],["C07","G050",3860,3179,"W141"],["C08","G051",4156,3220,"W141"],["C09","G052",4452,3263,"W141"],["C10","G053",4748,3304,"W141"],["C11","G054",5138,3358,"W141"],["D05","G017",3123,2788,"W121"],["D04","G018",2826,2746,"W121"],["D03","G019",2528,2719,"W121"],["D02","G020",2236,2664,"W121"],["D01","G021",1940,2620,"W121"],["E06","G022",3270,2523,"W122"],["E05","G023",2976,2480,"W122"],["E04","G024",2680,2438,"W122"],["E03","G025",2385,2398,"W122"],["E02","G026",2089,2356,"W122"],["E01","G027",1794,2314,"W122"],["F06","G028",3126,2200,"W123"],["F05","G029",2829,2174,"W123"],["F04","G030",2532,2132,"W123"],["F03","G031",2238,2090,"W123"],["F02","G032",1942,2048,"W123"],["F01","G033",1646,2006,"W123"],["G06","G034",2978,1907,"W131"],["G05","G035",2682,1866,"W131"],["G04","G036",2386,1825,"W131"],["G03","G037",2090,1782,"W131"],["G02","G038",1795,1741,"W131"],["G01","G039",1500,1698,"W131"],["F07","G040",3434,2260,"W132"],["F08","G041",3716,2299,"W132"],["F09","G042",4010,2340,"W132"],["F10","G043",4306,2382,"W132"],["E07","G044",3567,2564,"W133"],["E09","G045",4166,2649,"W133"],["E10","G046",4468,2692,"W133"],["D09","G047",4305,2954,"W134"],["D10","G048",4600,2996,"W134"],["D11","G049",4896,3038,"W134"]],"segs":[["OSS","C06"],["C06","C05"],["C05","C04"],["C04","C03"],["C03","C02"],["C02","C01"],["OSS","B05"],["B05","B04"],["B04","B03"],["B03","B02"],["B02","B01"],["OSS","A05"],["A05","A04"],["A04","A03"],["A03","A02"],["A02","A01"],["OSS","A06"],["A06","A07"],["A07","A08"],["A08","A09"],["A09","A10"],["OSS","B06"],["B06","B07"],["B07","B08"],["B08","B09"],["B09","B10"],["OSS","C07"],["C07","C08"],["C08","C09"],["C09","C10"],["C10","C11"],["OSS","D05"],["D05","D04"],["D04","D03"],["D03","D02"],["D02","D01"],["OSS","E06"],["E06","E05"],["E05","E04"],["E04","E03"],["E03","E02"],["E02","E01"],["OSS","F06"],["F06","F05"],["F05","F04"],["F04","F03"],["F03","F02"],["F02","F01"],["OSS","G06"],["G06","G05"],["G05","G04"],["G04","G03"],["G03","G02"],["G02","G01"],["OSS","F07"],["F07","F08"],["F08","F09"],["F09","F10"],["OSS","E07"],["E07","E09"],["E09","E10"],["OSS","D09"],["D09","D10"],["D10","D11"]],"zones":[["EA 1","#2f5db3",[[3714,3011],[3674,3297],[3860,3323],[3820,3603],[4007,3629],[3967,3914],[2527,3711],[2567,3426],[2381,3400],[2420,3120],[1937,3052],[1978,2766]],3056,3334],["EA 2","#d43a3a",[[3276,2074],[3233,2374],[3419,2400],[3380,2681],[3272,2666],[3229,2964],[1788,2761],[1830,2462],[1645,2436],[1685,2155],[1498,2129],[1540,1829]],2480,2394],["EA 3","#4caf50",[[3126,1782],[3086,2067],[4455,2260],[4415,2540],[4617,2569],[4577,2850],[5044,2916],[5004,3200],[4156,3080],[4196,2796],[3418,2687],[3458,2406],[3285,2381],[3325,2100],[1351,1822],[1391,1537]],3431,2312],["EA 4","#f2b705",[[5286,3233],[5246,3518],[5338,3531],[5298,3812],[5527,3844],[5487,4128],[4005,3919],[4045,3635],[3859,3609],[3898,3328],[3711,3302],[3752,3016]],4608,3571]]};
+
+/* Carte : coordonnées du plan -> monde du jeu (échelle unique : distances respectées) */
+const CARTE = (() => {
+  const xs = PARC.eol.map(e => e[2]).concat(PARC.oss[0]), ys = PARC.eol.map(e => e[3]).concat(PARC.oss[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+  const zone = { x: 190, y: 150, w: 1360, h: 650 };
+  const s = Math.min(zone.w / (x1 - x0), zone.h / (y1 - y0));
+  return { s, ox: zone.x + (zone.w - (x1 - x0) * s) / 2 - x0 * s, oy: zone.y + (zone.h - (y1 - y0) * s) / 2 - y0 * s };
+})();
+const plan = (x, y) => ({ x: CARTE.ox + x * CARTE.s, y: CARTE.oy + y * CARTE.s });
+const METRES_PAR_PX = 3.176 / CARTE.s;     // 1 unité du plan ≈ 3,18 m (d'après la grille UTM de la carte)
+const OSS = plan(PARC.oss[0], PARC.oss[1]);
+const BASE = { x: 92, y: 812 };
+const ZONES_EA = PARC.zones.map(([nom, couleur, hull]) => ({ nom, couleur, pts: hull.map(p => plan(p[0], p[1])) }));
+
+/* =====================================================================
+   Parc
+   ===================================================================== */
+const vagues = Array.from({ length: 170 }, () => ({ x: rand(0, W), y: rand(0, H), l: rand(10, 24), ph: rand(0, 6.28), v: rand(6, 16) }));
+
+function creerParc(sauvegarde) {
+  const parId = {};
+  const liste = PARC.eol.map(([id, g, x, y, str]) => {
+    const p = plan(x, y);
+    return parId[id] = {
+      id, g, x: p.x, y: p.y, string: str, marche: true, coupe: false, niveau: 0, usure: 1, ordre: 0,
+      angle: rand(0, 6.28), rpm: 2, fragile: false, faiblesse: Math.floor(Math.random() * 6), panne: null, alerte: 0,
+      dernierePanne: null, nbPannes: 0, histo: 0, depuisPanne: 0, eclat: 0, amont: null, aval: null
+    };
+  });
+  for (const [a, b] of PARC.segs) {
+    parId[b].amont = a === 'OSS' ? OSS : parId[a];
+    if (a !== 'OSS') parId[a].aval = parId[b];
+  }
+  const strings = {};
+  for (const [a, b] of PARC.segs) if (a === 'OSS') {
+    const l = []; let e = parId[b];
+    while (e) { e.ordre = l.length; l.push(e); e = e.aval; }
+    strings[parId[b].string] = l;
+  }
+  if (sauvegarde) {
+    for (const [id, niveau, fragile, faiblesse, histo] of sauvegarde) {
+      const e = parId[id]; if (!e) continue;
+      Object.assign(e, { niveau, fragile: !!fragile, faiblesse, histo });
+    }
+  } else {
+    // ~20 % d'éoliennes fragiles, réparties au hasard : elles feront l'essentiel des pannes (Pareto)
+    [...liste].sort(() => Math.random() - .5).slice(0, NB_FRAGILES).forEach(e => { e.fragile = true; });
+  }
+  return { liste, strings };
+}
+
+/* Paramètres de la journée : sprint, ou carrière (difficulté qui monte + améliorations achetées) */
+function parametres(mode, car) {
+  const P = JSON.parse(JSON.stringify(PARAMS));
+  if (mode === 'rapide') { P.risqueFragile *= 2.2; return P; }   // sprint : les fragiles récidivent dès la 1re minute
+  const j = car.jour, u = car.upg, k = Math.min(2.2, 1 + .1 * (j - 1));
+  P.risqueFragile *= k; P.risqueNormal *= k;
+  const m = [['brouillard'], ['houle', 'brouillard'], ['houle', 'brouillard']];
+  if (j >= 2) { m[0].push('dauphins'); m[2].push('dauphins'); }
+  if (j >= 3) { m[1].push('grain'); m[2].push('grain', 'grain'); P.effets = { brouillard: .5, houle: 1.5 }; P.maxZones = 3; }
+  P.meteo = m; P.freqMeteo = Math.max(7, 16 - 2 * j);
+  P.cable = j >= 4;
+  P.vitesse *= 1 + .12 * u.moteur; P.stock += 2 * u.soute; P.conso *= [1, .7, .5][u.reservoir];
+  P.tRep *= 1 - .1 * u.equipe; P.tFiab = P.tFiab.map(x => x * (1 - .1 * u.equipe));
+  P.prevision = [3, 6, 10][u.radar]; P.scada = u.scada;
+  return P;
+}
+
+/* =====================================================================
+   État de la partie
+   ===================================================================== */
+let etat = 'accueil';
+let parc = creerParc(), eoliennes = parc.liste;
+let bateau = { x: BASE.x + 95, y: BASE.y - 6, vx: 0, vy: 0, cap: -.6, visible: true };
+let partie = null, particules = [], textes = [], horloge = 0, secousse = 0, nuit = 0;
+let astuces = {}, finAstuce = 0, finBandeau = 0;
+let M = PARAMS;
+
+function nouvellePartie(mode) {
+  M = parametres(mode, carriere);
+  parc = creerParc(mode === 'carriere' ? carriere.parc : null); eoliennes = parc.liste;
+  partie = {
+    mode, jour: mode === 'carriere' ? carriere.jour : 1, dureeShift: CONFIG.dureeShift[mode],
+    t: 0, shift: 0, tShift: 0, temps: 0, energie: 0, points: 0, bonusCombo: 0,
+    reparations: 0, ameliorations: 0, evitees: 0, tempsMarche: 0, pannes: 0, pannesFragiles: 0, piecesRep: 0, piecesFiab: 0, pleins: 0,
+    comboCle: null, combo: 0, comboMax: 0, file: [], encours: null, zones: [], prochaineZone: 6,
+    cableFait: [false, false, false], cableT: [99, rand(.25, .65), rand(.2, .5)], premierePanne: false,
+    shifts: [], stockMsg: 0, puissance: 0, enService: 64, pic: false
+  };
+  debutShift();
+  particules = []; textes = []; astuces = {};
+  if (mode === 'carriere' && carriere.jour > 1) astuces.apres1 = astuces.combo = true;
+  $('toasts').replaceChildren();
+}
+const hps = () => 16 / (3 * partie.dureeShift);   // heures de journée par seconde de jeu
+const heureJeu = () => 6 + partie.t * hps();
+const dureeTxt = s => { const m = Math.max(5, Math.round(s * hps() * 60 / 5) * 5); return m >= 60 ? Math.floor(m / 60) + ' h ' + String(m % 60).padStart(2, '0') : m + ' min'; };
+
+function debutShift() {
+  partie.tShift = 0;
+  partie.stock = M.stock; partie.carbu = 100;
+  partie.file = []; partie.encours = null; partie.zones = [];
+  partie.prochaineZone = partie.shift === 0 ? 7 : 3;
+  partie.shiftStats = { points: partie.points + partie.bonusCombo, marche: 0, comboMax: 0, rep: partie.reparations, fiab: partie.ameliorations };
+  bateau = { x: BASE.x + 95, y: BASE.y - 6, vx: 0, vy: 0, cap: -.6, visible: true };
+  majFile();
+}
+
+/* =====================================================================
+   Interface : astuces, bandeau, toasts
+   ===================================================================== */
+function montrerAstuce(html, duree = 4.5) { const a = $('astuce'); a.innerHTML = html; a.classList.toggle('on', !!html); finAstuce = horloge + duree; }
+function astuce(cle, html, duree) { if (astuces[cle]) return; astuces[cle] = true; montrerAstuce(html, duree); }
+function bandeau(txt, duree = 2.6) { const b = $('bandeau'); b.textContent = txt; b.classList.add('on'); finBandeau = horloge + duree; }
+function toast(html) {
+  const d = document.createElement('div'); d.className = 'chip toast'; d.innerHTML = html;
+  $('toasts').prepend(d);
+  setTimeout(() => d.remove(), 4500);
+  while ($('toasts').children.length > 3) $('toasts').lastChild.remove();
+}
+function texte(x, y, txt, couleur, taille = 16) { textes.push({ x, y, t: txt, couleur, taille, vie: 1.5 }); }
+
+/* =====================================================================
+   Météo : zones annoncées, qui dérivent puis se dissipent
+   ===================================================================== */
+const zoneActive = z => z.age >= z.prev && z.age < z.prev + z.duree;
+function zonesEn(x, y) { return partie ? partie.zones.filter(z => zoneActive(z) && dist(x, y, z.x, z.y) < z.r) : []; }
+function facteurVitesse(x, y) {
+  let f = 1;
+  for (const z of zonesEn(x, y)) f *= z.type === 'brouillard' ? M.effets.brouillard : z.type === 'dauphins' ? .4 : z.type === 'grain' ? .5 : 1;
+  return f;
+}
+const facteurOperation = (x, y) => (zonesEn(x, y).some(z => z.type === 'houle') ? M.effets.houle : 1);
+const inaccessible = e => zonesEn(e.x, e.y).some(z => z.type === 'grain');
+
+function majMeteo(dt) {
+  for (const z of partie.zones) { z.age += dt; z.x += z.vx * dt; z.y += z.vy * dt; }
+  partie.zones = partie.zones.filter(z => z.age < z.prev + z.duree + DISSIPATION);
+  partie.prochaineZone -= dt;
+  if (partie.prochaineZone <= 0 && partie.zones.length < M.maxZones && partie.tShift < partie.dureeShift - 6) {
+    partie.prochaineZone = M.freqMeteo * rand(.7, 1.3);
+    const type = pick(M.meteo[partie.shift]);
+    const T = METEO[type], cible = pick(eoliennes), ang = rand(0, 6.28), v = rand(8, 20);
+    partie.zones.push({ type, x: cible.x + rand(-60, 60), y: cible.y + rand(-60, 60), r: rand(...T.r), duree: rand(...T.duree), age: 0, prev: M.prevision, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v });
+    if (type === 'grain') astuce('grain', t('tutoGrain'), 5);
+  }
+}
+
+/* =====================================================================
+   Pannes et production
+   ===================================================================== */
+function risque(e) {
+  const rampe = 1 + M.rampe * partie.t / (3 * partie.dureeShift);
+  const base = e.fragile ? M.risqueFragile : M.risqueNormal;
+  const meteo = zonesEn(e.x, e.y).some(z => z.type === 'grain') ? 2 : 1;
+  return base * FACTEUR_NIVEAU[e.niveau] * e.usure * rampe * meteo;
+}
+
+function tomberEnPanne(e, type) {
+  if (type === undefined) type = Math.random() < .75 ? e.faiblesse : Math.floor(Math.random() * 6);
+  const recidive = e.dernierePanne === type && type !== CABLE;
+  e.marche = false; e.alerte = 0; e.nbPannes++; e.histo++; e.panne = type; e.dernierePanne = type; e.depuisPanne = 0;
+  partie.pannes++; if (e.fragile) partie.pannesFragiles++;
+  secousse = Math.max(secousse, 3);
+  sons.panne();
+  texte(e.x, e.y - 64, recidive ? t('encore', { id: e.id }) : PANNES[type].ico + ' ' + e.id, recidive ? '#ffb3ba' : '#ffffff', recidive ? 17 : 14);
+  if (recidive) astuce('recidive', t('tutoRecidive', { id: e.id }), 5.5);
+  if (type === CABLE) {
+    bandeau(t('bandeauCable', { s: e.string, n: parc.strings[e.string].length - e.ordre }), 3.5);
+    astuce('cable', t('tutoCable', { id: e.id }), 5.5);
+  }
+}
+
+function majParc(dt) {
+  const sh = partie.shift;
+  const charge = [.55, .66, .72][sh] + .08 * Math.sin(partie.t * 30 / partie.dureeShift / 9);
+  const h = heureJeu(), pic = h >= PIC[0] && h < PIC[1] ? 1.5 : 1;
+  for (const l of Object.values(parc.strings)) {
+    let coupe = false;
+    for (const e of l) { e.coupe = coupe; if (!e.marche && e.panne === CABLE) coupe = true; }
+  }
+  let enService = 0, puissance = 0;
+  for (const e of eoliennes) {
+    if (e.marche && !e.coupe) {
+      const c = Math.min(1, charge + (zonesEn(e.x, e.y).some(z => z.type === 'grain') ? .15 : 0));
+      const mwh = MW * c * hps() * dt;
+      partie.energie += mwh; partie.points += mwh * pic; puissance += MW * c; enService++;
+      partie.tempsMarche += dt; partie.shiftStats.marche += dt;
+    }
+    if (e.marche) {
+      if (e.alerte > 0) {           // alarme prédictive (SCADA niveau 2) : la panne arrive
+        e.alerte -= dt;
+        if (e.alerte <= 0) tomberEnPanne(e);
+        continue;
+      }
+      const r = risque(e);
+      if (e.niveau > 0) partie.evitees += (r / (FACTEUR_NIVEAU[e.niveau] * e.usure) - r) * dt;
+      if (partie.tShift > 3 && Math.random() < r * dt) {
+        if (M.scada >= 2) { e.alerte = 5; sons.alerte(); astuce('alerte', t('tutoAlerte', { id: e.id }), 5); }
+        else tomberEnPanne(e);
+      }
+    } else {
+      e.depuisPanne += dt;
+      if (Math.random() < dt * 6) particules.push({ type: 'fumee', x: e.x + rand(-3, 3), y: e.y - 48, vx: rand(4, 14), vy: rand(-22, -10), r: rand(3, 5), vie: 1.4, max: 1.4 });
+    }
+  }
+  partie.puissance = puissance; partie.enService = enService; partie.pic = pic > 1;
+  // défaut câble : un par shift à partir de l'après-midi (carrière, jour 4 et suivants)
+  if (M.cable && !partie.cableFait[sh] && partie.tShift > partie.cableT[sh] * partie.dureeShift) {
+    partie.cableFait[sh] = true;
+    const cands = Object.values(parc.strings).map(l => l.find(e => e.marche && e.ordre <= 1)).filter(Boolean);
+    if (cands.length) tomberEnPanne(pick(cands), CABLE);
+  }
+}
+
+/* =====================================================================
+   Ordres (façon Diner Dash) : clic -> ordre ajouté à la file -> le bateau exécute seul
+   ===================================================================== */
+let idOrdre = 0;
+const coutOrdre = o => (o.type === 'rep' ? 1 : o.type === 'fiab' ? M.coutFiab : 0);
+const nbOrdres = () => partie.file.length + (partie.encours ? 1 : 0);
+function dejaPrevu(e, type) { return partie.file.some(o => o.e === e && o.type === type) || (!!partie.encours && partie.encours.o.e === e && partie.encours.o.type === type); }
+
+function ajouterOrdres(e, types) {
+  for (const type of types) {
+    if (dejaPrevu(e, type)) continue;
+    if (nbOrdres() >= FILE_MAX) { sons.refus(); montrerAstuce(t('filePleine', { n: FILE_MAX }), 2.5); break; }
+    partie.file.push({ id: ++idOrdre, type, e });
+  }
+  sons.ordre(); majFile();
+}
+function ajouterBase() {
+  if (dejaPrevu(null, 'base')) return;
+  if (nbOrdres() >= FILE_MAX) { sons.refus(); return; }
+  partie.file.push({ id: ++idOrdre, type: 'base', e: null }); sons.ordre(); majFile();
+}
+function annulerOrdre(id) {
+  if (partie.encours && partie.encours.o.id === id) { partie.encours = null; bateau.visible = true; }
+  partie.file = partie.file.filter(o => o.id !== id);
+  majFile();
+}
+
+function bloqueur(o) {
+  if (o.type === 'base') return null;
+  if (inaccessible(o.e)) return 'meteo';
+  const besoin = coutOrdre(o) + (o.type === 'fiab' && !o.e.marche && !dejaPrevu(o.e, 'rep') ? 1 : 0);
+  return partie.stock < besoin ? 'pieces' : null;
+}
+function choisirOrdre() {
+  partie.file = partie.file.filter(o => !(o.type === 'rep' && o.e.marche) && !(o.type === 'fiab' && o.e.niveau >= 2));
+  for (let i = 0; i < partie.file.length; i++) {
+    const o = partie.file[i];
+    if (bloqueur(o)) continue;
+    partie.file.splice(i, 1);
+    if (o.type === 'fiab' && !o.e.marche) {      // retombée en panne entre-temps : on répare d'abord
+      partie.file.unshift(o);
+      return { o: { id: ++idOrdre, type: 'rep', e: o.e }, phase: 'route', p: 0 };
+    }
+    return { o, phase: 'route', p: 0 };
+  }
+  return null;
+}
+const cleCombo = o => (o.type === 'rep' ? 'rep' + o.e.panne : 'fiab');
+function dureeOrdre(o) {
+  if (o.type === 'base') return M.tBase;
+  const n = partie.comboCle === cleCombo(o) ? partie.combo + 1 : 1;
+  const base = o.type === 'rep' ? M.tRep : M.tFiab[o.e.niveau];
+  return base * facteurOperation(o.e.x, o.e.y) * (1 - .12 * Math.min(n - 1, 3));
+}
+const amarrage = e => ({ x: e.x + 2, y: e.y + 22 });
+const quaiBase = () => ({ x: BASE.x + 95, y: BASE.y - 6 });
+
+function terminerOrdre(o) {
+  const e = o.e;
+  if (o.type === 'base') {
+    partie.stock = M.stock; partie.carbu = 100; partie.pleins++; bateau.visible = true;
+    texte(BASE.x + 40, BASE.y - 46, t('plein'), '#9cf5c9');
+    sons.repare();
+    return;
+  }
+  const cle = cleCombo(o);
+  partie.combo = partie.comboCle === cle ? partie.combo + 1 : 1;
+  partie.comboCle = cle;
+  partie.comboMax = Math.max(partie.comboMax, partie.combo);
+  partie.shiftStats.comboMax = Math.max(partie.shiftStats.comboMax, partie.combo);
+  partie.stock -= coutOrdre(o);
+  if (o.type === 'rep') {
+    partie.piecesRep += 1;
+    e.marche = true; e.panne = null; e.eclat = 1;
+    if (e.niveau < 2) e.usure = Math.min(M.usureMax, e.usure + M.usure);   // réparer sans traiter la cause : la panne revient plus vite
+    partie.reparations++;
+    sons.repare();
+    texte(e.x, e.y - 64, t('relancee', { id: e.id }), '#9cf5c9', 14);
+    if (partie.reparations === 1) astuce('apres1', t('tutoApres'), 6);
+  } else {
+    partie.piecesFiab += M.coutFiab;
+    if (e.alerte > 0) { e.alerte = 0; partie.evitees += 1; texte(e.x, e.y - 86, t('evitee'), '#ffd23f', 16); }
+    e.niveau++; e.usure = 1; e.eclat = 1.5;
+    partie.ameliorations++;
+    sons.fiabilise();
+    const nom = e.niveau === 1 ? panne(e.faiblesse).remede : t('aFiab2');
+    texte(e.x, e.y - 64, '🛡️ ' + nom, '#3ddc97', 14);
+    toast('<b>' + e.id + '</b> · ' + echapper(nom) + '<br>' + t(e.niveau === 1 ? 'toastFiab1' : 'toastFiab2'));
+  }
+  if (partie.combo >= 2) {
+    const bonus = 6 * (partie.combo - 1);
+    partie.bonusCombo += bonus;
+    sons.combo(partie.combo);
+    texte(e.x, e.y - 86, 'COMBO ×' + partie.combo + '  +' + bonus, '#ffd23f', 18 + Math.min(partie.combo, 5) * 2);
+    astuce('combo', t('tutoCombo'), 5);
+  }
+}
+
+function majBateau(dt) {
+  if (!partie.encours) partie.encours = choisirOrdre();
+  let c = partie.encours;
+  if (c && c.phase === 'route' && c.o.type !== 'base' && inaccessible(c.o.e)) {    // grain arrivé entre-temps
+    partie.file.unshift(c.o); partie.encours = c = null;
+    montrerAstuce(t('grainCible'), 3);
+  }
+  const cible = c ? (c.o.type === 'base' ? quaiBase() : amarrage(c.o.e)) : null;
+  const vmax = M.vitesse * facteurVitesse(bateau.x, bateau.y) * (partie.carbu > 0 ? 1 : .3);
+  if (cible && c.phase === 'route') {
+    const dx = cible.x - bateau.x, dy = cible.y - bateau.y, d = Math.hypot(dx, dy);
+    if (d < 5) { c.phase = 'travail'; c.duree = dureeOrdre(c.o); if (c.o.type === 'base') bateau.visible = false; }
+    const v = Math.min(vmax, d * 4);
+    bateau.vx += ((dx / (d || 1)) * v - bateau.vx) * Math.min(1, dt * 6);
+    bateau.vy += ((dy / (d || 1)) * v - bateau.vy) * Math.min(1, dt * 6);
+  } else { bateau.vx *= Math.pow(.05, dt); bateau.vy *= Math.pow(.05, dt); }
+  bateau.x += bateau.vx * dt; bateau.y += bateau.vy * dt;
+  const v = Math.hypot(bateau.vx, bateau.vy);
+  const pousse = !!c && c.phase === 'travail' && c.o.type !== 'base';   // le bateau pousse sur l'échelle d'accès
+  partie.carbu = Math.max(0, partie.carbu - dt * M.conso * (1.1 * v / PARAMS.vitesse + (pousse ? .35 : 0)));
+  const capVise = pousse ? -Math.PI / 2 : v > 25 ? Math.atan2(bateau.vy, bateau.vx) : bateau.cap;
+  bateau.cap += (((capVise - bateau.cap + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * Math.min(1, dt * 7);
+  if (v > 60 && bateau.visible && Math.random() < dt * 40)
+    particules.push({ type: 'sillage', x: bateau.x - Math.cos(bateau.cap) * 14 + rand(-3, 3), y: bateau.y - Math.sin(bateau.cap) * 14 + rand(-3, 3), r: 2, vie: 1.1, max: 1.1 });
+
+  if (c && c.phase === 'travail') {
+    if (c.o.type === 'base' || !inaccessible(c.o.e)) {
+      c.p += dt / c.duree;
+      if (pousse) {
+        if (Math.random() < dt * 8) sons.outil();
+        if (Math.random() < dt * 12) particules.push({ type: 'etincelle', x: c.o.e.x + rand(-6, 6), y: c.o.e.y + 4, vx: rand(-50, 50), vy: rand(-70, -20), vie: .4, max: .4 });
+      }
+    }
+    if (c.p >= 1) { terminerOrdre(c.o); partie.encours = null; }
+  }
+  if (partie.carbu <= 0) astuce('carbu', t('tutoCarbu0'), 5);
+  else if (partie.carbu < 25) astuce('carbu25', t('tutoCarbu'), 4);
+  if (!partie.encours && partie.file.some(o => bloqueur(o) === 'pieces') && horloge > partie.stockMsg) {
+    partie.stockMsg = horloge + 6;
+    montrerAstuce(t('tutoPieces'), 4);
+  }
+}
+
+/* =====================================================================
+   Déroulé de la journée
+   ===================================================================== */
+function majPartie(dt) {
+  partie.t += dt; partie.tShift += dt; partie.temps += dt;
+  majMeteo(dt);
+  majParc(dt);
+  majBateau(dt);
+  if (partie.shift === 0 && !partie.premierePanne && partie.tShift > 1.8) {
+    partie.premierePanne = true;
+    const e = eoliennes.filter(x => x.fragile && x.niveau === 0).concat(eoliennes)
+      .slice(0, 20).reduce((a, b) => (dist(a.x, a.y, BASE.x, BASE.y) < dist(b.x, b.y, BASE.x, BASE.y) ? a : b));
+    tomberEnPanne(e);
+    if (partie.mode === 'rapide' || partie.jour === 1) montrerAstuce(t('tutoPanne', { id: e.id }), 7);
+  }
+  if (partie.pic && !astuces.pic) { astuces.pic = true; bandeau(t('bandeauPic'), 3.5); }
+  if (partie.tShift >= partie.dureeShift) finShift();
+  if (etat === 'jeu') majFileProgression();
+}
+
+const etoilesDispo = d => (d >= 92 ? '★★★' : d >= 82 ? '★★☆' : d >= 70 ? '★☆☆' : '☆☆☆');
+function finShift() {
+  const st = partie.shiftStats;
+  const dispo = Math.round(100 * st.marche / (partie.dureeShift * eoliennes.length));
+  partie.shifts.push({ dispo, points: Math.round(partie.points + partie.bonusCombo - st.points), combo: st.comboMax, rep: partie.reparations - st.rep, fiab: partie.ameliorations - st.fiab });
+  fermerMenu();
+  if (partie.shift === 2) { terminer(); return; }
+  etat = 'releve';
+  const s = partie.shifts[partie.shift];
+  const titres = t('shiftTitre'), debuts = [6, 11 + 1 / 3, 16 + 2 / 3];
+  $('rSur').textContent = t('rSur', { h: heureTxt(debuts[partie.shift + 1]) });
+  $('rTitre').textContent = t('rTitre', { shift: titres[partie.shift] });
+  $('rEtoiles').textContent = etoilesDispo(dispo); $('rDispo').textContent = dispo + ' %';
+  $('rEnergie').textContent = fmt(s.points); $('rCombo').textContent = '×' + s.combo;
+  const enPanne = eoliennes.filter(e => !e.marche).length;
+  $('rMessage').innerHTML = (s.fiab ? t('rFiab', { n: s.fiab }) : t('rFiab0')) + (enPanne ? t('rPanne', { n: enPanne }) : t('rOk'));
+  const prochains = [...new Set(M.meteo[partie.shift + 1])].map(ty => { const m = meteoTxt(ty); return '<li>' + m.ico + ' <b>' + m.nom + '</b>' + t('dp') + m.effet + '</li>'; });
+  if (M.cable) prochains.push('<li>' + t('rCable') + '</li>');
+  if (partie.shift + 1 === 2) prochains.push('<li>' + t('rPic') + '</li>');
+  $('rPrevTitre').textContent = t('rPrev', { shift: titres[partie.shift + 1] });
+  $('rPrev').innerHTML = prochains.join('');
+  const [txt, auteur] = pick(CITATIONS[langue]);
+  $('rCitation').innerHTML = '« ' + echapper(txt) + ' »<cite>— ' + echapper(auteur) + '</cite>';
+  $('ecranReleve').hidden = false; $('file').hidden = true;
+}
+$('btnReleve').addEventListener('click', () => {
+  partie.shift++; debutShift();
+  $('ecranReleve').hidden = true; $('file').hidden = false;
+  etat = 'jeu';
+  const titre = t('shiftTitre')[partie.shift];
+  bandeau(t('bandeauReleve', { shift: titre.charAt(0).toUpperCase() + titre.slice(1) }), 2.6);
+});
+
+function lancerJournee() {
+  nouvellePartie(modeChoisi);
+  etat = 'jeu';
+  for (const id of ['ecranAccueil', 'ecranFin', 'ecranReleve', 'ecranBase']) $(id).hidden = true;
+  $('hud').hidden = false; $('file').hidden = false;
+  const nomMode = t('modeNom')[partie.mode].replace('{j}', partie.jour);
+  bandeau(t('depart', { shift: t('shiftTitre')[0], mode: nomMode }), 2.6);
+}
+
+async function demarrer() {
+  const p = $('pseudo').value.trim().slice(0, 24);
+  $('infoErreur').textContent = '';
+  if (!p) { $('pseudo').focus(); $('infoErreur').textContent = t('errNom'); return; }
+  joueur.pseudo = p; stock.set('eq_pseudo', p);
+  initAudio();
+  if (modeChoisi === 'rapide') { lancerJournee(); return; }
+  // Carrière : reprise locale, sinon reprise ou création en ligne avec le code
+  const locale = carriereLocale();
+  if (locale && cleNom(locale.pseudo) === cleNom(p)) { carriere = locale; lancerJournee(); return; }
+  const code = $('code').value.trim();
+  if (!/^\d{4}$/.test(code)) { $('code').focus(); $('infoErreur').textContent = t('errCode'); return; }
+  const btn = $('btnJouer'); btn.disabled = true; btn.textContent = t('patience');
+  try {
+    const data = await sb('/rest/v1/rpc/charger_carriere', { p_pseudo: p, p_code: code });
+    carriere = Object.assign(nouvelleCarriere(p, code), data, { code });
+  } catch (e) {
+    if (/Aucune carriere/.test(e.message)) { carriere = nouvelleCarriere(p, code); await sauverCarriere(); }
+    else if (/Code incorrect/.test(e.message)) { $('infoErreur').textContent = t('errCodeFaux'); majBoutonJouer(); btn.disabled = false; return; }
+    else { carriere = nouvelleCarriere(p, code); $('infoErreur').textContent = t('errHorsLigne'); }
+  }
+  stock.set('eq_carriere', JSON.stringify(carriere));
+  btn.disabled = false; majCarteCarriere();
+  lancerJournee();
+}
+
+function terminer() {
+  etat = 'fin';
+  sons.fin();
+  $('hud').hidden = true; $('file').hidden = true; montrerAstuce(''); $('bandeau').classList.remove('on');
+  const dispo = Math.round(100 * partie.tempsMarche / (3 * partie.dureeShift * eoliennes.length));
+  const res = {
+    mode: partie.mode, jour: partie.jour, score: Math.round(partie.points + partie.bonusCombo), energie: Math.round(partie.energie),
+    reparations: partie.reparations, ameliorations: partie.ameliorations, evitees: Math.min(500, Math.round(partie.evitees)),
+    dispo, comboMax: Math.min(100, partie.comboMax), temps: Math.round(partie.temps)
+  };
+  const nomMode = t('modeNom')[res.mode].replace('{j}', res.jour);
+  $('fSur').textContent = t('fSur', { mode: nomMode });
+  $('fScore').textContent = fmt(res.score);
+  const foyers = Math.round(res.energie * 1000 / 12.9);   // ~4,7 MWh par an et par foyer, soit ~12,9 kWh par jour
+  $('fDetail').innerHTML = t('fDetail', { mwh: fmt(res.energie), foyers: fmt(foyers) })
+    + (partie.points - partie.energie > 1 ? t('fPic', { n: fmt(partie.points - partie.energie) }) : '')
+    + (partie.bonusCombo ? t('fCombos', { n: fmt(partie.bonusCombo) }) : '');
+  $('fRep').textContent = res.reparations; $('fAme').textContent = res.ameliorations;
+  $('fCombo').textContent = '×' + res.comboMax; $('fDispo').textContent = dispo + ' %';
+  $('fEtoiles').innerHTML = partie.shifts.map((s, i) => '<div><b>' + etoilesDispo(s.dispo) + '</b>' + t('shiftTitre')[i] + ' · ' + s.dispo + ' %</div>').join('');
+  const fragiles = eoliennes.filter(e => e.fragile), fiabF = fragiles.filter(e => e.niveau > 0).length;
+  const partF = partie.pannes ? Math.round(100 * partie.pannesFragiles / partie.pannes) : 0;
+  $('fPareto').innerHTML = t('pareto', { f: fragiles.length, pc: Math.round(100 * fragiles.length / 64), part: partF, n: fiabF })
+    + t(fiabF < fragiles.length / 2 ? 'paretoPeu' : 'paretoBien');
+  const ratio = fiabF / Math.max(1, fragiles.length);
+  const [titre, txt] = t('profils')[ratio >= .6 ? 0 : ratio >= .3 ? 1 : res.ameliorations >= 1 ? 2 : 3];
+  $('fProfil').textContent = titre; $('fProfilTxt').textContent = txt;
+
+  const enCarriere = res.mode === 'carriere';
+  $('fCompte').hidden = !enCarriere; $('btnRejouer').hidden = enCarriere;
+  $('btnBase').hidden = !enCarriere; $('btnJourSuivant').hidden = !enCarriere;
+  $('fOnglets').hidden = enCarriere;
+  tableaux.listeFin = enCarriere ? { mode: 'carriere' } : { p: 'jour', mode: 'rapide' };
+  $('fTitreLb').textContent = t(enCarriere ? 'lbFinCarriere' : 'lbFinSprint');
+  if (enCarriere) bilanCarriere(res);
+  setTimeout(() => { $('ecranFin').hidden = false; }, 900);
+  envoyerScore(res);
+}
+
+/* Carrière : compte du jour (le coût de la non-qualité apparaît), vieillissement, sauvegarde */
+function bilanCarriere(res) {
+  const ventes = res.energie * CONFIG.prixMWh;
+  const pieces = (partie.piecesRep + partie.piecesFiab) * CONFIG.prixPiece;
+  const carbu = partie.pleins * CONFIG.prixPlein;
+  const resultat = Math.round(ventes - pieces - carbu);
+  const copq = partie.piecesRep * CONFIG.prixPiece;
+  carriere.budget += resultat;
+  carriere.totalMWh += res.energie;
+  carriere.tempsJeu += res.temps;
+  carriere.journal.push({ j: res.jour, score: res.score, resultat });
+  if (carriere.journal.length > 60) carriere.journal.shift();
+  // vieillissement : deux éoliennes de plus deviennent fragiles (jusqu'à 24)
+  const saines = eoliennes.filter(e => !e.fragile).sort(() => Math.random() - .5);
+  const fatiguees = eoliennes.filter(e => e.fragile).length < 24 ? saines.slice(0, 2) : [];
+  fatiguees.forEach(e => { e.fragile = true; });
+  carriere.parc = eoliennes.map(e => [e.id, e.niveau, e.fragile ? 1 : 0, e.faiblesse, e.histo]);
+  carriere.jour++;
+  sauverCarriere();
+  majCarteCarriere();
+  const k = (n, cout) => (cout ? (n ? '−' : '') : n < 0 ? '−' : '+') + fmt(Math.abs(n)) + ' k€';
+  const nouveaute = t('nouveautes')[carriere.jour] || t('plusDur');
+  $('fCompte').innerHTML = '<b>' + t('compteTitre', { j: res.jour }) + '</b><table>'
+    + '<tr><td>' + t('cVentes', { mwh: fmt(res.energie) }) + '</td><td class="plus">' + k(ventes) + '</td></tr>'
+    + '<tr><td>' + t('cPieces', { n: partie.piecesRep + partie.piecesFiab }) + '</td><td class="moins">' + k(pieces, true) + '</td></tr>'
+    + '<tr><td>' + t('cCarbu', { n: partie.pleins }) + '</td><td class="moins">' + k(carbu, true) + '</td></tr>'
+    + '<tr class="total"><td>' + t('cResultat') + '</td><td>' + k(resultat) + '</td></tr>'
+    + '<tr><td>' + t('cBudget') + '</td><td>💶 ' + fmt(carriere.budget) + ' k€</td></tr></table>'
+    + '<div class="note">' + t('cCopq', { n: partie.piecesRep, k: fmt(copq) }) + '</div>'
+    + (fatiguees.length ? '<div class="note">' + t('cVieux', { ids: fatiguees.map(e => e.id).join(', ') }) + '</div>' : '')
+    + '<div class="note">' + t('demain', { txt: nouveaute }) + '</div>';
+  $('btnBase').textContent = t('btnBase');
+  $('btnJourSuivant').textContent = t('btnJour', { n: carriere.jour });
+}
+
+/* Base : boutique d'améliorations */
+function ouvrirBase() {
+  $('ecranFin').hidden = true; $('ecranBase').hidden = false;
+  $('bSur').textContent = t('bSur', { pseudo: carriere.pseudo, j: carriere.jour });
+  $('btnBaseJour').textContent = t('btnJour', { n: carriere.jour });
+  afficherBoutique();
+}
+function afficherBoutique() {
+  $('bBudget').textContent = fmt(carriere.budget);
+  const b = $('boutique'); b.replaceChildren();
+  for (const a of AMELIORATIONS) {
+    const n = carriere.upg[a.cle], max = a.prix.length, [nom, quoi] = t('ameli')[a.cle];
+    const val = k => (a.cle === 'scada' ? t('scadaNiv')[k] : quoi + t('dp') + a.effet(k));
+    const d = document.createElement('div'); d.className = 'ameli';
+    const pilier = t('pilierAmeli')[a.cle];
+    d.innerHTML = '<div class="tete"><span class="ic">' + a.ico + '</span><div><div class="nom">' + nom + '</div>'
+      + (pilier ? '<div class="pilier">' + pilier + '</div>' : '') + '</div></div>'
+      + '<div class="niv">' + Array.from({ length: max }, (_, i) => '<i class="' + (i < n ? 'on' : '') + '"></i>').join('') + '</div>'
+      + '<div class="eff">' + (n ? t('actuel') + t('dp') + '<b>' + val(n) + '</b><br>' : '') + (n < max ? t('prochain') + t('dp') + '<b>' + val(n + 1) + '</b>' : '') + '</div>';
+    const btn = document.createElement('button'); btn.type = 'button';
+    if (n >= max) { btn.textContent = t('max'); btn.disabled = true; }
+    else {
+      btn.textContent = t('acheter', { p: a.prix[n] });
+      btn.disabled = carriere.budget < a.prix[n];
+      btn.addEventListener('click', () => {
+        if (carriere.budget < a.prix[n]) return;
+        carriere.budget -= a.prix[n]; carriere.upg[a.cle]++;
+        sons.achat(); sauverCarriere(); majCarteCarriere(); afficherBoutique();
+      });
+    }
+    d.append(btn); b.append(d);
+  }
+}
+$('btnBase').addEventListener('click', ouvrirBase);
+$('btnJourSuivant').addEventListener('click', lancerJournee);
+$('btnBaseJour').addEventListener('click', lancerJournee);
+
+/* =====================================================================
+   Interactions : survol, clic, menu contextuel
+   ===================================================================== */
+const souris = { x: -100, y: -100 };
+function versMonde(e) { souris.x = (e.clientX - decX) / echelle; souris.y = (e.clientY - decY) / echelle; }
+function eolienneSous(x, y) {
+  let best = null, dmin = 30;
+  for (const e of eoliennes) { const d = Math.min(dist(x, y, e.x, e.y - 22), dist(x, y, e.x, e.y)); if (d < dmin) { dmin = d; best = e; } }
+  return best;
+}
+const surBase = (x, y) => x > BASE.x - 75 && x < BASE.x + 65 && y > BASE.y - 35 && y < BASE.y + 32;
+
+cv.addEventListener('pointermove', e => {
+  versMonde(e);
+  cv.style.cursor = etat === 'jeu' && (eolienneSous(souris.x, souris.y) || surBase(souris.x, souris.y)) ? 'pointer' : 'default';
+});
+cv.addEventListener('pointerdown', e => {
+  versMonde(e); initAudio();
+  if (etat !== 'jeu') return;
+  const eo = eolienneSous(souris.x, souris.y);
+  if (eo) { ouvrirMenu(eo); return; }
+  fermerMenu();
+  if (surBase(souris.x, souris.y)) ajouterBase();
+});
+cv.addEventListener('contextmenu', e => e.preventDefault());
+
+let menuPour = null;
+function ouvrirMenu(e) {
+  menuPour = e;
+  const m = $('menu'); m.replaceChildren();
+  const titre = document.createElement('div'); titre.className = 'm-titre';
+  titre.textContent = t('mTitre', { id: e.id, g: e.g, s: e.string });
+  const sous = document.createElement('div'); sous.className = 'm-sous';
+  const p = e.panne !== null ? panne(e.panne) : null;
+  sous.innerHTML = (e.marche ? (e.coupe ? t('mCoupe') : t('mProd')) : p.ico + ' ' + p.nom) + t('mNiv')[e.niveau]
+    + (e.nbPannes ? t('mHisto', { n: e.nbPannes }) : '') + (partie.mode === 'carriere' && e.histo > e.nbPannes ? t('mTotal', { n: e.histo }) : '')
+    + (e.alerte > 0 ? '<br><span class="alerte">' + t('mAlerte') + '</span>' : '')
+    + (inaccessible(e) ? '<br>' + t('mGrain') : '') + (facteurOperation(e.x, e.y) > 1 ? '<br>' + t('mHoule') : '');
+  m.append(titre, sous);
+  const op = facteurOperation(e.x, e.y);
+  const action = (ico, nom, detail, types, cls) => {
+    const b = document.createElement('button'); b.className = 'act ' + (cls || ''); b.type = 'button';
+    let niveau = e.niveau, tps = 0, pieces = 0;
+    for (const ty of types) { if (ty === 'rep') { tps += M.tRep; pieces += 1; } else { tps += M.tFiab[niveau]; pieces += M.coutFiab; niveau++; } }
+    const deja = types.every(ty => dejaPrevu(e, ty));
+    b.innerHTML = '<span class="ico">' + ico + '</span><span>' + nom + '<small></small></span><span class="cout">⏱ ' + dureeTxt(tps * op) + '<br>📦 ' + pieces + '</span>';
+    b.querySelector('small').textContent = deja ? t('aDeja') : detail;
+    b.disabled = deja;
+    b.addEventListener('click', () => { ajouterOrdres(e, types); fermerMenu(); });
+    m.append(b);
+  };
+  const detFiab = e.niveau === 0 ? t('aFiabDet', { remede: panne(e.faiblesse).remede }) : t('aFiab2Det');
+  if (!e.marche) {
+    action('🔧', t('aReparer'), e.panne === CABLE ? t('aRepCable') : t('aRepDet'), ['rep']);
+    if (e.niveau < 2 && e.panne !== CABLE) action('🛡️', t('aRepFiab'), detFiab, ['rep', 'fiab'], 'fiab');
+  } else if (e.niveau < 2) {
+    action('🛡️', e.niveau === 0 ? t('aFiab') : t('aFiab2'), detFiab, ['fiab'], 'fiab');
+  } else {
+    const d = document.createElement('div'); d.className = 'm-sous'; d.textContent = t('aMax'); m.append(d);
+  }
+  m.hidden = false;
+  const s = versEcran(e.x, e.y), r = m.getBoundingClientRect();
+  let x = s.x + 26;
+  if (x + r.width > innerWidth - 8) x = s.x - r.width - 26;
+  m.style.left = clamp(x, 8, innerWidth - r.width - 8) + 'px';
+  m.style.top = clamp(s.y - r.height / 2, 8, innerHeight - r.height - 8) + 'px';
+}
+function fermerMenu() { $('menu').hidden = true; menuPour = null; }
+addEventListener('keydown', e => { if (e.key === 'Escape') fermerMenu(); });
+
+/* File d'ordres affichée en bas de l'écran */
+function majFile() {
+  if (!partie) return;
+  const f = $('file'); f.replaceChildren();
+  const ti = document.createElement('span'); ti.className = 'titre-file'; ti.textContent = t('ordres'); f.append(ti);
+  const tous = (partie.encours ? [partie.encours.o] : []).concat(partie.file);
+  tous.forEach((o, i) => {
+    const b = document.createElement('button'); b.className = 'ordre' + (i === 0 && partie.encours ? ' encours' : ''); b.dataset.id = o.id; b.title = t('annuler');
+    const ico = o.type === 'rep' ? '🔧' : o.type === 'fiab' ? '🛡️' : '⚓';
+    b.innerHTML = '<span class="i">' + ico + '</span><span>' + (o.e ? o.e.id : t('base')) + '</span><span class="etat"></span><span class="barre"></span>';
+    b.addEventListener('click', () => annulerOrdre(o.id));
+    f.append(b);
+  });
+  for (let i = tous.length; i < FILE_MAX; i++) { const v = document.createElement('span'); v.className = 'ordre vide'; v.textContent = '·'; f.append(v); }
+  f.dataset.ids = tous.map(o => o.id).join(',');
+}
+function majFileProgression() {
+  const f = $('file');
+  const ids = (partie.encours ? [partie.encours.o.id] : []).concat(partie.file.map(o => o.id)).join(',');
+  if (f.dataset.ids !== ids) majFile();
+  if (partie.encours) {
+    const b = f.querySelector('.encours .barre');
+    if (b) b.style.width = (partie.encours.phase === 'travail' ? Math.min(100, partie.encours.p * 100) : 0) + '%';
+  }
+  f.querySelectorAll('.ordre[data-id]').forEach(el => {
+    const o = partie.file.find(x => x.id === +el.dataset.id);
+    const b = o ? bloqueur(o) : null;
+    el.querySelector('.etat').textContent = b === 'meteo' ? '⛈️' : b === 'pieces' ? '📦' : '';
+  });
+}
+
+/* =====================================================================
+   Animations communes
+   ===================================================================== */
+function majCommun(dt) {
+  horloge += dt;
+  secousse *= Math.pow(.02, dt);
+  const charge = partie ? [.55, .66, .72][partie.shift] : .6;
+  for (const e of eoliennes) {
+    e.rpm += ((e.marche && !e.coupe ? 2.4 + charge * 3 : 0) - e.rpm) * Math.min(1, dt * 1.2);
+    e.angle += e.rpm * dt; e.eclat = Math.max(0, e.eclat - dt);
+  }
+  for (const v of vagues) { v.x += v.v * dt; if (v.x > W + 30) { v.x = -30; v.y = rand(0, H); } }
+  for (const p of particules) {
+    p.vie -= dt;
+    if (p.vx !== undefined) { p.x += p.vx * dt; p.y += p.vy * dt; }
+    if (p.type === 'sillage') p.r += dt * 12;
+    if (p.type === 'fumee') p.r += dt * 6;
+    if (p.type === 'etincelle') p.vy += 240 * dt;
+  }
+  particules = particules.filter(p => p.vie > 0);
+  for (const x of textes) { x.vie -= dt; x.y -= dt * 24; }
+  textes = textes.filter(x => x.vie > 0);
+  if (finAstuce && horloge > finAstuce) { $('astuce').classList.remove('on'); finAstuce = 0; }
+  if (finBandeau && horloge > finBandeau) { $('bandeau').classList.remove('on'); finBandeau = 0; }
+}
+
+/* =====================================================================
+   Dessin
+   ===================================================================== */
+function dessinerMer() {
+  const g = ctx.createLinearGradient(0, 0, W, H);
+  g.addColorStop(0, '#0e5a85'); g.addColorStop(.55, '#0b4a70'); g.addColorStop(1, '#083854');
+  ctx.fillStyle = g; ctx.fillRect(-W, -H, W * 3, H * 3);
+  ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.6; ctx.lineCap = 'round';
+  for (const v of vagues) {
+    ctx.globalAlpha = .06 + .06 * Math.sin(horloge * 1.3 + v.ph);
+    ctx.beginPath(); ctx.moveTo(v.x, v.y); ctx.quadraticCurveTo(v.x + v.l / 2, v.y - 3, v.x + v.l, v.y); ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function dessinerZonesEA() {
+  for (const z of ZONES_EA) {
+    ctx.beginPath(); z.pts.forEach((p, i) => (i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y))); ctx.closePath();
+    ctx.globalAlpha = .07; ctx.fillStyle = z.couleur; ctx.fill();
+    ctx.globalAlpha = .35; ctx.strokeStyle = z.couleur; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  // échelle graphique (distances réelles)
+  const km = 1000 / METRES_PAR_PX, x1 = W - 60, y = H - 28;
+  ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(x1 - 2 * km, y); ctx.lineTo(x1, y);
+  for (const k of [0, 1, 2]) { ctx.moveTo(x1 - k * km, y - 5); ctx.lineTo(x1 - k * km, y + 5); }
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.font = '12px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('2 km', x1 - km, y - 9);
+}
+
+function dessinerBase() {
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.setLineDash([6, 8]); ctx.lineWidth = 2; ctx.lineDashOffset = -horloge * 12;
+  ctx.beginPath(); ctx.moveTo(BASE.x - 40, BASE.y + 20); ctx.lineTo(-20, H + 20); ctx.stroke(); ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(6,38,58,.8)'; ctx.beginPath(); ctx.roundRect(BASE.x - 75, BASE.y - 32, 140, 62, 14); ctx.fill();
+  ctx.strokeStyle = etat === 'jeu' && surBase(souris.x, souris.y) ? '#ffd23f' : 'rgba(255,255,255,.4)'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.font = '22px sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText('⚓', BASE.x - 50, BASE.y + 8);
+  ctx.textAlign = 'left'; ctx.font = '700 14px Inter, sans-serif'; ctx.fillText(t('baseNom'), BASE.x - 30, BASE.y - 6);
+  ctx.fillStyle = '#a9cfe4'; ctx.font = '12px Inter, sans-serif'; ctx.fillText(t('baseSous'), BASE.x - 30, BASE.y + 10);
+  if (partie && partie.encours && partie.encours.o.type === 'base' && partie.encours.phase === 'travail') {
+    ctx.fillStyle = '#ffd23f'; ctx.fillRect(BASE.x - 70, BASE.y + 22, 130 * Math.min(1, partie.encours.p), 4);
+    ctx.fillStyle = '#fff'; ctx.font = '600 12px Inter, sans-serif'; ctx.fillText(t('chargement'), BASE.x - 70, BASE.y - 40);
+  }
+  ctx.restore();
+}
+
+function dessinerCables() {
+  ctx.lineWidth = 2; ctx.lineCap = 'round';
+  for (const e of eoliennes) {
+    const a = e.amont; if (!a) continue;
+    if (e.marche && !e.coupe) { ctx.strokeStyle = 'rgba(255,210,63,.5)'; ctx.setLineDash([7, 10]); ctx.lineDashOffset = horloge * 30; }
+    else if (!e.marche && e.panne === CABLE) { ctx.strokeStyle = 'rgba(255,77,94,' + (.5 + .4 * Math.sin(horloge * 8)) + ')'; ctx.setLineDash([]); }
+    else { ctx.strokeStyle = 'rgba(255,255,255,.1)'; ctx.setLineDash([]); }
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(e.x, e.y); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.fillRect(OSS.x - 13, OSS.y - 6, 30, 20);
+  ctx.fillStyle = '#ffcc33'; ctx.fillRect(OSS.x - 15, OSS.y - 10, 30, 20);
+  ctx.fillStyle = '#e3e8ec'; ctx.fillRect(OSS.x - 11, OSS.y - 20, 22, 12);
+  ctx.fillStyle = '#c0392b'; ctx.beginPath(); ctx.arc(OSS.x, OSS.y - 2, 4, 0, 6.28); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = '700 11px Inter, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('OSS', OSS.x, OSS.y + 24);
+}
+
+function dessinerZoneMeteo(z) {
+  const T = meteoTxt(z.type);
+  ctx.save();
+  if (z.age < z.prev) {
+    ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.setLineDash([8, 8]); ctx.lineDashOffset = -horloge * 20; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, 6.28); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(255,255,255,.95)'; ctx.font = '700 14px Inter, sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(t('prevision', { ico: T.ico, nom: T.nom, s: Math.ceil(z.prev - z.age) }), z.x, z.y - z.r - 8);
+    ctx.restore(); return;
+  }
+  const a = z.age > z.prev + z.duree ? Math.max(0, 1 - (z.age - z.prev - z.duree) / DISSIPATION) : Math.min(1, (z.age - z.prev) / 1.2);
+  ctx.globalAlpha = a;
+  ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, 6.28); ctx.clip();
+  if (z.type === 'brouillard') {
+    const g = ctx.createRadialGradient(z.x, z.y, 0, z.x, z.y, z.r);
+    g.addColorStop(0, 'rgba(235,240,245,.62)'); g.addColorStop(.7, 'rgba(225,232,240,.45)'); g.addColorStop(1, 'rgba(220,230,240,0)');
+    ctx.fillStyle = g; ctx.fillRect(z.x - z.r, z.y - z.r, z.r * 2, z.r * 2);
+  } else if (z.type === 'houle') {
+    ctx.fillStyle = 'rgba(10,40,80,.28)'; ctx.fillRect(z.x - z.r, z.y - z.r, z.r * 2, z.r * 2);
+    ctx.strokeStyle = 'rgba(200,235,255,.5)'; ctx.lineWidth = 2;
+    for (let k = -z.r; k < z.r; k += 18) {
+      ctx.beginPath();
+      for (let x = -z.r; x <= z.r; x += 10) ctx.lineTo(z.x + x, z.y + k + Math.sin(x * .06 + horloge * 3 + k) * 5);
+      ctx.stroke();
+    }
+  } else if (z.type === 'grain') {
+    ctx.fillStyle = 'rgba(25,30,45,.55)'; ctx.fillRect(z.x - z.r, z.y - z.r, z.r * 2, z.r * 2);
+    ctx.strokeStyle = 'rgba(190,210,235,.55)'; ctx.lineWidth = 1.2;
+    for (let i = 0; i < 50; i++) { const x = z.x + rand(-z.r, z.r), y = z.y + rand(-z.r, z.r); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 4, y + 12); ctx.stroke(); }
+    if (Math.random() < .02) { ctx.fillStyle = 'rgba(255,255,255,.45)'; ctx.fillRect(z.x - z.r, z.y - z.r, z.r * 2, z.r * 2); }
+  } else if (z.type === 'dauphins') {
+    ctx.fillStyle = 'rgba(40,120,160,.18)'; ctx.fillRect(z.x - z.r, z.y - z.r, z.r * 2, z.r * 2);
+    for (let i = 0; i < 4; i++) {
+      const ph = (horloge * .8 + i * .37) % 1, ax = z.x + Math.cos(i * 1.7) * z.r * .45, ay = z.y + Math.sin(i * 2.3) * z.r * .45;
+      if (ph < .5) {
+        const u = ph / .5;
+        ctx.save(); ctx.translate(ax - 16 + u * 32, ay - Math.sin(u * Math.PI) * 14); ctx.rotate((u - .5) * 1.6);
+        ctx.fillStyle = '#7f98a8'; ctx.beginPath(); ctx.ellipse(0, 0, 10, 3.5, 0, 0, 6.28); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(-2, -3); ctx.lineTo(1, -8); ctx.lineTo(3, -3); ctx.fill();
+        ctx.restore();
+      }
+    }
+  }
+  ctx.restore();
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.strokeStyle = z.type === 'grain' ? 'rgba(255,77,94,.85)' : 'rgba(255,255,255,.35)'; ctx.lineWidth = 2;
+  if (z.type === 'grain') ctx.setLineDash([10, 6]);
+  ctx.beginPath(); ctx.arc(z.x, z.y, z.r, 0, 6.28); ctx.stroke(); ctx.setLineDash([]);
+  ctx.font = '700 13px Inter, sans-serif'; ctx.textAlign = 'center';
+  const lib = T.ico + ' ' + T.nom + ' · ' + (z.type === 'grain' ? t('transfertImpossible') : T.effet);
+  const lw = ctx.measureText(lib).width + 16;
+  ctx.fillStyle = z.type === 'grain' ? 'rgba(160,20,35,.88)' : 'rgba(6,38,58,.78)';
+  ctx.beginPath(); ctx.roundRect(z.x - lw / 2, z.y - z.r - 4, lw, 20, 10); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(lib, z.x, z.y - z.r + 10);
+  ctx.restore();
+}
+
+function pale(l) {
+  ctx.beginPath(); ctx.moveTo(-1.6, 0); ctx.quadraticCurveTo(-3, -l * .35, -.8, -l); ctx.lineTo(.8, -l); ctx.quadraticCurveTo(2.4, -l * .3, 1.6, 0); ctx.closePath(); ctx.fill();
+}
+function dessinerEolienne(e, survol, rangs) {
+  const { x, y } = e, hy = y - 44, tourne = e.marche && !e.coupe;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = 'rgba(0,20,35,.25)'; ctx.beginPath(); ctx.ellipse(x + 18, y + 3, 22, 4, -.15, 0, 6.28); ctx.fill();
+  if (!e.marche) {
+    const pul = .5 + .5 * Math.sin(horloge * 8);
+    ctx.fillStyle = `rgba(255,77,94,${.2 + .22 * pul})`; ctx.beginPath(); ctx.ellipse(x, y + 1, 20 + pul * 5, 8 + pul * 2, 0, 0, 6.28); ctx.fill();
+  }
+  for (let i = 0; i < e.niveau; i++) {
+    ctx.strokeStyle = i ? '#ffd23f' : '#3ddc97'; ctx.lineWidth = 2.2;
+    ctx.beginPath(); ctx.ellipse(x, y + 1, 12 + i * 5, 5 + i * 2, 0, 0, 6.28); ctx.stroke();
+  }
+  if (e.eclat > 0) { ctx.strokeStyle = `rgba(255,255,255,${Math.min(1, e.eclat)})`; ctx.lineWidth = 2; const r = 16 + (1.5 - e.eclat) * 30; ctx.beginPath(); ctx.ellipse(x, y, r, r * .4, 0, 0, 6.28); ctx.stroke(); }
+  ctx.fillStyle = '#e0b100'; ctx.fillRect(x - 5, y - 8, 10, 9);
+  ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(x, y - 8, 5, 2, 0, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#eef3f6'; ctx.beginPath(); ctx.moveTo(x - 2.8, y - 8); ctx.lineTo(x - 1.4, hy + 1); ctx.lineTo(x + 1.4, hy + 1); ctx.lineTo(x + 2.8, y - 8); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = e.marche ? '#f1f5f8' : '#ffd0d5'; ctx.beginPath(); ctx.roundRect(x - 3.5, hy - 3, 10, 6, 2.5); ctx.fill();
+  ctx.save(); ctx.translate(x - 3.5, hy); ctx.rotate(e.angle);
+  ctx.fillStyle = tourne ? '#ffffff' : e.coupe ? '#ffd9a8' : '#e8c1c6';
+  for (let i = 0; i < 3; i++) { pale(25); ctx.rotate(2.0944); }
+  ctx.restore();
+  if (nuit > .2 && Math.sin(horloge * 3.2 + e.x * .01) > 0) {   // balisage aérien de nuit
+    const g = ctx.createRadialGradient(x - 1, hy - 4, 0, x - 1, hy - 4, 7);
+    g.addColorStop(0, 'rgba(255,40,40,1)'); g.addColorStop(1, 'rgba(255,40,40,0)');
+    ctx.fillStyle = g; ctx.fillRect(x - 9, hy - 12, 16, 16);
+  }
+  ctx.font = '600 9.5px Inter, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.fillText(e.id, x, y + 14);
+  const compte = M.scada >= 1 && partie && partie.mode === 'carriere' ? e.histo : e.nbPannes;
+  if (compte >= 2) {   // historique visible : les récidivistes se repèrent
+    ctx.fillStyle = e.niveau ? 'rgba(61,220,151,.9)' : 'rgba(255,140,60,.95)';
+    ctx.beginPath(); ctx.roundRect(x + 7, y + 5, 22, 13, 6); ctx.fill();
+    ctx.fillStyle = '#1b1b1b'; ctx.font = '700 9.5px Inter, sans-serif'; ctx.fillText('×' + compte, x + 18, y + 15);
+  }
+  if (!e.marche) {
+    const by = hy - 34 + Math.sin(horloge * 5 + e.x) * 2.5;
+    ctx.fillStyle = e.panne === CABLE ? '#ff8c1a' : '#ff4d5e';
+    ctx.beginPath(); ctx.arc(x, by, 12, 0, 6.28); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x - 4, by + 9); ctx.lineTo(x, by + 16); ctx.lineTo(x + 4, by + 9); ctx.fill();
+    ctx.font = '13px sans-serif'; ctx.fillText(PANNES[e.panne].ico, x, by + 5);
+    if (e.depuisPanne > partie.dureeShift / 6) { ctx.font = '600 10px Inter, sans-serif'; ctx.fillStyle = '#ffb3ba'; ctx.fillText(dureeTxt(e.depuisPanne), x + 34, by + 4); }
+  } else if (e.alerte > 0) {
+    const by = hy - 34, pul = .6 + .4 * Math.sin(horloge * 10);
+    ctx.fillStyle = `rgba(255,210,63,${pul})`; ctx.beginPath(); ctx.arc(x, by, 11, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#3a2400'; ctx.font = '700 14px Inter, sans-serif'; ctx.fillText('!', x, by + 5);
+  } else if (e.coupe) {
+    ctx.font = '700 11px Inter, sans-serif'; ctx.fillStyle = '#ffb86b'; ctx.fillText('⏸', x + 12, hy - 8);
+  }
+  if (inaccessible(e)) { ctx.font = '12px sans-serif'; ctx.fillText('⛔', x - 14, y - 2); }
+  rangs.forEach((r, i) => {   // position dans la file d'ordres
+    const bx = x - 22 - i * 16, byy = hy + 4;
+    ctx.fillStyle = r.encours ? '#ffd23f' : 'rgba(255,255,255,.92)';
+    ctx.beginPath(); ctx.arc(bx, byy, 7.5, 0, 6.28); ctx.fill();
+    ctx.fillStyle = '#0b2a3f'; ctx.font = '700 10px Inter, sans-serif'; ctx.fillText(r.n, bx, byy + 3.5);
+  });
+  if (partie && partie.encours && partie.encours.o.e === e && partie.encours.phase === 'travail') {
+    ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(x, y - 20, 30, 0, 6.28); ctx.stroke();
+    ctx.strokeStyle = partie.encours.o.type === 'rep' ? '#ff7a1a' : '#3ddc97';
+    ctx.beginPath(); ctx.arc(x, y - 20, 30, -1.5708, -1.5708 + Math.min(1, partie.encours.p) * 6.28); ctx.stroke();
+    if (inaccessible(e)) { ctx.font = '700 11px Inter, sans-serif'; ctx.fillStyle = '#ffb3ba'; ctx.fillText(t('suspendu'), x, y - 56); }
+  }
+  if (survol) {
+    ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]); ctx.lineDashOffset = -horloge * 20;
+    ctx.beginPath(); ctx.arc(x, y - 18, 36, 0, 6.28); ctx.stroke(); ctx.setLineDash([]);
+  }
+}
+
+function dessinerBateau() {
+  if (!bateau.visible) return;
+  ctx.save(); ctx.translate(bateau.x, bateau.y); ctx.rotate(bateau.cap); ctx.scale(.8, .8);
+  ctx.fillStyle = 'rgba(0,20,35,.3)'; ctx.beginPath(); ctx.ellipse(4, 5, 26, 14, 0, 0, 6.28); ctx.fill();
+  ctx.fillStyle = '#ff7a1a';
+  for (const s of [-1, 1]) { ctx.beginPath(); ctx.moveTo(-22, s * 8 - 4); ctx.lineTo(14, s * 8 - 4); ctx.quadraticCurveTo(26, s * 8, 14, s * 8 + 4); ctx.lineTo(-22, s * 8 + 4); ctx.closePath(); ctx.fill(); }
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.roundRect(-18, -10, 26, 20, 5); ctx.fill();
+  ctx.fillStyle = '#0b4a70'; ctx.beginPath(); ctx.roundRect(-2, -7, 8, 14, 2); ctx.fill();
+  ctx.fillStyle = '#ffd23f'; ctx.fillRect(14, -3, 6, 6);
+  if (nuit > .2) { const g = ctx.createRadialGradient(18, 0, 0, 18, 0, 60); g.addColorStop(0, 'rgba(255,240,180,.35)'); g.addColorStop(1, 'rgba(255,240,180,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(18, 0); ctx.arc(18, 0, 60, -.35, .35); ctx.fill(); }
+  ctx.restore();
+  if (partie && partie.encours && partie.encours.phase === 'travail' && partie.encours.o.type !== 'base') {
+    ctx.font = '17px sans-serif'; ctx.textAlign = 'center';
+    ctx.save(); ctx.translate(bateau.x + 20, bateau.y - 14); ctx.rotate(Math.sin(horloge * 18) * .5); ctx.fillText('🔧', 0, 0); ctx.restore();
+  }
+}
+
+function dessinerParticules() {
+  for (const p of particules) {
+    const a = p.vie / p.max;
+    if (p.type === 'sillage') { ctx.fillStyle = `rgba(255,255,255,${a * .35})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
+    else if (p.type === 'fumee') { ctx.fillStyle = `rgba(60,60,70,${a * .45})`; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.28); ctx.fill(); }
+    else { ctx.fillStyle = `rgba(255,220,90,${a})`; ctx.fillRect(p.x, p.y, 2.5, 2.5); }
+  }
+}
+function dessinerTextes() {
+  ctx.textAlign = 'center';
+  for (const x of textes) {
+    ctx.globalAlpha = Math.min(1, x.vie * 1.5);
+    ctx.font = `800 ${x.taille}px Inter, sans-serif`;
+    ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(6,38,58,.85)'; ctx.strokeText(x.t, x.x, x.y);
+    ctx.fillStyle = x.couleur; ctx.fillText(x.t, x.x, x.y);
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* Lumière du jour : aube, plein jour, coucher de soleil, nuit */
+function lumiere(h) {
+  nuit = clamp((h - 19.5) / 2.5, 0, 1) * .55;
+  const aube = clamp(1 - (h - 6) / 2, 0, 1) * .22, couchant = h > 18 ? clamp(1 - Math.abs(h - 19.5) / 1.6, 0, 1) * .2 : 0;
+  if (aube > 0) { ctx.fillStyle = `rgba(255,150,110,${aube})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
+  if (couchant > 0) { ctx.fillStyle = `rgba(255,120,60,${couchant})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
+  if (nuit > 0) { ctx.fillStyle = `rgba(5,10,40,${nuit})`; ctx.fillRect(-W, -H, W * 3, H * 3); }
+}
+
+function dessiner() {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.fillStyle = '#083854'; ctx.fillRect(0, 0, cv.width, cv.height);
+  const sx = secousse ? rand(-secousse, secousse) : 0, sy = secousse ? rand(-secousse, secousse) : 0;
+  ctx.setTransform(dpr * echelle, 0, 0, dpr * echelle, dpr * (decX + sx * echelle), dpr * (decY + sy * echelle));
+  dessinerMer();
+  dessinerZonesEA();
+  dessinerCables();
+  if (partie) for (const z of partie.zones) if (z.age >= z.prev) dessinerZoneMeteo(z);
+  dessinerBase();
+  dessinerParticules();
+  const survol = etat === 'jeu' ? (menuPour || eolienneSous(souris.x, souris.y)) : null;
+  const rangs = new Map();
+  if (partie) {
+    const tous = (partie.encours ? [{ o: partie.encours.o, encours: true }] : []).concat(partie.file.map(o => ({ o })));
+    tous.forEach((r, i) => { if (r.o.e) { if (!rangs.has(r.o.e)) rangs.set(r.o.e, []); rangs.get(r.o.e).push({ n: i + 1, encours: r.encours }); } });
+  }
+  const objets = [...eoliennes, { bateau: true, y: bateau.y + 6 }].sort((a, b) => a.y - b.y);
+  for (const o of objets) o.bateau ? dessinerBateau() : dessinerEolienne(o, o === survol, rangs.get(o) || []);
+  if (partie) for (const z of partie.zones) if (z.age < z.prev) dessinerZoneMeteo(z);
+  lumiere(partie ? heureJeu() : 10);
+  dessinerTextes();
+}
+
+/* =====================================================================
+   HUD
+   ===================================================================== */
+function majHud() {
+  $('hHeure').textContent = heureTxt(heureJeu());
+  $('hHeure').classList.toggle('urgent', partie.tShift > partie.dureeShift - 6);
+  $('hShift').textContent = (partie.mode === 'carriere' ? t('hudJour', { j: partie.jour }) : '') + t('hudShift', { n: partie.shift + 1, nom: t('shiftNom')[partie.shift] });
+  $('hShiftJauge').style.width = (100 * partie.tShift / partie.dureeShift) + '%';
+  $('hScore').textContent = fmt(partie.points + partie.bonusCombo);
+  $('hPuiss').textContent = fmt(partie.puissance);
+  $('hDispo').textContent = partie.enService + '/64';
+  $('hPic').textContent = partie.pic ? t('pic') : '';
+  const p = $('hPieces');
+  if (p.children.length !== M.stock) p.innerHTML = '<i></i>'.repeat(M.stock);
+  [...p.children].forEach((el, i) => el.classList.toggle('on', i < partie.stock));
+  $('hCarbu').style.width = partie.carbu + '%';
+  $('hBateau').classList.toggle('bas', partie.carbu < 25);
+}
+
+/* =====================================================================
+   Accueil : fond « réseau », compte à rebours, langue, modes
+   ===================================================================== */
+const rcv = $('reseau'), rctx = rcv.getContext('2d');
+const noeuds = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), vx: rand(-.01, .01), vy: rand(-.01, .01), r: rand(1, 2.6) }));
+function dimensionnerReseau() {
+  const el = $('ecranAccueil');
+  rcv.width = el.clientWidth * dpr; rcv.height = el.scrollHeight * dpr;
+  rcv.style.height = el.scrollHeight + 'px';
+}
+function dessinerReseau(dt) {
+  const w = rcv.width, h = rcv.height;
+  rctx.clearRect(0, 0, w, h);
+  for (const n of noeuds) { n.x = (n.x + n.vx * dt + 1) % 1; n.y = (n.y + n.vy * dt + 1) % 1; }
+  rctx.lineWidth = dpr;
+  const lien = 240 * dpr;
+  for (let i = 0; i < noeuds.length; i++) for (let j = i + 1; j < noeuds.length; j++) {
+    const a = noeuds[i], b = noeuds[j], d = Math.hypot((a.x - b.x) * w, (a.y - b.y) * h);
+    if (d < lien) { rctx.strokeStyle = `rgba(255,255,255,${.12 * (1 - d / lien)})`; rctx.beginPath(); rctx.moveTo(a.x * w, a.y * h); rctx.lineTo(b.x * w, b.y * h); rctx.stroke(); }
+  }
+  for (const n of noeuds) { rctx.fillStyle = 'rgba(255,255,255,.35)'; rctx.beginPath(); rctx.arc(n.x * w, n.y * h, n.r * dpr, 0, 6.28); rctx.fill(); }
+  rctx.strokeStyle = 'rgba(255,255,255,.05)'; rctx.lineWidth = 70 * dpr;   // grandes ondulations douces
+  for (const [k, ph] of [[.12, 0], [.3, 2]]) {
+    rctx.beginPath();
+    for (let x = 0; x <= w; x += 24) rctx.lineTo(x, h * k + Math.sin(x / w * 5 + horloge * .25 + ph) * innerHeight * dpr * .12);
+    rctx.stroke();
+  }
+}
+
+function majRebours() {
+  const now = new Date(), deb = new Date(CONFIG.debutSemaine), fin = new Date(CONFIG.finSemaine);
+  if (now < deb) {
+    let s = Math.floor((deb - now) / 1000);
+    const j = Math.floor(s / 86400); s -= j * 86400;
+    const h = Math.floor(s / 3600); s -= h * 3600;
+    const m = Math.floor(s / 60); s -= m * 60;
+    $('rbJ').textContent = String(j).padStart(2, '0'); $('rbH').textContent = String(h).padStart(2, '0');
+    $('rbM').textContent = String(m).padStart(2, '0'); $('rbS').textContent = String(s).padStart(2, '0');
+  } else {
+    $('rebours').hidden = true; $('reboursMsg').hidden = false;
+    const iso = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    $('reboursMsg').textContent = t(now >= fin ? 'msgMerci' : iso === CONFIG.journeeMondiale ? 'msgJournee' : 'msgSemaine');
+  }
+}
+
+function majBoutonJouer() {
+  const locale = carriereLocale(), p = $('pseudo').value.trim();
+  const suite = modeChoisi === 'carriere' && locale && (!p || cleNom(locale.pseudo) === cleNom(p));
+  $('btnJouer').textContent = modeChoisi === 'rapide' ? t('btnSprint') : suite ? t('btnCarriereSuite', { n: locale.jour }) : t('btnCarriereNew');
+  $('carCodeLigne').hidden = !!suite;
+  if (suite && !p) $('pseudo').value = locale.pseudo;
+}
+function majCarteCarriere() {
+  const locale = carriereLocale(), el = $('carLocal');
+  el.hidden = !locale;
+  if (locale) {
+    el.innerHTML = t('carLocal', { pseudo: echapper(locale.pseudo), jour: locale.jour, budget: fmt(locale.budget) }) + ' ';
+    const b = document.createElement('button'); b.className = 'lien'; b.type = 'button'; b.textContent = t('carNouvelle');
+    b.addEventListener('click', () => {
+      if (!confirm(t('carNouvelleConfirm'))) return;
+      stock.del('eq_carriere'); carriere = null; $('pseudo').value = ''; $('code').value = '';
+      majCarteCarriere(); majBoutonJouer(); $('pseudo').focus();
+    });
+    el.append(b);
+  }
+  majBoutonJouer();
+}
+function choisirMode(m) {
+  modeChoisi = m; stock.set('eq_mode', m);
+  document.querySelectorAll('#modes .mode').forEach(b => b.classList.toggle('actif', b.dataset.mode === m));
+  $('boiteCarriere').hidden = m !== 'carriere';
+  $('infoErreur').textContent = '';
+  majCarteCarriere();
+}
+document.querySelectorAll('#modes .mode').forEach(b => b.addEventListener('click', () => choisirMode(b.dataset.mode)));
+document.querySelectorAll('[data-aller]').forEach(b => b.addEventListener('click', () => $(b.dataset.aller).scrollIntoView({ behavior: 'smooth' })));
+
+function appliquerLangue() {
+  document.documentElement.lang = langue;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  $('btnLangue').textContent = langue === 'fr' ? 'EN' : 'FR';
+  $('infoLogin').innerHTML = joueur.login ? t('infoLoginWin', { login: echapper(joueur.login) }) : t('infoLoginAstuce');
+  majRebours(); majCarteCarriere();
+  for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
+  requestAnimationFrame(dimensionnerReseau);
+}
+$('btnLangue').addEventListener('click', () => { langue = langue === 'fr' ? 'en' : 'fr'; stock.set('eq_langue', langue); appliquerLangue(); });
+
+/* =====================================================================
+   Panneau organisateur (5 clics rapides sur le logo) — en français
+   Les droits sont vérifiés par Supabase avec le mot de passe (voir supabase.sql).
+   ===================================================================== */
+const admin = { mdp: '', vue: 'parties', lignes: [] };
+let clicsLogo = 0, dernierClicLogo = 0;
+$('logo').addEventListener('click', () => {
+  const n = performance.now();
+  clicsLogo = n - dernierClicLogo < 700 ? clicsLogo + 1 : 1;
+  dernierClicLogo = n;
+  $('logo').classList.remove('tic'); void $('logo').offsetWidth; $('logo').classList.add('tic');
+  if (clicsLogo >= 5) { clicsLogo = 0; ouvrirAdmin(); }
+});
+
+const duree = s => { s = +s || 0; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ' h ' : '') + (h || m ? String(m).padStart(h ? 2 : 1, '0') + ' min ' : '') + (h ? '' : String(x).padStart(2, '0') + ' s'); };
+function msgAdmin(txt, erreur) { $('adMsg').textContent = txt; $('adMsg').classList.toggle('err', !!erreur); }
+function ouvrirAdmin() {
+  $('ecranAdmin').hidden = false;
+  if (admin.mdp) chargerAdmin(); else { $('adConnexion').hidden = false; $('adContenu').hidden = true; msgAdmin(''); $('adMdp').focus(); }
+}
+function fermerAdmin() {
+  $('ecranAdmin').hidden = true;
+  for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
+  if (!$('ecranFin').hidden) chargerClassement('listeFin');
+}
+$('adFermer').addEventListener('click', fermerAdmin);
+addEventListener('keydown', e => { if (e.key === 'Escape' && !$('ecranAdmin').hidden) fermerAdmin(); });
+$('adConnexion').addEventListener('submit', e => { e.preventDefault(); admin.mdp = $('adMdp').value; $('adMdp').value = ''; chargerAdmin(); });
+for (const v of ['parties', 'carrieres']) $('adVue' + v.charAt(0).toUpperCase() + v.slice(1)).addEventListener('click', () => {
+  admin.vue = v;
+  $('adVueParties').classList.toggle('actif', v === 'parties'); $('adVueCarrieres').classList.toggle('actif', v === 'carrieres');
+  $('adVider').hidden = v !== 'parties';
+  if (admin.mdp) chargerAdmin();
+});
+
+function erreurAdmin(e) {
+  if (/Mot de passe incorrect/.test(e.message)) {
+    admin.mdp = ''; $('adConnexion').hidden = false; $('adContenu').hidden = true;
+    msgAdmin('Mot de passe incorrect.', true); $('adMdp').focus();
+  } else if (/check constraint/.test(e.message)) msgAdmin('Valeur refusée : le score doit être entre 0 et 100 000, le pseudo faire 1 à 24 caractères.', true);
+  else msgAdmin('Erreur : ' + e.message, true);
+}
+
+async function chargerAdmin(message) {
+  msgAdmin('Chargement…');
+  try {
+    admin.lignes = await sb('/rest/v1/rpc/' + (admin.vue === 'parties' ? 'admin_scores' : 'admin_carrieres'), { mdp: admin.mdp });
+    $('adConnexion').hidden = true; $('adContenu').hidden = false;
+    msgAdmin(message || '');
+    afficherAdmin();
+  } catch (e) { erreurAdmin(e); }
+}
+
+function afficherAdmin() {
+  const f = $('adFiltre').value.trim().toLowerCase();
+  const lignes = admin.lignes.filter(l => !f || (l.login || '').includes(f) || l.pseudo.toLowerCase().includes(f));
+  const parties = admin.vue === 'parties';
+  $('adTete').innerHTML = parties
+    ? '<tr><th><input type="checkbox" id="adTout"></th><th>Date</th><th>Login</th><th>Pseudo</th><th>Mode</th><th>Score</th><th>🔧</th><th>🛡️</th><th>🔁</th><th>Dispo</th><th>⏱ Temps</th><th>Langue</th><th></th></tr>'
+    : '<tr><th><input type="checkbox" id="adTout"></th><th>Pseudo</th><th>Login</th><th>Jour</th><th>Énergie cumulée</th><th>Budget</th><th>⏱ Temps total</th><th>Créée le</th><th>Dernière partie</th></tr>';
+  $('adTout').addEventListener('change', () => { document.querySelectorAll('.adCoche').forEach(c => { c.checked = $('adTout').checked; }); majSelection(); });
+  const tb = $('adLignes'); tb.replaceChildren();
+  const cellule = (tr, contenu, cls) => { const td = document.createElement('td'); if (cls) td.className = cls; td.append(contenu); tr.append(td); return td; };
+  const date = d => new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+  for (const l of lignes) {
+    const tr = document.createElement('tr'); tr.dataset.id = parties ? l.id : l.cle;
+    const coche = document.createElement('input'); coche.type = 'checkbox'; coche.className = 'adCoche';
+    cellule(tr, coche);
+    if (!parties) {
+      cellule(tr, l.pseudo); cellule(tr, l.login || '—', 'login-c'); cellule(tr, 'J' + l.jour);
+      const fr = n => Math.round(n).toLocaleString('fr-FR');
+      cellule(tr, fr(l.total_mwh) + ' MWh'); cellule(tr, fr(l.budget) + ' k€'); cellule(tr, duree(l.temps_jeu));
+      cellule(tr, date(l.cree_le)); cellule(tr, date(l.maj));
+      tb.append(tr); continue;
+    }
+    cellule(tr, date(l.created_at));
+    cellule(tr, l.login, 'login-c').title = l.login + (l.source === 'windows' ? ' (Windows)' : ' (saisi)');
+    const ps = document.createElement('input'); ps.type = 'text'; ps.maxLength = 24; ps.value = l.pseudo;
+    cellule(tr, ps);
+    cellule(tr, l.mode === 'carriere' ? '🧭 carrière J' + l.jour : '⚡ sprint');
+    const sc = document.createElement('input'); sc.type = 'number'; sc.min = 0; sc.max = 100000; sc.value = l.score;
+    cellule(tr, sc);
+    cellule(tr, String(l.reparations)); cellule(tr, String(l.ameliorations)); cellule(tr, '×' + l.combo_max);
+    cellule(tr, l.disponibilite + ' %'); cellule(tr, duree(l.temps_jeu)); cellule(tr, l.langue || '');
+    const actions = document.createElement('span');
+    const enr = document.createElement('button'); enr.className = 'btn ok'; enr.type = 'button'; enr.textContent = '💾'; enr.title = 'Enregistrer'; enr.disabled = true;
+    const sup = document.createElement('button'); sup.className = 'btn danger'; sup.type = 'button'; sup.textContent = '🗑'; sup.title = 'Supprimer'; sup.style.marginLeft = '6px';
+    actions.append(enr, sup); cellule(tr, actions);
+    const changer = () => { const m = ps.value.trim() !== l.pseudo || +sc.value !== l.score; enr.disabled = !m; tr.classList.toggle('modifie', m); };
+    ps.addEventListener('input', changer); sc.addEventListener('input', changer);
+    enr.addEventListener('click', async () => {
+      try {
+        await sb('/rest/v1/rpc/admin_modifier', { mdp: admin.mdp, p_id: l.id, p_pseudo: ps.value, p_score: Math.round(+sc.value) });
+        await chargerAdmin('Partie de « ' + ps.value.trim() + ' » enregistrée.');
+      } catch (e) { erreurAdmin(e); }
+    });
+    sup.addEventListener('click', () => supprimerAdmin([l.id]));
+    tb.append(tr);
+  }
+  if (!lignes.length) { const tr = document.createElement('tr'); const td = cellule(tr, f ? 'Aucune ligne ne correspond.' : 'Rien pour l\'instant.', 'vide'); td.colSpan = 13; tb.append(tr); }
+  const total = lignes.reduce((s, l) => s + (+l.temps_jeu || 0), 0);
+  $('adCompte').textContent = lignes.length + ' / ' + admin.lignes.length + (parties ? ' parties' : ' carrières') + ' · ⏱ ' + duree(total) + ' de jeu';
+  majSelection();
+}
+
+function selectionAdmin() { return [...document.querySelectorAll('.adCoche:checked')].map(c => c.closest('tr').dataset.id); }
+function majSelection() { const n = selectionAdmin().length; $('adSuppr').disabled = !n; $('adSuppr').textContent = '🗑 Supprimer la sélection' + (n ? ' (' + n + ')' : ''); }
+$('adLignes').addEventListener('change', e => { if (e.target.classList.contains('adCoche')) majSelection(); });
+$('adFiltre').addEventListener('input', afficherAdmin);
+$('adRafraichir').addEventListener('click', () => chargerAdmin());
+$('adSuppr').addEventListener('click', () => supprimerAdmin(selectionAdmin()));
+
+async function supprimerAdmin(ids) {
+  const parties = admin.vue === 'parties';
+  if (!ids.length || !confirm('Supprimer définitivement ' + ids.length + (parties ? ' partie(s) ?' : ' carrière(s) ?'))) return;
+  try {
+    const n = parties
+      ? await sb('/rest/v1/rpc/admin_supprimer', { mdp: admin.mdp, p_ids: ids.map(Number) })
+      : await sb('/rest/v1/rpc/admin_supprimer_carrieres', { mdp: admin.mdp, p_cles: ids });
+    await chargerAdmin(n + (parties ? ' partie(s) supprimée(s).' : ' carrière(s) supprimée(s).'));
+  } catch (e) { erreurAdmin(e); }
+}
+$('adVider').addEventListener('click', async () => {
+  if (prompt('Cela supprime TOUTES les parties (les carrières restent).\nTapez EFFACER pour confirmer :') !== 'EFFACER') return;
+  try {
+    const n = await sb('/rest/v1/rpc/admin_vider', { mdp: admin.mdp });
+    await chargerAdmin('Parties remises à zéro (' + n + ' supprimées).');
+  } catch (e) { erreurAdmin(e); }
+});
+
+/* =====================================================================
+   Boucle et démarrage
+   ===================================================================== */
+let avant = performance.now();
+function boucle(maintenant) {
+  const dt = Math.min(.05, (maintenant - avant) / 1000); avant = maintenant;
+  if (etat === 'jeu') { majPartie(dt); if (etat === 'jeu') majHud(); }
+  majCommun(dt);
+  if ($('ecranAccueil').hidden) dessiner(); else dessinerReseau(dt);
+  requestAnimationFrame(boucle);
+}
+
+$('pseudo').value = joueur.pseudo;
+$('pseudo').addEventListener('input', () => { $('infoErreur').textContent = ''; majBoutonJouer(); });
+$('pseudo').addEventListener('keydown', e => { if (e.key === 'Enter') demarrer(); });
+$('code').addEventListener('input', () => { $('code').value = $('code').value.replace(/\D/g, '').slice(0, 4); });
+$('code').addEventListener('keydown', e => { if (e.key === 'Enter') demarrer(); });
+$('btnJouer').addEventListener('click', demarrer);
+$('btnRejouer').addEventListener('click', lancerJournee);
+function retourAccueil() {
+  etat = 'accueil'; partie = null;
+  for (const id of ['ecranFin', 'ecranBase', 'ecranReleve', 'hud', 'file']) $(id).hidden = true;
+  $('ecranAccueil').hidden = false; $('ecranAccueil').scrollTop = 0;
+  majCarteCarriere(); dimensionnerReseau();
+  for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
+}
+$('btnAccueil').addEventListener('click', retourAccueil);
+$('btnBaseAccueil').addEventListener('click', retourAccueil);
+addEventListener('keydown', e => { if (etat === 'fin' && !$('ecranFin').hidden && $('ecranAdmin').hidden && e.key === 'Enter') lancerJournee(); });
+addEventListener('resize', redimensionner);
+redimensionner();
+setInterval(majRebours, 1000);
+carriere = carriereLocale();
+choisirMode(modeChoisi);
+appliquerLangue();
+if (document.fonts) document.fonts.ready.then(dimensionnerReseau);
+requestAnimationFrame(boucle);
+</script>
+</body>
+</html>
