@@ -122,7 +122,19 @@
   .panneau-acc.actif { display: grid; }
   #pAccueil { grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); }
   #pJouer { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; }
-  #pPiliers, #pTheme { grid-template-rows: auto 1fr; }
+  #pPiliers, #pTheme, #pAnim { grid-template-rows: auto 1fr; }
+  .animations { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); gap: 16px; align-content: start; min-height: 0; }
+  .anim { display: grid; grid-template-rows: auto 1fr; text-align: left; padding: 0; overflow: hidden; border-radius: 18px; cursor: pointer;
+    background: #fff; border: 1px solid var(--pc-ligne, #d8e7f4); box-shadow: 0 12px 32px rgba(2,85,161,.08); color: var(--pc-encre, #0c2f5c); transition: transform .15s, box-shadow .15s; }
+  .anim:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(2,85,161,.16); }
+  .anim .vignette { position: relative; display: block; aspect-ratio: 16 / 9; background: #0b1633; }
+  .anim canvas { display: block; width: 100%; height: 100%; }
+  .anim .vignette i { position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(2,85,161,.85); color: #fff; font-style: normal; font-size: 26px; padding-left: 4px; box-shadow: 0 0 0 6px rgba(255,255,255,.35); transition: transform .15s; }
+  .anim:hover .vignette i { transform: scale(1.1); }
+  .anim .txt { display: grid; gap: 4px; padding: 12px 16px 14px; font-size: 14px; line-height: 1.4; color: var(--pc-gris, #5a7290); }
+  .anim .txt b { font-size: 17px; color: var(--pc-bleu, #0255a1); }
+  .anim small { color: var(--pc-cyan, #00a9e9); font-weight: 600; }
   .tete-panneau { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
   .tete-panneau h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(26px, 3.4vh + .6vw, 40px); margin: 0; }
   .tete-panneau p { margin: 0; color: #d2ddf2; font-size: 15px; line-height: 1.45; flex: 1 1 380px; }
@@ -274,6 +286,13 @@
   .etat-donnees.alerte { color: #b26a00; }
   #ecranFin .classements { display: flex; flex-direction: column; }
   #ecranFin .merci { margin: auto 0 0; }
+  #ecranInterlude { position: fixed; inset: 0; z-index: 60; background: #0b1633; cursor: pointer; }
+  #cvInter { display: block; width: 100%; height: 100%; }
+  .inter-legende { position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%); max-width: 92vw; padding: 10px 22px; border-radius: 99px;
+    background: rgba(6,20,45,.72); color: #fff; font: 600 clamp(15px, 2.2vh, 21px)/1.3 "Fira Sans", Inter, sans-serif; text-align: center; white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3); transition: opacity .3s; }
+  .inter-legende:empty { opacity: 0; }
+  .inter-passer { position: absolute; right: 18px; bottom: 18px; padding: 9px 16px; font-size: 15px; background: rgba(6,20,45,.55); }
   .merci { background: linear-gradient(135deg, rgba(0,169,233,.2), rgba(242,183,5,.14)); }
   .merci b { color: var(--jaune); }
   .merci .autre-jeu { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: center; margin-top: 10px; padding: 8px; border-radius: 12px;
@@ -483,6 +502,7 @@
     <button type="button" data-tab="pJouer" style="--c: var(--c-rouge)"><i class="pt"></i><span data-i18n="tabJouer"></span></button>
     <button type="button" data-tab="pPiliers" style="--c: var(--c-vert)"><i class="pt"></i><span data-i18n="tabPiliers"></span></button>
     <button type="button" data-tab="pTheme" style="--c: var(--c-jaune)"><i class="pt"></i><span data-i18n="tabTheme"></span></button>
+    <button type="button" data-tab="pAnim" style="--c: #00a9e9"><i class="pt"></i><span data-i18n="tabAnim"></span></button>
   </nav>
   <main class="panneaux">
     <div class="guirlande" id="guirlande" aria-hidden="true"></div>
@@ -567,6 +587,16 @@
         <div class="theme"><div class="ic">⚡</div><h4 data-i18n="t6t"></h4><p data-i18n-html="t6"></p></div>
       </div>
     </section>
+
+    <section class="panneau-acc" id="pAnim">
+      <div class="tete-panneau"><h2 data-i18n="animTitre"></h2><p data-i18n="animChapeau"></p></div>
+      <div class="animations">
+        <button class="anim" type="button" id="animCtv">
+          <span class="vignette"><canvas id="vignetteCtv" width="640" height="360"></canvas><i>▶</i></span>
+          <span class="txt"><b data-i18n="animCtvTitre"></b><span data-i18n="animCtvTxt"></span><small>⏱ 11 s</small></span>
+        </button>
+      </div>
+    </section>
   </main>
   <div class="vagues" aria-hidden="true"></div>
   <footer class="pied" data-i18n="pied"></footer>
@@ -611,6 +641,13 @@
       <div class="fv-boutons"><button class="cta sec" id="fvFermer" type="button" data-i18n="fvFermer"></button></div>
     </div>
   </div>
+</div>
+
+<!-- ======================= Entre deux journées : le CTV appareille ======================= -->
+<div id="ecranInterlude" hidden>
+  <canvas id="cvInter"></canvas>
+  <div class="inter-legende" id="interLegende"></div>
+  <button class="cta sec inter-passer" id="interPasser" type="button" data-i18n="interPasser"></button>
 </div>
 
 <!-- ======================= Relève d'équipe ======================= -->
@@ -822,7 +859,7 @@ const I18N = {
     sousTitre: 'La qualité, moteur de la performance',
     intro: 'Cette année, la qualité se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
     marque: 'Semaine mondiale de la qualité 2026', marqueSous: '9 – 13 novembre · Journée mondiale de la qualité le jeudi 12',
-    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité',
+    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'Les petits films du jeu, à regarder quand vous voulez.', animCtvTitre: '🚤 Le CTV appareille', animCtvTxt: 'Au lever du jour à Ouistreham : chargement des pièces, briefing, une mouette affamée… et cap sur le parc.', animFin: '🎉 Bonne Semaine de la qualité !',
     jours: 'jours', heures: 'heures', minutes: 'min', secondes: 's',
     legendeTitre: 'Repères à l\'écran',
     l1: '<b>Bulle orange</b> : éolienne en défaut, <b>bridée à 40 %</b>. Laissée trop longtemps, elle passe en <b>arrêt de sécurité</b> (bulle rouge), puis peut prendre feu 🔥 et exploser 💥, ce qui coupe le string en aval.',
@@ -881,7 +918,7 @@ const I18N = {
     errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
     errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
     errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
-    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Cet aperçu ne peut pas enregistrer les scores. Pour jouer pour de vrai : <b>glissez ce bouton dans votre barre de favoris</b>, ouvrez le dossier QualityWeek2026 dans le navigateur, puis cliquez sur le favori.', donneesSp: '💾 Connecté à SharePoint ({login}) · {n} joueur(s) au classement.', donneesSpCharge: '⏳ Chargement des scores depuis SharePoint…', spDroits: 'pas le droit d\'écrire dans le dossier des scores : demandez l\'accès en modification à l\'organisateur', favoriNom: 'Jeu Qualité 2026', donneesPoste: '💾 Les scores sont enregistrés sur ce poste.', merciTitre: '🙏 Merci d\'avoir joué !', merciTxt: 'Merci de faire vivre la qualité au quotidien, et belle Semaine de la qualité à toutes et à tous.', merciAutre: '🎮 N\'hésitez pas à tester l\'autre jeu du projet :', pileSous: 'le chantier du large', pileTxt: 'Hissez les 64 éoliennes du parc, pièce par pièce, au bout d\'une grue qui balance.', pileJouer: '▶ Jouer à Pile Poil', sticker: 'C\'est la <b>fête</b><br>de la <b>Qualité</b> !', fvSur: 'Mode d\'emploi · 30 secondes', fvTitre: 'Pour jouer et entrer au classement', fvChapeau: 'Cet aperçu OneDrive ne peut pas enregistrer les scores. Installez une fois le favori ci-dessous : il ouvre le jeu dans SharePoint, avec votre compte EDF.', fvGlissezMoi: '⬆ Glissez-moi dans la barre des favoris ⬆', fvNePasCliquer: 'Ne cliquez pas : maintenez le bouton et glissez-le vers le haut, dans la barre des favoris.', fvEtape1: 'Affichez la barre des favoris d\'Edge : <b>Ctrl + Maj + B</b>.', fvEtape2: '<b>Glissez le bouton jaune</b> dans cette barre, puis relâchez.', fvEtape3: '<b>Cliquez sur le favori « ⭐ Jeu Qualité 2026 »</b> : le jeu s\'ouvre avec votre nom et vos scores comptent.', fvEtape4: 'Les fois suivantes : ouvrez ce lien ou le dossier QualityWeek2026, puis cliquez sur le favori.', fvSecours: 'Le glisser ne marche pas ?', fvSecoursTexte: 'Ajoutez n\'importe quelle page aux favoris (<b>Ctrl + D</b>), puis faites un clic droit sur ce favori › <b>Modifier</b>. Nommez-le « Jeu Qualité 2026 » et collez ce code à la place de l\'URL :', fvCopier: '📋 Copier le code', fvCopie: '✅ Code copié', fvFermer: 'Jouer sans enregistrer', donneesApercuCourt: '⚠️ Dans cet aperçu, les scores ne sont pas enregistrés.', fvOuvrir: '⭐ Mode d\'emploi', favoriGlisser: 'Glissez ce bouton dans la barre des favoris (Ctrl+Maj+B pour l\'afficher). Ouvrez ensuite le dossier QualityWeek2026 dans le navigateur et cliquez sur le favori.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
+    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Cet aperçu ne peut pas enregistrer les scores. Pour jouer pour de vrai : <b>glissez ce bouton dans votre barre de favoris</b>, ouvrez le dossier QualityWeek2026 dans le navigateur, puis cliquez sur le favori.', donneesSp: '💾 Connecté à SharePoint ({login}) · {n} joueur(s) au classement.', donneesSpCharge: '⏳ Chargement des scores depuis SharePoint…', spDroits: 'pas le droit d\'écrire dans le dossier des scores : demandez l\'accès en modification à l\'organisateur', favoriNom: 'Jeu Qualité 2026', interPasser: 'Passer ⏭', interLegendes: [[0, 'Ouistreham, 05:10 · le port se réveille'], [1.4, '05:25 · chargement des pièces détachées'], [3.1, '05:40 · casques, gilets, briefing sécurité ✔'], [4.5, '05:42 · … et un croissant de moins 🥐'], [5.7, '05:55 · moteurs, largage des amarres'], [7.1, '06:00 · cap sur le parc ! ⚓']], interSous: 'Le parc vous attend', donneesPoste: '💾 Les scores sont enregistrés sur ce poste.', merciTitre: '🙏 Merci d\'avoir joué !', merciTxt: 'Merci de faire vivre la qualité au quotidien, et belle Semaine de la qualité à toutes et à tous.', merciAutre: '🎮 N\'hésitez pas à tester l\'autre jeu du projet :', pileSous: 'le chantier du large', pileTxt: 'Hissez les 64 éoliennes du parc, pièce par pièce, au bout d\'une grue qui balance.', pileJouer: '▶ Jouer à Pile Poil', sticker: 'C\'est la <b>fête</b><br>de la <b>Qualité</b> !', fvSur: 'Mode d\'emploi · 30 secondes', fvTitre: 'Pour jouer et entrer au classement', fvChapeau: 'Cet aperçu OneDrive ne peut pas enregistrer les scores. Installez une fois le favori ci-dessous : il ouvre le jeu dans SharePoint, avec votre compte EDF.', fvGlissezMoi: '⬆ Glissez-moi dans la barre des favoris ⬆', fvNePasCliquer: 'Ne cliquez pas : maintenez le bouton et glissez-le vers le haut, dans la barre des favoris.', fvEtape1: 'Affichez la barre des favoris d\'Edge : <b>Ctrl + Maj + B</b>.', fvEtape2: '<b>Glissez le bouton jaune</b> dans cette barre, puis relâchez.', fvEtape3: '<b>Cliquez sur le favori « ⭐ Jeu Qualité 2026 »</b> : le jeu s\'ouvre avec votre nom et vos scores comptent.', fvEtape4: 'Les fois suivantes : ouvrez ce lien ou le dossier QualityWeek2026, puis cliquez sur le favori.', fvSecours: 'Le glisser ne marche pas ?', fvSecoursTexte: 'Ajoutez n\'importe quelle page aux favoris (<b>Ctrl + D</b>), puis faites un clic droit sur ce favori › <b>Modifier</b>. Nommez-le « Jeu Qualité 2026 » et collez ce code à la place de l\'URL :', fvCopier: '📋 Copier le code', fvCopie: '✅ Code copié', fvFermer: 'Jouer sans enregistrer', donneesApercuCourt: '⚠️ Dans cet aperçu, les scores ne sont pas enregistrés.', fvOuvrir: '⭐ Mode d\'emploi', favoriGlisser: 'Glissez ce bouton dans la barre des favoris (Ctrl+Maj+B pour l\'afficher). Ouvrez ensuite le dossier QualityWeek2026 dans le navigateur et cliquez sur le favori.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
     piliersTitre: 'Les 4 piliers de la performance',
     piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
     p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> le défaut au lieu de le subir.',
@@ -968,7 +1005,7 @@ const I18N = {
     sousTitre: 'Quality as the engine of performance',
     intro: 'This year, quality plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
     marque: 'World Quality Week 2026', marqueSous: '9 – 13 November · World Quality Day on Thursday 12th',
-    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality',
+    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'The game\'s short films, to watch whenever you like.', animCtvTitre: '🚤 The CTV sets sail', animCtvTxt: 'Daybreak in Ouistreham: loading parts, safety briefing, a hungry seagull… and off to the farm.', animFin: '🎉 Happy World Quality Week!',
     jours: 'days', heures: 'hrs', minutes: 'min', secondes: 'sec',
     legendeTitre: 'On-screen cues',
     l1: '<b>Orange bubble</b>: turbine fault, <b>derated to 40%</b>. Left too long, it goes into <b>safety shutdown</b> (red bubble), then may catch fire 🔥 and explode 💥, cutting the string downstream.',
@@ -1027,7 +1064,7 @@ const I18N = {
     errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
     errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
     errHorsLigne: 'Offline: the career is kept on this computer only.',
-    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ This preview cannot save scores. To play for real: <b>drag this button to your favorites bar</b>, open the QualityWeek2026 folder in the browser, then click the favorite.', donneesSp: '💾 Connected to SharePoint ({login}) · {n} player(s) on the leaderboard.', donneesSpCharge: '⏳ Loading scores from SharePoint…', spDroits: 'no permission to write to the scores folder: ask the organiser for edit access', favoriNom: 'Quality Game 2026', donneesPoste: '💾 Scores are saved on this computer.', merciTitre: '🙏 Thanks for playing!', merciTxt: 'Thank you for bringing quality to life every day, and happy World Quality Week to all.', merciAutre: '🎮 Feel free to try the project\'s other game:', pileSous: 'the offshore build', pileTxt: 'Lift the farm\'s 64 turbines, piece by piece, from a swinging crane.', pileJouer: '▶ Play Pile Poil', sticker: 'Let\'s <b>celebrate</b><br><b>Quality</b>!', fvSur: 'How to · 30 seconds', fvTitre: 'To play and join the leaderboard', fvChapeau: 'This OneDrive preview cannot save scores. Install the favorite below once: it opens the game in SharePoint, with your EDF account.', fvGlissezMoi: '⬆ Drag me to the favorites bar ⬆', fvNePasCliquer: 'Don\'t click: hold the button and drag it up into the favorites bar.', fvEtape1: 'Show the Edge favorites bar: <b>Ctrl + Shift + B</b>.', fvEtape2: '<b>Drag the yellow button</b> onto that bar, then release.', fvEtape3: '<b>Click the "⭐ Quality Game 2026" favorite</b>: the game opens with your name and your scores count.', fvEtape4: 'Next time: open this link or the QualityWeek2026 folder, then click the favorite.', fvSecours: 'Dragging doesn\'t work?', fvSecoursTexte: 'Add any page to your favorites (<b>Ctrl + D</b>), then right-click that favorite › <b>Edit</b>. Name it "Quality Game 2026" and paste this code in place of the URL:', fvCopier: '📋 Copy the code', fvCopie: '✅ Code copied', fvFermer: 'Play without saving', donneesApercuCourt: '⚠️ Scores are not saved in this preview.', fvOuvrir: '⭐ How to', favoriGlisser: 'Drag this button to the favorites bar (Ctrl+Shift+B to show it). Then open the QualityWeek2026 folder in the browser and click the favorite.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
+    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ This preview cannot save scores. To play for real: <b>drag this button to your favorites bar</b>, open the QualityWeek2026 folder in the browser, then click the favorite.', donneesSp: '💾 Connected to SharePoint ({login}) · {n} player(s) on the leaderboard.', donneesSpCharge: '⏳ Loading scores from SharePoint…', spDroits: 'no permission to write to the scores folder: ask the organiser for edit access', favoriNom: 'Quality Game 2026', interPasser: 'Skip ⏭', interLegendes: [[0, 'Ouistreham, 05:10 · the port wakes up'], [1.4, '05:25 · loading spare parts'], [3.1, '05:40 · helmets, life jackets, safety briefing ✔'], [4.5, '05:42 · … minus one croissant 🥐'], [5.7, '05:55 · engines on, casting off'], [7.1, '06:00 · heading for the farm! ⚓']], interSous: 'The farm is waiting', donneesPoste: '💾 Scores are saved on this computer.', merciTitre: '🙏 Thanks for playing!', merciTxt: 'Thank you for bringing quality to life every day, and happy World Quality Week to all.', merciAutre: '🎮 Feel free to try the project\'s other game:', pileSous: 'the offshore build', pileTxt: 'Lift the farm\'s 64 turbines, piece by piece, from a swinging crane.', pileJouer: '▶ Play Pile Poil', sticker: 'Let\'s <b>celebrate</b><br><b>Quality</b>!', fvSur: 'How to · 30 seconds', fvTitre: 'To play and join the leaderboard', fvChapeau: 'This OneDrive preview cannot save scores. Install the favorite below once: it opens the game in SharePoint, with your EDF account.', fvGlissezMoi: '⬆ Drag me to the favorites bar ⬆', fvNePasCliquer: 'Don\'t click: hold the button and drag it up into the favorites bar.', fvEtape1: 'Show the Edge favorites bar: <b>Ctrl + Shift + B</b>.', fvEtape2: '<b>Drag the yellow button</b> onto that bar, then release.', fvEtape3: '<b>Click the "⭐ Quality Game 2026" favorite</b>: the game opens with your name and your scores count.', fvEtape4: 'Next time: open this link or the QualityWeek2026 folder, then click the favorite.', fvSecours: 'Dragging doesn\'t work?', fvSecoursTexte: 'Add any page to your favorites (<b>Ctrl + D</b>), then right-click that favorite › <b>Edit</b>. Name it "Quality Game 2026" and paste this code in place of the URL:', fvCopier: '📋 Copy the code', fvCopie: '✅ Code copied', fvFermer: 'Play without saving', donneesApercuCourt: '⚠️ Scores are not saved in this preview.', fvOuvrir: '⭐ How to', favoriGlisser: 'Drag this button to the favorites bar (Ctrl+Shift+B to show it). Then open the QualityWeek2026 folder in the browser and click the favorite.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
     piliersTitre: 'The 4 Pillars of Performance',
     piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
     p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> faults instead of suffering them.',
@@ -2045,11 +2082,15 @@ function lancerJournee() {
   $('btnGo').focus();
 }
 $('btnGo').addEventListener('click', () => {
-  $('ecranRegles').hidden = true; $('hud').hidden = false; $('file').hidden = false;
+  $('ecranRegles').hidden = true;
+  if (partie.mode === 'rapide') interlude.jouer('⚡ Sprint 90 s', partir); else partir();   // le Sprint commence par le départ du CTV
+});
+function partir() {
+  $('hud').hidden = false; $('file').hidden = false;
   etat = 'jeu';
   const nomMode = t('modeNom')[partie.mode].replace('{j}', partie.jour);
   bandeau(t('depart', { shift: t('shiftTitre')[0], mode: nomMode }), 2.6);
-});
+}
 
 async function demarrer() {
   const p = $('pseudo').value.trim().slice(0, 24);
@@ -2178,6 +2219,273 @@ function afficherBoutique() {
 $('btnBase').addEventListener('click', ouvrirBase);
 $('btnJourSuivant').addEventListener('click', lancerJournee);
 $('btnBaseJour').addEventListener('click', lancerJournee);
+
+/* ---------- Entre deux journées : dessin animé du CTV qui se prépare au port et appareille (≈ 11 s, on peut passer) ---------- */
+const interlude = (() => {
+  const tx = (...a) => t(...a);   // « t » désigne le temps dans les fonctions de dessin
+  const cvI = $('cvInter'), DUREE = 11;
+  let c = cvI.getContext('2d');
+  const cl = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x)), lisse = x => { x = cl(x); return x * x * (3 - 2 * x); };
+  const mix = (a, b, k) => a + (b - a) * k;
+  const rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const mixC = (h1, h2, k) => { const a = rgb(h1), b = rgb(h2); return 'rgb(' + a.map((v, i) => Math.round(mix(v, b[i], k))).join(',') + ')'; };
+  const etoiles = Array.from({ length: 70 }, () => [Math.random() * 1600, Math.random() * 420, Math.random() * 1.6 + .4]);
+  const EQUIPE = [{ d: .6, v: 170, dx: 126 }, { d: 1.0, v: 170, dx: 112, cafe: true }, { d: 1.4, v: 170, dx: 34 }, { d: 3.5, v: 340, dx: 18, retard: true }];
+  let actif = false, t0 = 0, avant = 0, suite = null, jour = 1, fumees = [], embruns = [], joues = {}, k = 1, ox = 0, oy = 0;
+
+  function taille() {
+    const d = Math.min(2, devicePixelRatio || 1), L = innerWidth, Hh = innerHeight;
+    cvI.width = L * d; cvI.height = Hh * d; k = Math.max(L / 1600, Hh / 900); ox = (L - 1600 * k) / 2; oy = (Hh - 900 * k) / 2;
+    c.setTransform(d * k, 0, 0, d * k, d * ox, d * oy);
+  }
+  const sternX = t => 560 + (t > 6.6 ? .5 * 170 * (t - 6.6) ** 2 : 0);
+  const eau = t => 640 + Math.sin(t * 1.6) * 2.5;
+  const pont = t => eau(t) - 34;
+  const pente = t => -.035 * lisse((t - 6.6) / 1.2) + .012 * lisse((t - 9) / 1.5);
+
+  function ciel(t) {
+    const j = lisse(t / 8);
+    let g = c.createLinearGradient(0, 0, 0, 560);
+    g.addColorStop(0, mixC('#0b1633', '#3f86c9', j)); g.addColorStop(.7, mixC('#1a2a55', '#9cc6e6', j)); g.addColorStop(1, mixC('#2a3566', '#ffc38a', j));
+    c.fillStyle = g; c.fillRect(-400, -100, 2400, 660);
+    c.fillStyle = '#fff';
+    for (const [x, y, r] of etoiles) { c.globalAlpha = (1 - j) * (.5 + .5 * Math.sin(t * 3 + x)); c.beginPath(); c.arc(x, y, r, 0, 6.28); c.fill(); }
+    c.globalAlpha = 1;
+    const sy = mix(640, 455, lisse((t - .5) / 8.5)), sg = c.createRadialGradient(1330, sy, 10, 1330, sy, 230);
+    sg.addColorStop(0, 'rgba(255,214,140,.9)'); sg.addColorStop(1, 'rgba(255,190,120,0)');
+    c.fillStyle = sg; c.fillRect(1000, sy - 240, 660, 480);
+    c.fillStyle = '#ffe1a0'; c.beginPath(); c.arc(1330, sy, 44, 0, 6.28); c.fill();
+    // les éoliennes du parc à l'horizon
+    const sil = mixC('#18264a', '#6d86ad', j);
+    [[860, 40], [930, 46], [1010, 52], [1100, 44], [1180, 50], [1450, 42], [1520, 48], [1590, 40]].forEach(([x, h], i) => {
+      c.strokeStyle = sil; c.lineWidth = 2.2; c.beginPath(); c.moveTo(x, 560); c.lineTo(x, 560 - h); c.stroke();
+      c.lineWidth = 1.6;
+      for (let b = 0; b < 3; b++) { const a = t * 1.4 + i + b * 2.094; c.beginPath(); c.moveTo(x, 560 - h); c.lineTo(x + Math.cos(a) * h * .5, 560 - h + Math.sin(a) * h * .5); c.stroke(); }
+    });
+  }
+  function mer(t) {
+    const j = lisse(t / 8), g = c.createLinearGradient(0, 560, 0, 900);
+    g.addColorStop(0, mixC('#16294d', '#4f8fc2', j)); g.addColorStop(1, mixC('#07142b', '#174a7c', j));
+    c.fillStyle = g; c.fillRect(-400, 558, 2400, 442);
+    c.fillStyle = 'rgba(255,220,160,' + (.35 * j) + ')';   // reflet du soleil
+    for (let i = 0; i < 9; i++) { const y = 572 + i * 11, w = 70 - i * 5 + Math.sin(t * 2 + i) * 10; c.fillRect(1330 - w / 2, y, w, 2.5); }
+    c.strokeStyle = 'rgba(255,255,255,.12)'; c.lineWidth = 1.5;
+    for (let r = 0; r < 9; r++) {
+      const y = 600 + r * 32; c.beginPath();
+      for (let x = -40; x <= 1640; x += 40) c[x === -40 ? 'moveTo' : 'lineTo'](x, y + Math.sin(x / 60 + t * 1.8 + r) * 3);
+      c.stroke();
+    }
+    // la digue et son feu vert
+    c.fillStyle = mixC('#1c2333', '#4a5566', j); c.beginPath(); c.moveTo(1010, 606); c.lineTo(1040, 590); c.lineTo(1260, 590); c.lineTo(1285, 606); c.fill();
+    c.fillStyle = '#e9eef5'; c.fillRect(1214, 520, 18, 70); c.fillStyle = '#2e9d57'; c.fillRect(1214, 540, 18, 10); c.fillRect(1214, 565, 18, 10);
+    c.fillStyle = '#333'; c.fillRect(1210, 512, 26, 8);
+    if (Math.sin(t * 4) > 0) { const lg = c.createRadialGradient(1223, 506, 2, 1223, 506, 40); lg.addColorStop(0, 'rgba(90,255,140,.95)'); lg.addColorStop(1, 'rgba(90,255,140,0)'); c.fillStyle = lg; c.fillRect(1180, 466, 86, 80); }
+  }
+  function quai(t) {
+    const j = lisse(t / 8);
+    c.fillStyle = mixC('#2f3846', '#7d8a99', j); c.fillRect(-400, 604, 920, 300);
+    c.fillStyle = mixC('#4a5566', '#a9b5c2', j); c.fillRect(-400, 592, 920, 14);
+    c.fillStyle = mixC('#1f2631', '#55606e', j); c.fillRect(508, 592, 12, 312);
+    c.fillStyle = '#15181d'; for (const x of [430, 340]) { c.beginPath(); c.arc(x, 650, 16, 0, 6.28); c.fill(); }
+    // conteneurs
+    c.fillStyle = mixC('#0b2f63', '#0255a1', j); c.fillRect(-20, 532, 150, 60);
+    c.fillStyle = mixC('#05506e', '#00a9e9', j); c.fillRect(-10, 476, 120, 56);
+    c.strokeStyle = 'rgba(255,255,255,.18)'; c.lineWidth = 2; for (let x = -10; x < 130; x += 12) { c.beginPath(); c.moveTo(x, 534); c.lineTo(x, 590); c.stroke(); }
+    c.fillStyle = 'rgba(255,255,255,.85)'; c.font = '800 20px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('QW 26', 55, 512);
+    // lampadaire, allumé tant qu'il fait nuit
+    c.fillStyle = '#39424f'; c.fillRect(176, 470, 5, 122); c.fillRect(176, 470, 26, 4);
+    if (j < .9) { const lg = c.createRadialGradient(200, 478, 2, 200, 478, 90); lg.addColorStop(0, 'rgba(255,214,140,' + (.8 * (1 - j)) + ')'); lg.addColorStop(1, 'rgba(255,214,140,0)'); c.fillStyle = lg; c.fillRect(110, 400, 180, 200); }
+    // bollards
+    c.fillStyle = '#222a35'; for (const x of [360, 495]) { c.fillRect(x - 6, 580, 12, 13); c.beginPath(); c.ellipse(x, 580, 10, 5, 0, 0, 6.28); c.fill(); }
+  }
+  function caisse(x, y, a) {
+    c.save(); c.translate(x, y); c.rotate(a);
+    c.fillStyle = '#f2b705'; c.fillRect(-26, -38, 52, 38); c.strokeStyle = '#9a6a00'; c.lineWidth = 2; c.strokeRect(-26, -38, 52, 38);
+    c.beginPath(); c.moveTo(-26, -38); c.lineTo(26, 0); c.moveTo(26, -38); c.lineTo(-26, 0); c.stroke();
+    c.fillStyle = '#3a2400'; c.font = '800 11px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('⚙ PIÈCES', 0, -15);
+    c.restore();
+  }
+  function grue(t) {
+    const tr = 230 + 410 * lisse((t - 2.2) / 1.2);
+    const crochetY = t < 1.4 ? 562 : t < 2.2 ? mix(562, 430, lisse((t - 1.4) / .8)) : t < 3.4 ? 430 : t < 4.2 ? mix(430, pont(t), lisse((t - 3.4) / .8)) : mix(pont(t), 380, lisse((t - 4.2) / .8));
+    c.strokeStyle = '#f2b705'; c.lineWidth = 5; c.beginPath(); c.moveTo(296, 592); c.lineTo(296, 330); c.moveTo(312, 592); c.lineTo(312, 330); c.stroke();
+    c.lineWidth = 2; c.beginPath(); for (let y = 592; y > 340; y -= 24) { c.moveTo(296, y); c.lineTo(312, y - 24); } c.stroke();
+    c.lineWidth = 5; c.beginPath(); c.moveTo(210, 336); c.lineTo(720, 336); c.stroke();
+    c.lineWidth = 2; c.beginPath(); for (let x = 316; x < 716; x += 26) { c.moveTo(x, 336); c.lineTo(x + 13, 326); c.lineTo(x + 26, 336); } c.stroke();
+    c.fillStyle = '#5a6472'; c.fillRect(206, 330, 34, 26); c.fillStyle = '#f2b705'; c.fillRect(312, 340, 24, 22);
+    const x = tr, oscille = t > 2.2 && t < 4.2 ? Math.sin((t - 2.2) * 5) * .12 * (1 - lisse((t - 2.2) / 2)) : 0;
+    const hx = x + Math.sin(oscille) * (crochetY - 336), hy = crochetY;
+    c.strokeStyle = '#2c3440'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x, 340); c.lineTo(hx, hy - 38); c.stroke();
+    c.fillStyle = '#2c3440'; c.fillRect(x - 6, 336, 12, 6);
+    if (t < 4.2) caisse(hx, hy, oscille);
+  }
+  function ctv(t) {
+    const x0 = sternX(t), y0 = eau(t), a = pente(t);
+    c.save(); c.translate(x0, y0); c.rotate(a);
+    // sillage et moustaches d'étrave quand on avance
+    const v = t > 6.6 ? 170 * (t - 6.6) : 0;
+    if (v > 5) {
+      const lw = Math.max(1, Math.min(560, v * 1.7, x0 - 522)), sg = c.createLinearGradient(0, 0, -lw, 0);
+      sg.addColorStop(0, 'rgba(255,255,255,.8)'); sg.addColorStop(1, 'rgba(255,255,255,0)');
+      c.fillStyle = sg; c.beginPath(); c.moveTo(4, -6); c.lineTo(-lw, -16); c.lineTo(-lw, 22); c.lineTo(4, 8); c.closePath(); c.fill();
+      c.fillStyle = 'rgba(255,255,255,.5)';
+      for (let i = 0; i < 14; i++) { const u = ((i * 37 + t * 140) % lw); c.beginPath(); c.ellipse(-u, Math.sin(i * 2.3) * (4 + u * .025), 6 + u * .02, 2, 0, 0, 6.28); c.fill(); }
+      c.fillStyle = 'rgba(255,255,255,.75)'; c.beginPath(); c.moveTo(330, 2); c.quadraticCurveTo(300, -10 - Math.min(14, v / 30), 250, 2); c.fill();
+    }
+    // coque
+    c.fillStyle = '#f4f7fb'; c.beginPath(); c.moveTo(0, -34); c.lineTo(300, -34); c.lineTo(342, -48); c.lineTo(338, 4); c.lineTo(8, 6); c.closePath(); c.fill();
+    c.fillStyle = '#0b2a55'; c.beginPath(); c.moveTo(4, -8); c.lineTo(339, -8); c.lineTo(338, 4); c.lineTo(8, 6); c.closePath(); c.fill();
+    c.fillStyle = '#00a9e9'; c.beginPath(); c.moveTo(2, -22); c.lineTo(320, -22); c.lineTo(340, -30); c.lineTo(340, -24); c.lineTo(322, -16); c.lineTo(3, -16); c.closePath(); c.fill();
+    c.fillStyle = '#0b2a55'; c.font = '800 12px "Fira Sans", sans-serif'; c.textAlign = 'left'; c.fillText('QW·26  QUALITÉ', 40, -25);
+    c.fillStyle = '#16181c'; c.beginPath(); c.roundRect(334, -52, 14, 56, 6); c.fill();   // défense d'étrave pour se poser sur l'éolienne
+    // timonerie
+    c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(150, -34); c.lineTo(150, -98); c.lineTo(252, -98); c.lineTo(274, -60); c.lineTo(274, -34); c.closePath(); c.fill();
+    c.strokeStyle = '#c9d6e4'; c.lineWidth = 1.5; c.stroke();
+    c.fillStyle = '#163a66'; c.beginPath(); c.moveTo(160, -90); c.lineTo(246, -90); c.lineTo(262, -64); c.lineTo(160, -64); c.closePath(); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,.5)'; c.lineWidth = 1; c.beginPath(); for (const x of [185, 210, 235]) { c.moveTo(x, -90); c.lineTo(x, -64); } c.stroke();
+    c.strokeStyle = 'rgba(160,220,255,.5)'; c.lineWidth = 3; c.beginPath(); c.moveTo(168, -66); c.lineTo(182, -88); c.moveTo(214, -66); c.lineTo(226, -86); c.stroke();
+    c.fillStyle = '#d8e2ee'; c.fillRect(150, -102, 104, 5);
+    c.strokeStyle = '#46505e'; c.lineWidth = 3; c.beginPath(); c.moveTo(205, -102); c.lineTo(205, -132); c.stroke();
+    const rad = Math.cos(t * 5) * 18; c.lineWidth = 3; c.beginPath(); c.moveTo(205 - rad, -126); c.lineTo(205 + rad, -126); c.stroke();
+    c.fillStyle = lisse(t / 8) < .8 ? '#fff6c8' : '#cfd6df'; c.beginPath(); c.arc(205, -134, 3.5, 0, 6.28); c.fill();
+    c.fillStyle = '#ff7a1a'; c.beginPath(); c.arc(162, -50, 8, 0, 6.28); c.fill(); c.fillStyle = '#fff'; c.beginPath(); c.arc(162, -50, 4, 0, 6.28); c.fill();
+    c.fillStyle = '#3a414c'; c.fillRect(138, -70, 9, 36);   // cheminée
+    // garde-corps
+    c.strokeStyle = '#9fb0c4'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(4, -50); c.lineTo(138, -50); c.moveTo(276, -50); c.lineTo(328, -60);
+    for (let x = 6; x <= 136; x += 16) { c.moveTo(x, -34); c.lineTo(x, -50); }
+    for (let x = 284; x <= 324; x += 14) { c.moveTo(x, -35 - (x - 276) * .2); c.lineTo(x, -51 - (x - 276) * .2); }
+    c.stroke();
+    c.fillStyle = 'rgba(255,255,255,.7)'; c.fillRect(6, 4, 330, 2.5);
+    if (t >= 4.2) caisse(80, -34, 0);   // la caisse de pièces, posée sur le pont arrière
+    c.restore();
+    return { x0, y0, a };
+  }
+  function technicien(x, y, pas, opts = {}) {
+    c.save(); c.translate(x, y);
+    const s = Math.sin(pas) * (opts.marche ? 7 : 0);
+    c.strokeStyle = '#1f2a3a'; c.lineWidth = 4; c.lineCap = 'round';
+    c.beginPath(); c.moveTo(0, -16); c.lineTo(s, 0); c.moveTo(0, -16); c.lineTo(-s, 0); c.stroke();
+    c.fillStyle = '#ff7a1a'; c.beginPath(); c.roundRect(-8, -36, 16, 22, 4); c.fill();
+    c.fillStyle = '#f2b705'; c.fillRect(-8, -33, 16, 6);
+    c.fillStyle = '#fff'; c.fillRect(-8, -22, 16, 2);
+    c.strokeStyle = '#ff7a1a'; c.lineWidth = 4;
+    const bras = opts.salut ? [9, -52 + Math.sin(pas * 3) * 4] : [-s * .8 + 2, -18];
+    c.beginPath(); c.moveTo(4, -32); c.lineTo(bras[0], bras[1]); c.stroke();
+    c.fillStyle = '#f1c27d'; c.beginPath(); c.arc(0, -43, 6.5, 0, 6.28); c.fill();
+    c.fillStyle = '#ffffff'; c.beginPath(); c.arc(0, -46, 7.5, Math.PI, 0); c.fill(); c.fillRect(-9, -47, 18, 2.5);
+    if (opts.cafe) {
+      c.fillStyle = '#fff'; c.fillRect(bras[0] - 3, bras[1] - 7, 7, 8);
+      c.strokeStyle = 'rgba(255,255,255,.6)'; c.lineWidth = 1.5; c.beginPath();
+      for (let i = 0; i < 2; i++) { const o = (performance.now() / 300 + i) % 2; c.moveTo(bras[0] + i * 3 - 1, bras[1] - 9 - o * 6); c.quadraticCurveTo(bras[0] + 4, bras[1] - 13 - o * 6, bras[0] + i * 3, bras[1] - 18 - o * 6); }
+      c.stroke();
+    }
+    if (opts.croissant) { c.fillStyle = '#d99a3c'; c.beginPath(); c.ellipse(bras[0] + 3, bras[1] - 2, 7, 4, -.4, 0, 6.28); c.fill(); }
+    if (opts.bulle) { c.fillStyle = '#fff'; c.beginPath(); c.roundRect(-14, -82, 30, 24, 8); c.fill(); c.fillStyle = '#0255a1'; c.font = '800 16px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('!?', 1, -64); }
+    c.restore();
+  }
+  function equipe(t) {
+    const x0 = sternX(t);
+    EQUIPE.forEach((m, i) => {
+      if (t < m.d) return;
+      const cible = 560 + m.dx, xs = -40 + (t - m.d) * m.v, arrive = xs >= cible, x = arrive ? x0 + m.dx : xs;
+      const y = arrive ? pont(t) : x <= 515 ? 592 : x <= 575 ? mix(592, pont(t), (x - 515) / 60) : pont(t);
+      technicien(x, y, (t - m.d) * m.v / 11, { marche: !arrive, cafe: m.cafe, croissant: m.retard && t < 4.6, bulle: m.retard && t > 4.6 && t < 5.7, salut: arrive && t > 6.9 && i % 2 === 0 });
+    });
+    if (t > 1 && t < 6.2) {   // passerelle
+      c.strokeStyle = '#8c99a8'; c.lineWidth = 4; c.beginPath(); c.moveTo(512, 592); c.lineTo(578, pont(t)); c.stroke();
+    }
+  }
+  function amarre(t) {
+    const x0 = sternX(t);
+    c.strokeStyle = '#d7c29a'; c.lineWidth = 2.5; c.beginPath(); c.moveTo(495, 582);
+    if (t < 6.2) c.quadraticCurveTo(530, 615, x0 + 12, pont(t) - 2);
+    else c.quadraticCurveTo(505, 610, 516, 640);
+    c.stroke();
+  }
+  function mouette(t) {
+    let x, y, vol = true;
+    const rx = -40 + (4.6 - 3.5) * 340 + 5, ry = 592 - 20;
+    if (t < 4.3) { x = 360; y = 572 + Math.abs(Math.sin(t * 3)) * -1.5; vol = false; }
+    else if (t < 4.6) { const u = (t - 4.3) / .3; x = mix(360, rx, u); y = mix(572, ry, u) - Math.sin(u * 3.14) * 40; }
+    else { const u = (t - 4.6) / 3.6; x = mix(rx, 1700, u); y = mix(ry, 140, lisse(u)) + Math.sin(t * 6) * 6; }
+    c.save(); c.translate(x, y);
+    c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, 0, 13, 7, 0, 0, 6.28); c.fill();
+    c.beginPath(); c.arc(11, -5, 5.5, 0, 6.28); c.fill();
+    c.fillStyle = '#f2b705'; c.beginPath(); c.moveTo(16, -5); c.lineTo(24, -3); c.lineTo(16, -2); c.fill();
+    c.fillStyle = '#111'; c.beginPath(); c.arc(13, -6, 1.3, 0, 6.28); c.fill();
+    c.fillStyle = '#9aa7b6';
+    const ail = vol ? Math.sin(t * 22) * 12 : 0;
+    c.beginPath(); c.moveTo(-6, -2); c.lineTo(4, -2); c.lineTo(-4 + (vol ? 0 : 6), -14 - ail); c.closePath(); c.fill();
+    if (!vol) { c.strokeStyle = '#f2b705'; c.lineWidth = 1.5; c.beginPath(); c.moveTo(-2, 6); c.lineTo(-2, 10); c.moveTo(3, 6); c.lineTo(3, 10); c.stroke(); }
+    if (t >= 4.6) { c.fillStyle = '#d99a3c'; c.beginPath(); c.ellipse(24, 0, 7, 4, .3, 0, 6.28); c.fill(); }
+    c.restore();
+  }
+  function particules(t, dt, b) {
+    if (t > 5.5) {
+      const chem = { x: b.x0 + 142 * Math.cos(b.a) + 70 * Math.sin(b.a), y: b.y0 - 72 };
+      const dense = t < 6.2 ? 26 : 9;
+      if (Math.random() < dt * dense) fumees.push({ x: chem.x, y: chem.y, r: t < 6.2 ? 9 : 5, v: 1, g: t < 6.2 ? 70 : 150 });
+    }
+    if (t > 7 && Math.random() < dt * 30) embruns.push({ x: b.x0 + 330, y: b.y0 - 6, vx: rand(-60, 60), vy: rand(-140, -60), v: 1 });
+    for (const f of fumees) { f.x -= 40 * dt; f.y -= 32 * dt; f.r += 14 * dt; f.v -= dt * .7; }
+    for (const e of embruns) { e.x += e.vx * dt; e.y += e.vy * dt; e.vy += 380 * dt; e.v -= dt * 1.4; }
+    fumees = fumees.filter(f => f.v > 0); embruns = embruns.filter(e => e.v > 0);
+    for (const f of fumees) { c.fillStyle = `rgba(${f.g},${f.g},${f.g + 10},${f.v * .5})`; c.beginPath(); c.arc(f.x, f.y, f.r, 0, 6.28); c.fill(); }
+    c.fillStyle = '#fff'; for (const e of embruns) { c.globalAlpha = e.v; c.beginPath(); c.arc(e.x, e.y, 2.2, 0, 6.28); c.fill(); }
+    c.globalAlpha = 1;
+  }
+  function son(cle, f) { if (!joues[cle]) { joues[cle] = true; f(); } }
+  function image(maint) {
+    if (!actif) return;
+    requestAnimationFrame(image);
+    const t = (maint - t0) / 1000, dt = Math.min(.05, (maint - avant) / 1000 || 0); avant = maint;
+    if (t >= DUREE) { finir(); return; }
+    c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = '#0b1633'; c.fillRect(0, 0, cvI.width, cvI.height); c.restore();
+    ciel(t); mer(t); quai(t); amarre(t);
+    const b = ctv(t);
+    equipe(t); grue(t); particules(t, dt, b); mouette(t);
+    if (t > 4.6) son('mouette', () => sons.mouette());
+    if (t > 5.5) son('moteur', () => { bip(55, 1.4, 'sawtooth', .05); bip(82, 1.2, 'square', .02, .2); });
+    if (t > 6.6) son('corne', () => { bip(147, .9, 'sawtooth', .07); bip(220, .9, 'sawtooth', .05); });
+    // titre de la journée, puis fondu
+    const tt = lisse((t - 8.2) / .8) * (1 - lisse((t - 10.2) / .6));
+    if (tt > 0) {
+      c.save(); c.globalAlpha = tt; c.textAlign = 'center'; c.fillStyle = '#fff'; c.shadowColor = 'rgba(0,30,70,.5)'; c.shadowBlur = 18;
+      c.font = '800 110px "Fira Sans", sans-serif';
+      const fs = Math.min(110, 110 * 1300 / c.measureText(jour).width); c.font = '800 ' + Math.round(fs) + 'px "Fira Sans", sans-serif'; c.fillText(jour, 800, 300);
+      c.font = '600 34px "Fira Sans", sans-serif'; c.fillText('☀️ ' + tx('interSous') + ' ⚓', 800, 352); c.restore();
+    }
+    const fondu = lisse((t - 10.4) / .6);
+    if (fondu > 0) { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = 'rgba(11,22,51,' + fondu + ')'; c.fillRect(0, 0, cvI.width, cvI.height); c.restore(); }
+    const lg = tx('interLegendes').filter(([d]) => t >= d).pop();
+    const txt = t > 8 ? '' : lg ? lg[1] : '';
+    if ($('interLegende').textContent !== txt) $('interLegende').textContent = txt;
+  }
+  function finir() {
+    if (!actif) return;
+    actif = false; $('ecranInterlude').hidden = true;
+    const f = suite; suite = null; if (f) f();
+  }
+  function jouer(titre, apres) {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { apres(); return; }
+    jour = titre; suite = apres; fumees = []; embruns = []; joues = {};
+    for (const id of ['ecranFin', 'ecranBase']) $(id).hidden = true;
+    $('ecranInterlude').hidden = false; $('interLegende').textContent = '';
+    taille(); actif = true; t0 = avant = performance.now(); requestAnimationFrame(image);
+  }
+  function vignette(cible, tv) {   // une image fixe de l'animation, pour l'onglet « Animations »
+    const garde = c; c = cible.getContext('2d'); c.setTransform(cible.width / 1600, 0, 0, cible.height / 900, 0, 0);
+    ciel(tv); mer(tv); quai(tv); amarre(tv); ctv(tv); equipe(tv); grue(tv); mouette(tv);
+    c = garde;
+  }
+  addEventListener('resize', () => { if (actif) taille(); });
+  $('ecranInterlude').addEventListener('click', finir);
+  addEventListener('keydown', e => { if (actif && [' ', 'Enter', 'Escape'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); finir(); } }, true);
+  return { jouer, vignette };
+})();
+interlude.vignette($('vignetteCtv'), 7.4);
+if (document.fonts) document.fonts.ready.then(() => interlude.vignette($('vignetteCtv'), 7.4));
+$('animCtv').addEventListener('click', () => { initAudio(); interlude.jouer(t('animFin'), () => {}); });
 
 /* =====================================================================
    Interactions : survol, clic, menu contextuel
