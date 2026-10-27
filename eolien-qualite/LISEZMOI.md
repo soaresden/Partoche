@@ -12,7 +12,7 @@ sur le thème « Quality: Powering Performance ». Il se joue sur la vraie impla
 ## Mise en route
 
 1. **Supabase** : ouvrez *SQL Editor › New query* et collez `supabase.sql`.
-   **Avant de lancer**, remplacez `ChangezMoi-2026` (section 6) par votre mot de passe organisateur, puis cliquez sur *Run*.
+   Cliquez sur *Run*.
    Le script peut être relancé sans risque. Si vous l'avez déjà passé, relancez-le simplement :
    il autorise désormais la valeur `sharepoint` dans la colonne `source`.
 2. **SharePoint** : déposez le fichier dans la bibliothèque *Ressources du site* (*Site Assets*) en le renommant **`jeu.aspx`**,
@@ -41,12 +41,13 @@ Le **temps de jeu** de chaque partie est enregistré (`temps_jeu`) ; il n'est vi
 
 ## Panneau organisateur
 
-Sur la page d'accueil, **cliquez 5 fois rapidement sur le logo** (l'éolienne en haut à gauche), puis saisissez le mot de passe.
+Sur la page d'accueil, **cliquez 5 fois rapidement sur le logo du parc** (en haut à gauche) : le panneau s'ouvre directement, sans mot de passe.
 
 - **Parties** : liste avec login (e-mail Microsoft 365), mode, score et temps de jeu. On peut y corriger un pseudo ou un score, supprimer des lignes ou tout effacer. Le filtre affiche le temps de jeu cumulé.
 - **Carrières** : jour atteint, énergie cumulée, budget, temps total. On peut supprimer des carrières.
 
-Toutes ces actions sont vérifiées par Supabase avec le mot de passe : la clé publishable seule ne permet ni de lire les logins ni de modifier quoi que ce soit.
+⚠️ Sans mot de passe, quelqu'un qui récupère la clé publishable (visible dans la page) peut aussi lire les logins et le temps de jeu, ou effacer les scores.
+Pour remettre un mot de passe, exécutez la requête `insert into prive.reglages …` indiquée en commentaire à la section 6 de `supabase.sql` : le jeu le demandera automatiquement.
 
 ## Réglages utiles (dans `index.html`)
 

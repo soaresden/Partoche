@@ -3,7 +3,6 @@
 --  Script à coller dans Supabase > SQL Editor > New query, puis « Run ».
 --  Il peut être relancé sans risque (il ne supprime aucune donnée).
 --
---  >>> AVANT DE LANCER : choisissez le mot de passe organisateur, section 6. <<<
 -- =====================================================================
 
 create extension if not exists pgcrypto with schema extensions;
@@ -229,9 +228,10 @@ grant  execute on function public.sauver_carriere(text, text, text, jsonb)      
 grant  execute on function public.charger_carriere(text, text)                     to anon, authenticated;
 
 -- 6) Panneau organisateur (5 clics rapides sur le logo du jeu) -----------
---    Les fonctions admin_* exigent un mot de passe, vérifié ici côté serveur
---    (la clé publishable étant visible dans la page, elle ne suffit pas).
---    Le mot de passe est rangé haché dans un schéma non exposé par l'API.
+--    Par défaut : SANS mot de passe (à la demande de l'organisation).
+--    Attention : la clé publishable étant visible dans la page, toute personne qui
+--    la récupère peut alors appeler les fonctions admin_* (lire les logins et le temps
+--    de jeu, modifier ou effacer). Pour remettre un mot de passe, voir plus bas.
 create schema if not exists prive;
 revoke all on schema prive from public, anon, authenticated;
 
@@ -241,12 +241,12 @@ create table if not exists prive.reglages (
 );
 revoke all on table prive.reglages from public, anon, authenticated;
 
--- >>> CHOISISSEZ VOTRE MOT DE PASSE ICI (remplacez le texte entre apostrophes) <<<
--- Relancer le script ne l'écrase pas. Pour le changer plus tard, exécutez :
---   update prive.reglages set valeur = extensions.crypt('NouveauMotDePasse', extensions.gen_salt('bf')) where cle = 'mdp_admin';
-insert into prive.reglages (cle, valeur)
-values ('mdp_admin', extensions.crypt('ChangezMoi-2026', extensions.gen_salt('bf')))
-on conflict (cle) do nothing;
+-- Panneau sans mot de passe : on retire celui qui aurait été défini auparavant.
+delete from prive.reglages where cle = 'mdp_admin';
+-- Pour REMETTRE un mot de passe (le jeu le demandera alors automatiquement) :
+--   insert into prive.reglages (cle, valeur)
+--   values ('mdp_admin', extensions.crypt('VotreMotDePasse', extensions.gen_salt('bf')))
+--   on conflict (cle) do update set valeur = excluded.valeur;
 
 create or replace function prive.verifier(mdp text)
 returns void
@@ -257,7 +257,8 @@ as $$
 declare h text;
 begin
   select r.valeur into h from prive.reglages r where r.cle = 'mdp_admin';
-  if h is null or mdp is null or extensions.crypt(mdp, h) <> h then
+  if h is null then return; end if;   -- aucun mot de passe défini : accès libre
+  if mdp is null or extensions.crypt(mdp, h) <> h then
     perform pg_sleep(1);  -- freine les essais en série
     raise exception 'Mot de passe incorrect';
   end if;
