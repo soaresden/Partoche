@@ -272,6 +272,10 @@
   #ecranAccueil .piliers .theme .ic { background: #e6f4fc; }
   .etat-donnees { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--pc-ligne, rgba(255,255,255,.2)); font-size: 12.5px; color: var(--pc-gris, #c6d4ee); }
   .etat-donnees.alerte { color: #b26a00; }
+  .merci { background: linear-gradient(135deg, rgba(0,169,233,.2), rgba(242,183,5,.14)); }
+  .merci b { color: var(--jaune); }
+  .merci .autre-jeu { display: inline-block; margin-top: 6px; }
+  .merci a { color: #7fd3f5; font-weight: 700; }
   .favori-carte h2 { font-size: 30px; }
   .zone-favori { display: grid; justify-items: center; gap: 8px; margin: 14px 0 6px; padding: 16px; border: 2px dashed rgba(242,183,5,.7); border-radius: 18px; background: rgba(242,183,5,.08); text-align: center; }
   .zone-favori .fleche { font-size: 15px; font-weight: 700; color: var(--c-jaune); animation: monte 1.2s ease-in-out infinite alternate; }
@@ -282,7 +286,6 @@
   .secours summary { cursor: pointer; color: var(--encre); }
   .secours textarea { width: 100%; margin: 8px 0; font: 11px/1.3 monospace; border-radius: 8px; padding: 6px; resize: none; }
   .fv-boutons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-  .favori-carte .cta.sec { color: #fff; }
   a.favori { display: inline-block; margin: 6px 0 0; padding: 6px 12px; border-radius: 99px; background: #f2b705; color: #3a2400 !important; font-weight: 700; text-decoration: none; cursor: grab; }
   #ecranAccueil .piliers .theme { border-top: 5px solid var(--c); }
   #ecranAccueil .themes { align-content: center; }
@@ -330,7 +333,7 @@
   .cta { border: 0; border-radius: 12px; padding: 13px 22px; font-size: 17px; font-weight: 700; color: #04223f; background: var(--theme);
     box-shadow: 0 8px 20px rgba(0,169,233,.3); }
   .cta:hover { background: #33bdf0; }
-  .cta.sec { background: rgba(255,255,255,.1); box-shadow: none; border: 1px solid var(--bord); }
+  .cta.sec { background: rgba(255,255,255,.1); box-shadow: none; border: 1px solid var(--bord); color: #fff; }
   .cta.or { background: linear-gradient(180deg, #ffe27a, var(--jaune)); color: #3a2400; box-shadow: 0 8px 20px rgba(255,210,63,.25); }
   .releve h2, .base h2 { font-family: "Playfair Display", Georgia, serif; font-size: 34px; margin: 4px 0 6px; }
   .regles .etapes li { font-size: 16.5px; }
@@ -640,6 +643,8 @@
       <div class="encadre" id="fPareto"></div>
       <div class="encadre profil"><div class="titre" id="fProfil"></div><p id="fProfilTxt"></p></div>
       <p class="morale" data-i18n="morale"></p>
+      <div class="encadre merci"><b data-i18n="merciTitre"></b> <span data-i18n="merciTxt"></span><br>
+        <span class="autre-jeu"><span data-i18n="merciAutre"></span> <a href="https://soaresden.github.io/EDF-COUGame/" target="_blank" rel="noopener">soaresden.github.io/EDF-COUGame</a></span></div>
       <div class="ligne">
         <button class="cta" id="btnRejouer" data-i18n="btnRejouer"></button>
         <button class="cta or" id="btnBase" hidden></button>
@@ -865,7 +870,7 @@ const I18N = {
     errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
     errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
     errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
-    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Cet aperçu ne peut pas enregistrer les scores. Pour jouer pour de vrai : <b>glissez ce bouton dans votre barre de favoris</b>, ouvrez le dossier QualityWeek2026 dans le navigateur, puis cliquez sur le favori.', donneesSp: '💾 Connecté à SharePoint ({login}) · {n} joueur(s) au classement.', donneesSpCharge: '⏳ Chargement des scores depuis SharePoint…', spDroits: 'pas le droit d\'écrire dans le dossier des scores : demandez l\'accès en modification à l\'organisateur', favoriNom: 'Jeu Qualité 2026', sticker: 'C\'est la <b>fête</b><br>de la <b>Qualité</b> !', fvSur: 'Mode d\'emploi · 30 secondes', fvTitre: 'Pour jouer et entrer au classement', fvChapeau: 'Cet aperçu OneDrive ne peut pas enregistrer les scores. Installez une fois le favori ci-dessous : il ouvre le jeu dans SharePoint, avec votre compte EDF.', fvGlissezMoi: '⬆ Glissez-moi dans la barre des favoris ⬆', fvNePasCliquer: 'Ne cliquez pas : maintenez le bouton et glissez-le vers le haut, dans la barre des favoris.', fvEtape1: 'Affichez la barre des favoris d\'Edge : <b>Ctrl + Maj + B</b>.', fvEtape2: '<b>Glissez le bouton jaune</b> dans cette barre, puis relâchez.', fvEtape3: '<b>Cliquez sur le favori « ⭐ Jeu Qualité 2026 »</b> : le jeu s\'ouvre avec votre nom et vos scores comptent.', fvEtape4: 'Les fois suivantes : ouvrez ce lien ou le dossier QualityWeek2026, puis cliquez sur le favori.', fvSecours: 'Le glisser ne marche pas ?', fvSecoursTexte: 'Ajoutez n\'importe quelle page aux favoris (<b>Ctrl + D</b>), puis faites un clic droit sur ce favori › <b>Modifier</b>. Nommez-le « Jeu Qualité 2026 » et collez ce code à la place de l\'URL :', fvCopier: '📋 Copier le code', fvCopie: '✅ Code copié', fvFermer: 'Jouer sans enregistrer', donneesApercuCourt: '⚠️ Dans cet aperçu, les scores ne sont pas enregistrés.', fvOuvrir: '⭐ Mode d\'emploi', favoriGlisser: 'Glissez ce bouton dans la barre des favoris (Ctrl+Maj+B pour l\'afficher). Ouvrez ensuite le dossier QualityWeek2026 dans le navigateur et cliquez sur le favori.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
+    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Cet aperçu ne peut pas enregistrer les scores. Pour jouer pour de vrai : <b>glissez ce bouton dans votre barre de favoris</b>, ouvrez le dossier QualityWeek2026 dans le navigateur, puis cliquez sur le favori.', donneesSp: '💾 Connecté à SharePoint ({login}) · {n} joueur(s) au classement.', donneesSpCharge: '⏳ Chargement des scores depuis SharePoint…', spDroits: 'pas le droit d\'écrire dans le dossier des scores : demandez l\'accès en modification à l\'organisateur', favoriNom: 'Jeu Qualité 2026', donneesPoste: '💾 Les scores sont enregistrés sur ce poste.', merciTitre: '🙏 Merci d\'avoir joué !', merciTxt: 'Merci de faire vivre la qualité au quotidien, et belle Semaine de la qualité à toutes et à tous.', merciAutre: '🎮 N\'hésitez pas à tester l\'autre jeu du projet :', sticker: 'C\'est la <b>fête</b><br>de la <b>Qualité</b> !', fvSur: 'Mode d\'emploi · 30 secondes', fvTitre: 'Pour jouer et entrer au classement', fvChapeau: 'Cet aperçu OneDrive ne peut pas enregistrer les scores. Installez une fois le favori ci-dessous : il ouvre le jeu dans SharePoint, avec votre compte EDF.', fvGlissezMoi: '⬆ Glissez-moi dans la barre des favoris ⬆', fvNePasCliquer: 'Ne cliquez pas : maintenez le bouton et glissez-le vers le haut, dans la barre des favoris.', fvEtape1: 'Affichez la barre des favoris d\'Edge : <b>Ctrl + Maj + B</b>.', fvEtape2: '<b>Glissez le bouton jaune</b> dans cette barre, puis relâchez.', fvEtape3: '<b>Cliquez sur le favori « ⭐ Jeu Qualité 2026 »</b> : le jeu s\'ouvre avec votre nom et vos scores comptent.', fvEtape4: 'Les fois suivantes : ouvrez ce lien ou le dossier QualityWeek2026, puis cliquez sur le favori.', fvSecours: 'Le glisser ne marche pas ?', fvSecoursTexte: 'Ajoutez n\'importe quelle page aux favoris (<b>Ctrl + D</b>), puis faites un clic droit sur ce favori › <b>Modifier</b>. Nommez-le « Jeu Qualité 2026 » et collez ce code à la place de l\'URL :', fvCopier: '📋 Copier le code', fvCopie: '✅ Code copié', fvFermer: 'Jouer sans enregistrer', donneesApercuCourt: '⚠️ Dans cet aperçu, les scores ne sont pas enregistrés.', fvOuvrir: '⭐ Mode d\'emploi', favoriGlisser: 'Glissez ce bouton dans la barre des favoris (Ctrl+Maj+B pour l\'afficher). Ouvrez ensuite le dossier QualityWeek2026 dans le navigateur et cliquez sur le favori.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
     piliersTitre: 'Les 4 piliers de la performance',
     piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
     p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> le défaut au lieu de le subir.',
@@ -1011,7 +1016,7 @@ const I18N = {
     errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
     errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
     errHorsLigne: 'Offline: the career is kept on this computer only.',
-    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ This preview cannot save scores. To play for real: <b>drag this button to your favorites bar</b>, open the QualityWeek2026 folder in the browser, then click the favorite.', donneesSp: '💾 Connected to SharePoint ({login}) · {n} player(s) on the leaderboard.', donneesSpCharge: '⏳ Loading scores from SharePoint…', spDroits: 'no permission to write to the scores folder: ask the organiser for edit access', favoriNom: 'Quality Game 2026', sticker: 'Let\'s <b>celebrate</b><br><b>Quality</b>!', fvSur: 'How to · 30 seconds', fvTitre: 'To play and join the leaderboard', fvChapeau: 'This OneDrive preview cannot save scores. Install the favorite below once: it opens the game in SharePoint, with your EDF account.', fvGlissezMoi: '⬆ Drag me to the favorites bar ⬆', fvNePasCliquer: 'Don\'t click: hold the button and drag it up into the favorites bar.', fvEtape1: 'Show the Edge favorites bar: <b>Ctrl + Shift + B</b>.', fvEtape2: '<b>Drag the yellow button</b> onto that bar, then release.', fvEtape3: '<b>Click the "⭐ Quality Game 2026" favorite</b>: the game opens with your name and your scores count.', fvEtape4: 'Next time: open this link or the QualityWeek2026 folder, then click the favorite.', fvSecours: 'Dragging doesn\'t work?', fvSecoursTexte: 'Add any page to your favorites (<b>Ctrl + D</b>), then right-click that favorite › <b>Edit</b>. Name it "Quality Game 2026" and paste this code in place of the URL:', fvCopier: '📋 Copy the code', fvCopie: '✅ Code copied', fvFermer: 'Play without saving', donneesApercuCourt: '⚠️ Scores are not saved in this preview.', fvOuvrir: '⭐ How to', favoriGlisser: 'Drag this button to the favorites bar (Ctrl+Shift+B to show it). Then open the QualityWeek2026 folder in the browser and click the favorite.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
+    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ This preview cannot save scores. To play for real: <b>drag this button to your favorites bar</b>, open the QualityWeek2026 folder in the browser, then click the favorite.', donneesSp: '💾 Connected to SharePoint ({login}) · {n} player(s) on the leaderboard.', donneesSpCharge: '⏳ Loading scores from SharePoint…', spDroits: 'no permission to write to the scores folder: ask the organiser for edit access', favoriNom: 'Quality Game 2026', donneesPoste: '💾 Scores are saved on this computer.', merciTitre: '🙏 Thanks for playing!', merciTxt: 'Thank you for bringing quality to life every day, and happy World Quality Week to all.', merciAutre: '🎮 Feel free to try the project\'s other game:', sticker: 'Let\'s <b>celebrate</b><br><b>Quality</b>!', fvSur: 'How to · 30 seconds', fvTitre: 'To play and join the leaderboard', fvChapeau: 'This OneDrive preview cannot save scores. Install the favorite below once: it opens the game in SharePoint, with your EDF account.', fvGlissezMoi: '⬆ Drag me to the favorites bar ⬆', fvNePasCliquer: 'Don\'t click: hold the button and drag it up into the favorites bar.', fvEtape1: 'Show the Edge favorites bar: <b>Ctrl + Shift + B</b>.', fvEtape2: '<b>Drag the yellow button</b> onto that bar, then release.', fvEtape3: '<b>Click the "⭐ Quality Game 2026" favorite</b>: the game opens with your name and your scores count.', fvEtape4: 'Next time: open this link or the QualityWeek2026 folder, then click the favorite.', fvSecours: 'Dragging doesn\'t work?', fvSecoursTexte: 'Add any page to your favorites (<b>Ctrl + D</b>), then right-click that favorite › <b>Edit</b>. Name it "Quality Game 2026" and paste this code in place of the URL:', fvCopier: '📋 Copy the code', fvCopie: '✅ Code copied', fvFermer: 'Play without saving', donneesApercuCourt: '⚠️ Scores are not saved in this preview.', fvOuvrir: '⭐ How to', favoriGlisser: 'Drag this button to the favorites bar (Ctrl+Shift+B to show it). Then open the QualityWeek2026 folder in the browser and click the favorite.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
     piliersTitre: 'The 4 Pillars of Performance',
     piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
     p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> faults instead of suffering them.',
@@ -1357,13 +1362,17 @@ function majEtatDonnees() {
     el.append(' ', b);
     majModeEmploi();
     if (!modeEmploiVu) { modeEmploiVu = true; ouvrirModeEmploi(); }
-  } else if (!['ok', 'sp', 'sp-charge', 'indispo'].includes(e)) {
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'lien';
-    b.textContent = t(e === 'relier' ? 'donneesBtnRelier' : e === 'erreur' ? 'donneesBtnReessayer' : 'donneesBtnChoisir');
-    b.addEventListener('click', () => (SP.actif ? initSharePoint() : relierDossier(true)));
+  } else if (SP.actif && e === 'erreur') {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'lien'; b.textContent = t('donneesBtnReessayer');
+    b.addEventListener('click', initSharePoint);
     el.append(' ', b);
   }
-  if ($('adDossier')) $('adDossier').innerHTML = el.innerHTML.replace(/<button[\s\S]*<\/button>/, '');
+  // le dossier des scores du stand se règle dans le panneau organisateur : les joueurs n'ont rien à choisir
+  if ($('adDossier')) {
+    $('adDossier').innerHTML = el.innerHTML.replace(/<button[\s\S]*<\/button>/, '');
+    $('adDossierBtn').textContent = e === 'relier' ? '🔌 Autoriser le dossier « ' + (donnees.nom || '') + ' »' : '📁 Choisir le dossier des scores';
+  }
+  if (!SP.actif && ['local', 'relier', 'erreur'].includes(e)) { el.className = 'etat-donnees'; el.textContent = t('donneesPoste'); }
 }
 
 /* ---------- Classements, calculés à partir des parties ---------- */
@@ -2868,7 +2877,7 @@ for (const v of ['parties', 'carrieres']) $('adVue' + v.charAt(0).toUpperCase() 
   $('adVider').hidden = v !== 'parties';
   afficherAdmin();
 });
-$('adDossierBtn').addEventListener('click', () => relierDossier('changer').then(afficherAdmin));
+$('adDossierBtn').addEventListener('click', () => relierDossier(donnees.etat === 'relier' ? true : 'changer').then(afficherAdmin));
 $('adExporter').addEventListener('click', () => {
   for (const [nom, data] of [[CONFIG.fichiers.scores, { v: 1, parties: BD.parties }], [CONFIG.fichiers.carrieres, { v: 1, carrieres: BD.carrieres }]]) {
     const a = document.createElement('a');
