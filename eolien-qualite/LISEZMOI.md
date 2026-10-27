@@ -75,7 +75,12 @@ les joueurs ne peuvent pas les modifier.
 - **⚡ Sprint 90 s, pour tout le monde.** Une journée (6 h → 22 h) en 90 secondes. Avant de jouer, une carte présente les règles en 20 secondes,
   puis un petit dessin animé (11 s, on peut le passer) montre le CTV qui se prépare à Ouistreham et appareille.
   On clique sur une éolienne orange et on choisit **Réparer** (rapide) ou **Fiabiliser** (plus long, mais le défaut ne revient presque plus : l'éolienne devient dorée).
+  Au 1er défaut, on répare et on observe : la fiabilisation n'est possible qu'**à partir du 2ᵉ défaut** (la cause est alors confirmée).
+  À ce moment, le jeu se met en pause une fois : « C'est la 2ᵉ fois que cette éolienne a un problème : il serait temps de la fiabiliser, tu ne penses pas ? »
+  On n'a que **5 kits de fiabilisation** : impossible de tout fiabiliser, il faut garder les kits pour celles qui reviennent le plus (Pareto).
+  Chaque défaut coûte **50 points** (coût de la non-qualité), détaillé en fin de partie.
   Il n'y a pas de pièces, de carburant ni de météo à gérer. Tous les joueurs d'une même journée ont le même vent, pour un classement équitable.
+  Réglage vérifié au bot : fiabiliser les récidivistes rapporte environ 10 % de points de plus que courir d'une panne à l'autre.
 - **🧭 Carrière, pour ceux qui accrochent.** Des journées de 3 minutes, reprises avec son nom. Chaque soir, l'électricité vendue,
   moins les pièces, le carburant et les rotors remplacés, donne un budget pour améliorer le bateau à la base.
   Une mécanique s'ajoute chaque jour :
