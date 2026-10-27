@@ -2242,7 +2242,7 @@ function afficherAdmin() {
       tb.append(tr); continue;
     }
     cellule(tr, date(l.created_at));
-    cellule(tr, l.login, 'login-c').title = l.login + (l.source === 'windows' ? ' (Windows)' : ' (saisi)');
+    cellule(tr, l.login, 'login-c').title = l.login + ({ windows: ' (Windows)', sharepoint: ' (Microsoft 365)' }[l.source] || ' (saisi)');
     const ps = document.createElement('input'); ps.type = 'text'; ps.maxLength = 24; ps.value = l.pseudo;
     cellule(tr, ps);
     cellule(tr, l.mode === 'carriere' ? '🧭 carrière J' + l.jour : '⚡ sprint');
