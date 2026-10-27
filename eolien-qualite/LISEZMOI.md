@@ -108,12 +108,13 @@ et le **planificateur** : 8 puis 10 ordres dans la barre du bas, et le bouton «
   On y voit d'un coup d'œil que quelques éoliennes « plus exposées » font l'essentiel des défauts.
 - Le bouton **📋 Compte rendu** ouvre la réunion de fin de journée : le chef d'équipe dit ce qui a été réparé et fiabilisé,
   la référente qualité interprète (« ça fait 3 fois qu'on la répare : il y a un vrai souci, il faut la fiabiliser au plus tôt demain »),
-  la supervision donne le Pareto et le coût de la non-qualité, puis vient la décision et un plan d'actions pour demain.
+  la supervision donne le Pareto et le coût de la non-qualité, puis viennent les **préconisations de l'équipe** pour demain, point par point (au joueur de décider).
   En Carrière, ces priorités apparaissent au briefing du lendemain (badge rouge « priorité »).
 - L'écran de fin remercie le joueur et propose **Pile Poil**, l'autre jeu du projet.
 
 **L'accueil** est en fête : guirlande, confettis, ballons « Q » à éclater d'un clic, feux d'artifice (plus nombreux le jeudi 12 novembre).
-L'onglet **Animations** permet de revoir le dessin animé du CTV.
+L'onglet **Animations** propose quatre petits films : le CTV qui appareille, « Réparer ou fiabiliser ? »,
+le transfert du technicien sur l'éolienne, et une journée au parc en accéléré jusqu'au feu d'artifice.
 
 Le vocabulaire reste neutre vis-à-vis du constructeur : on parle de « défauts » et d'éoliennes « plus exposées » (houle, embruns),
 jamais de matériel peu fiable. Pour retirer les incendies et les explosions, passez `incendies: false` dans `CONFIG`,
