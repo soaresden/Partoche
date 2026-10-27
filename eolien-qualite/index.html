@@ -429,6 +429,12 @@
   .admin .outils { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .admin .outils #adFiltre { flex: 1 1 220px; }
   .admin .compte-ad { color: var(--doux); font-size: 14px; }
+  #adDiag { overflow: auto; min-height: 0; }
+  .diag { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+  .diag li { display: grid; grid-template-columns: 28px 1fr; gap: 2px 8px; padding: 9px 12px; border-radius: 10px; background: rgba(255,255,255,.05); border-left: 4px solid var(--doux); }
+  .diag li.ok { border-left-color: var(--vert); } .diag li.ko { border-left-color: #ff4d5e; background: rgba(255,77,94,.1); } .diag li.info { border-left-color: var(--theme); }
+  .diag .st { grid-row: span 2; font-size: 18px; }
+  .diag small { color: var(--doux); font-size: 12.5px; word-break: break-word; }
   #adContenu { display: contents; }
   .table-wrap { overflow: auto; border-radius: 12px; border: 1px solid var(--bord); min-height: 120px; }
   .admin table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -791,6 +797,7 @@
       <div class="outils">
         <button class="btn actif" id="adVueParties" type="button">Parties</button>
         <button class="btn" id="adVueCarrieres" type="button">Carrières</button>
+        <button class="btn" id="adVueDiag" type="button">🩺 Diagnostic</button>
         <button class="btn" id="adFermer" type="button">Fermer ✕</button>
       </div>
     </div>
@@ -813,6 +820,14 @@
         </table>
       </div>
     </div>
+    <div id="adDiag" hidden>
+      <div class="outils">
+        <button class="btn ok" id="diagLancer" type="button">▶ Lancer le diagnostic</button>
+        <button class="btn" id="diagCopier" type="button">📋 Copier le rapport</button>
+        <span class="compte-ad">Teste chaque maillon : connexion, dossiers, écriture, fichiers joueurs, puis une partie de démo (effacée ensuite).</span>
+      </div>
+      <ol class="diag" id="diagListe"></ol>
+    </div>
     <div id="adMsg"></div>
   </div>
 </div>
@@ -821,6 +836,8 @@
 'use strict';
 // erreurs de démarrage, relues par le favori pour dire pourquoi le jeu ne démarre pas
 window.QW_ERREURS = []; addEventListener('error', e => window.QW_ERREURS.push(e.message));
+// comment le script a démarré (affiché par le diagnostic)
+window.QW_VIA = document.currentScript ? (document.currentScript.nonce ? 'jeton SharePoint (nonce)' : 'script normal') : 'eval (secours du favori)';
 document.getElementById('sansJs').remove();   // le script tourne : l'écran de secours ne sert pas
 
 /* =====================================================================
@@ -945,7 +962,7 @@ const I18N = {
     modeSprint: 'Une journée en 90 secondes, deux boutons à connaître. Idéal pour découvrir !',
     modeCarriere: 'Pour ceux qui accrochent : une nouveauté chaque jour, un budget pour améliorer le bateau. Reprenez-la avec votre nom.',
     nomLabel: 'Votre nom pour le classement', nomPh: 'Prénom N.',
-    btnSprint: 'Larguer les amarres ▶', btnCarriereNew: 'Commencer ma carrière ▶', btnCarriereSuite: 'Continuer · jour {n} ▶', patience: 'Connexion…',
+    btnSprint: 'Goooooooooo Offshore ▶', btnCarriereNew: 'Commencer ma carrière ▶', btnCarriereSuite: 'Continuer · jour {n} ▶', patience: 'Connexion…',
     rgTitre: 'Les règles en 20 secondes', rgJour: 'Jour {j}', rgSurCarriere: 'Carrière de {pseudo}', btnGo: 'C\'est parti ▶',
     rg1: 'Une éolienne <b>orange</b> signale un défaut : elle tourne au ralenti.',
     rg2: '<b>Cliquez dessus</b> et choisissez : <b>Réparer</b> (rapide) ou <b>Fiabiliser</b> (plus long, mais le défaut ne revient presque plus : elle devient <b>dorée</b> ✨). Le bateau y va tout seul.',
@@ -979,7 +996,7 @@ const I18N = {
     errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
     errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
     errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
-    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Cet aperçu ne peut pas enregistrer les scores. Pour jouer pour de vrai : <b>glissez ce bouton dans votre barre de favoris</b>, ouvrez le dossier QualityWeek2026 dans le navigateur, puis cliquez sur le favori.', donneesSp: '💾 Connecté à SharePoint ({login}) · {n} joueur(s) au classement.', donneesSpCharge: '⏳ Chargement des scores depuis SharePoint…', spDroits: 'pas le droit d\'écrire dans le dossier des scores : demandez l\'accès en modification à l\'organisateur', favoriNom: 'Jeu Qualité 2026', planifEff: ['6 ordres', '8 ordres + trajet optimisé', '10 ordres + trajet optimisé'], brTitre: '🗺️ Briefing du matin · jour {j}', brAide: 'Hier, <b>{n}</b> éoliennes ont eu des défauts (badges orange). Cliquez sur celles à <b>fiabiliser</b>, dans l\'ordre de passage (jusqu\'à {max}). Un 2e clic retire l\'éolienne. Le trajet s\'affiche en jaune.', brStats: '🧭 <b>{n}</b> arrêt(s) · {km} km de mer · ≈ <b>{h}</b> de mer et d\'interventions · 📦 {p} pièce(s) sur {stock}', brVide: 'Aucun arrêt prévu pour l\'instant.', brPieces: '⚠️ Pas assez de pièces à bord pour tout : prévoyez un passage à la base.', brEffacer: '↺ Effacer', brOptimiser: '✨ Optimiser le trajet', brValider: '✅ Valider le plan et appareiller', brSansPlan: 'Partir sans plan', brParti: '📋 Plan validé : {n} arrêt(s) au programme', brBadge: 'hier ×{n}', interPasser: 'Passer ⏭', interLegendes: [[0, 'Ouistreham, 05:10 · le port se réveille'], [1.4, '05:25 · chargement des pièces détachées'], [3.1, '05:40 · casques, gilets, briefing sécurité ✔'], [4.5, '05:42 · … et un croissant de moins 🥐'], [5.7, '05:55 · moteurs, largage des amarres'], [7.1, '06:00 · cap sur le parc ! ⚓']], interSous: 'Le parc vous attend', donneesPoste: '💾 Les scores sont enregistrés sur ce poste.', merciTitre: '🙏 Merci d\'avoir joué !', merciTxt: 'Merci de faire vivre la qualité au quotidien, et belle Semaine de la qualité à toutes et à tous.', merciAutre: '🎮 N\'hésitez pas à tester l\'autre jeu du projet :', pileSous: 'le chantier du large', pileTxt: 'Hissez les 64 éoliennes du parc, pièce par pièce, au bout d\'une grue qui balance.', pileJouer: '▶ Jouer à Pile Poil', sticker: 'C\'est la <b>fête</b><br>de la <b>Qualité</b> !', fvSur: 'Mode d\'emploi · 30 secondes', fvTitre: 'Pour jouer et entrer au classement', fvChapeau: 'Cet aperçu OneDrive ne peut pas enregistrer les scores. Installez une fois le favori ci-dessous : il ouvre le jeu dans SharePoint, avec votre compte EDF.', fvGlissezMoi: '⬆ Glissez-moi dans la barre des favoris ⬆', fvNePasCliquer: 'Ne cliquez pas : maintenez le bouton et glissez-le vers le haut, dans la barre des favoris.', fvEtape1: 'Affichez la barre des favoris d\'Edge : <b>Ctrl + Maj + B</b>.', fvEtape2: '<b>Glissez le bouton jaune</b> dans cette barre, puis relâchez.', fvEtape3: '<b>Cliquez sur le favori « ⭐ Jeu Qualité 2026 »</b> : le jeu s\'ouvre avec votre nom et vos scores comptent.', fvEtape4: 'Les fois suivantes : ouvrez ce lien ou le dossier QualityWeek2026, puis cliquez sur le favori.', fvSecours: 'Le glisser ne marche pas ?', fvSecoursTexte: 'Ajoutez n\'importe quelle page aux favoris (<b>Ctrl + D</b>), puis faites un clic droit sur ce favori › <b>Modifier</b>. Nommez-le « Jeu Qualité 2026 » et collez ce code à la place de l\'URL :', fvCopier: '📋 Copier le code', fvCopie: '✅ Code copié', fvFermer: 'Jouer sans enregistrer', donneesApercuCourt: '⚠️ Dans cet aperçu, les scores ne sont pas enregistrés.', fvOuvrir: '⭐ Mode d\'emploi', favoriGlisser: 'Glissez ce bouton dans la barre des favoris (Ctrl+Maj+B pour l\'afficher). Ouvrez ensuite le dossier QualityWeek2026 dans le navigateur et cliquez sur le favori.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
+    donneesOk: '💾 Scores enregistrés dans le dossier « {nom} ».', donneesLocal: '💾 Scores gardés dans ce navigateur pour l\'instant.', donneesRelier: '🔌 Le dossier « {nom} » attend votre autorisation.', donneesErreur: '⚠️ Écriture impossible dans le dossier ({err}).', donneesIndispo: '⚠️ Ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome. Scores gardés dans le navigateur.', donneesApercu: '⚠️ Cet aperçu ne peut pas enregistrer les scores. Pour jouer pour de vrai : <b>glissez ce bouton dans votre barre de favoris</b>, ouvrez le dossier QualityWeek2026 dans le navigateur, puis cliquez sur le favori.', donneesSp: '💾 Connecté à SharePoint ({login}) · {n} joueur(s) au classement.', donneesSpCharge: '⏳ Chargement des scores depuis SharePoint…', spEtapeLire: 'lecture du dossier « donnees »', spEtapeCreer: 'création du dossier « donnees »', spEtapeEcrire: 'écriture du fichier joueur', spDroits: 'pas le droit d\'écrire dans le dossier des scores : demandez l\'accès en modification à l\'organisateur', favoriNom: 'Jeu Qualité 2026', planifEff: ['6 ordres', '8 ordres + trajet optimisé', '10 ordres + trajet optimisé'], brTitre: '🗺️ Briefing du matin · jour {j}', brAide: 'Hier, <b>{n}</b> éoliennes ont eu des défauts (badges orange). Cliquez sur celles à <b>fiabiliser</b>, dans l\'ordre de passage (jusqu\'à {max}). Un 2e clic retire l\'éolienne. Le trajet s\'affiche en jaune.', brStats: '🧭 <b>{n}</b> arrêt(s) · {km} km de mer · ≈ <b>{h}</b> de mer et d\'interventions · 📦 {p} pièce(s) sur {stock}', brVide: 'Aucun arrêt prévu pour l\'instant.', brPieces: '⚠️ Pas assez de pièces à bord pour tout : prévoyez un passage à la base.', brEffacer: '↺ Effacer', brOptimiser: '✨ Optimiser le trajet', brValider: '✅ Valider le plan et appareiller', brSansPlan: 'Partir sans plan', brParti: '📋 Plan validé : {n} arrêt(s) au programme', brBadge: 'hier ×{n}', interPasser: 'Passer ⏭', interLegendes: [[0, 'Ouistreham, 05:10 · le port se réveille'], [1.4, '05:25 · chargement des pièces détachées'], [3.1, '05:40 · casques, gilets, briefing sécurité ✔'], [4.5, '05:42 · … et un croissant de moins 🥐'], [5.7, '05:55 · moteurs, largage des amarres'], [7.1, '06:00 · cap sur le parc ! ⚓']], interSous: 'Le parc vous attend', donneesPoste: '💾 Les scores sont enregistrés sur ce poste.', merciTitre: '🙏 Merci d\'avoir joué !', merciTxt: 'Merci de faire vivre la qualité au quotidien, et belle Semaine de la qualité à toutes et à tous.', merciAutre: '🎮 N\'hésitez pas à tester l\'autre jeu du projet :', pileSous: 'le chantier du large', pileTxt: 'Hissez les 64 éoliennes du parc, pièce par pièce, au bout d\'une grue qui balance.', pileJouer: '▶ Jouer à Pile Poil', sticker: 'C\'est la <b>fête</b><br>de la <b>Qualité</b> !', fvSur: 'Mode d\'emploi · 30 secondes', fvTitre: 'Pour jouer et entrer au classement', fvChapeau: 'Cet aperçu OneDrive ne peut pas enregistrer les scores. Installez une fois le favori ci-dessous : il ouvre le jeu dans SharePoint, avec votre compte EDF.', fvGlissezMoi: '⬆ Glissez-moi dans la barre des favoris ⬆', fvNePasCliquer: 'Ne cliquez pas : maintenez le bouton et glissez-le vers le haut, dans la barre des favoris.', fvEtape1: 'Affichez la barre des favoris d\'Edge : <b>Ctrl + Maj + B</b>.', fvEtape2: '<b>Glissez le bouton jaune</b> dans cette barre, puis relâchez.', fvEtape3: '<b>Cliquez sur le favori « ⭐ Jeu Qualité 2026 »</b> : le jeu s\'ouvre avec votre nom et vos scores comptent.', fvEtape4: 'Les fois suivantes : ouvrez ce lien ou le dossier QualityWeek2026, puis cliquez sur le favori.', fvSecours: 'Le glisser ne marche pas ?', fvSecoursTexte: 'Ajoutez n\'importe quelle page aux favoris (<b>Ctrl + D</b>), puis faites un clic droit sur ce favori › <b>Modifier</b>. Nommez-le « Jeu Qualité 2026 » et collez ce code à la place de l\'URL :', fvCopier: '📋 Copier le code', fvCopie: '✅ Code copié', fvFermer: 'Jouer sans enregistrer', donneesApercuCourt: '⚠️ Dans cet aperçu, les scores ne sont pas enregistrés.', fvOuvrir: '⭐ Mode d\'emploi', favoriGlisser: 'Glissez ce bouton dans la barre des favoris (Ctrl+Maj+B pour l\'afficher). Ouvrez ensuite le dossier QualityWeek2026 dans le navigateur et cliquez sur le favori.', donneesBtnChoisir: 'Choisir le dossier des scores', donneesBtnRelier: 'Autoriser', donneesBtnReessayer: 'Réessayer',
     piliersTitre: 'Les 4 piliers de la performance',
     piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
     p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> le défaut au lieu de le subir.',
@@ -1092,7 +1109,7 @@ const I18N = {
     modeSprint: 'One day in 90 seconds, two buttons to know. Perfect to start!',
     modeCarriere: 'For those who get hooked: something new every day, a budget to upgrade the boat. Resume it with your name.',
     nomLabel: 'Your name for the leaderboard', nomPh: 'First name L.',
-    btnSprint: 'Cast off ▶', btnCarriereNew: 'Start my career ▶', btnCarriereSuite: 'Continue · day {n} ▶', patience: 'Connecting…',
+    btnSprint: 'Goooooooooo Offshore ▶', btnCarriereNew: 'Start my career ▶', btnCarriereSuite: 'Continue · day {n} ▶', patience: 'Connecting…',
     rgTitre: 'The rules in 20 seconds', rgJour: 'Day {j}', rgSurCarriere: '{pseudo}\'s career', btnGo: 'Let\'s go ▶',
     rg1: 'An <b>orange</b> turbine reports a fault: it runs at reduced power.',
     rg2: '<b>Click it</b> and choose: <b>Repair</b> (quick) or <b>Reinforce</b> (longer, but the fault hardly ever comes back: it turns <b>golden</b> ✨). The boat sails there on its own.',
@@ -1126,7 +1143,7 @@ const I18N = {
     errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
     errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
     errHorsLigne: 'Offline: the career is kept on this computer only.',
-    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ This preview cannot save scores. To play for real: <b>drag this button to your favorites bar</b>, open the QualityWeek2026 folder in the browser, then click the favorite.', donneesSp: '💾 Connected to SharePoint ({login}) · {n} player(s) on the leaderboard.', donneesSpCharge: '⏳ Loading scores from SharePoint…', spDroits: 'no permission to write to the scores folder: ask the organiser for edit access', favoriNom: 'Quality Game 2026', planifEff: ['6 orders', '8 orders + optimised route', '10 orders + optimised route'], brTitre: '🗺️ Morning briefing · day {j}', brAide: 'Yesterday, <b>{n}</b> turbines had faults (orange badges). Click the ones to <b>reinforce</b>, in visiting order (up to {max}). Click again to remove one. The route shows in yellow.', brStats: '🧭 <b>{n}</b> stop(s) · {km} km at sea · ≈ <b>{h}</b> of sailing and work · 📦 {p} part(s) of {stock}', brVide: 'No stops planned yet.', brPieces: '⚠️ Not enough parts on board for everything: plan a stop at the base.', brEffacer: '↺ Clear', brOptimiser: '✨ Optimise route', brValider: '✅ Approve the plan and sail', brSansPlan: 'Sail without a plan', brParti: '📋 Plan approved: {n} stop(s) scheduled', brBadge: 'yest. ×{n}', interPasser: 'Skip ⏭', interLegendes: [[0, 'Ouistreham, 05:10 · the port wakes up'], [1.4, '05:25 · loading spare parts'], [3.1, '05:40 · helmets, life jackets, safety briefing ✔'], [4.5, '05:42 · … minus one croissant 🥐'], [5.7, '05:55 · engines on, casting off'], [7.1, '06:00 · heading for the farm! ⚓']], interSous: 'The farm is waiting', donneesPoste: '💾 Scores are saved on this computer.', merciTitre: '🙏 Thanks for playing!', merciTxt: 'Thank you for bringing quality to life every day, and happy World Quality Week to all.', merciAutre: '🎮 Feel free to try the project\'s other game:', pileSous: 'the offshore build', pileTxt: 'Lift the farm\'s 64 turbines, piece by piece, from a swinging crane.', pileJouer: '▶ Play Pile Poil', sticker: 'Let\'s <b>celebrate</b><br><b>Quality</b>!', fvSur: 'How to · 30 seconds', fvTitre: 'To play and join the leaderboard', fvChapeau: 'This OneDrive preview cannot save scores. Install the favorite below once: it opens the game in SharePoint, with your EDF account.', fvGlissezMoi: '⬆ Drag me to the favorites bar ⬆', fvNePasCliquer: 'Don\'t click: hold the button and drag it up into the favorites bar.', fvEtape1: 'Show the Edge favorites bar: <b>Ctrl + Shift + B</b>.', fvEtape2: '<b>Drag the yellow button</b> onto that bar, then release.', fvEtape3: '<b>Click the "⭐ Quality Game 2026" favorite</b>: the game opens with your name and your scores count.', fvEtape4: 'Next time: open this link or the QualityWeek2026 folder, then click the favorite.', fvSecours: 'Dragging doesn\'t work?', fvSecoursTexte: 'Add any page to your favorites (<b>Ctrl + D</b>), then right-click that favorite › <b>Edit</b>. Name it "Quality Game 2026" and paste this code in place of the URL:', fvCopier: '📋 Copy the code', fvCopie: '✅ Code copied', fvFermer: 'Play without saving', donneesApercuCourt: '⚠️ Scores are not saved in this preview.', fvOuvrir: '⭐ How to', favoriGlisser: 'Drag this button to the favorites bar (Ctrl+Shift+B to show it). Then open the QualityWeek2026 folder in the browser and click the favorite.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
+    donneesOk: '💾 Scores saved in the "{nom}" folder.', donneesLocal: '💾 Scores kept in this browser for now.', donneesRelier: '🔌 The "{nom}" folder is waiting for your permission.', donneesErreur: '⚠️ Cannot write to the folder ({err}).', donneesIndispo: '⚠️ This browser cannot write files: use Edge or Chrome. Scores kept in the browser.', donneesApercu: '⚠️ This preview cannot save scores. To play for real: <b>drag this button to your favorites bar</b>, open the QualityWeek2026 folder in the browser, then click the favorite.', donneesSp: '💾 Connected to SharePoint ({login}) · {n} player(s) on the leaderboard.', donneesSpCharge: '⏳ Loading scores from SharePoint…', spEtapeLire: 'reading the "donnees" folder', spEtapeCreer: 'creating the "donnees" folder', spEtapeEcrire: 'writing the player file', spDroits: 'no permission to write to the scores folder: ask the organiser for edit access', favoriNom: 'Quality Game 2026', planifEff: ['6 orders', '8 orders + optimised route', '10 orders + optimised route'], brTitre: '🗺️ Morning briefing · day {j}', brAide: 'Yesterday, <b>{n}</b> turbines had faults (orange badges). Click the ones to <b>reinforce</b>, in visiting order (up to {max}). Click again to remove one. The route shows in yellow.', brStats: '🧭 <b>{n}</b> stop(s) · {km} km at sea · ≈ <b>{h}</b> of sailing and work · 📦 {p} part(s) of {stock}', brVide: 'No stops planned yet.', brPieces: '⚠️ Not enough parts on board for everything: plan a stop at the base.', brEffacer: '↺ Clear', brOptimiser: '✨ Optimise route', brValider: '✅ Approve the plan and sail', brSansPlan: 'Sail without a plan', brParti: '📋 Plan approved: {n} stop(s) scheduled', brBadge: 'yest. ×{n}', interPasser: 'Skip ⏭', interLegendes: [[0, 'Ouistreham, 05:10 · the port wakes up'], [1.4, '05:25 · loading spare parts'], [3.1, '05:40 · helmets, life jackets, safety briefing ✔'], [4.5, '05:42 · … minus one croissant 🥐'], [5.7, '05:55 · engines on, casting off'], [7.1, '06:00 · heading for the farm! ⚓']], interSous: 'The farm is waiting', donneesPoste: '💾 Scores are saved on this computer.', merciTitre: '🙏 Thanks for playing!', merciTxt: 'Thank you for bringing quality to life every day, and happy World Quality Week to all.', merciAutre: '🎮 Feel free to try the project\'s other game:', pileSous: 'the offshore build', pileTxt: 'Lift the farm\'s 64 turbines, piece by piece, from a swinging crane.', pileJouer: '▶ Play Pile Poil', sticker: 'Let\'s <b>celebrate</b><br><b>Quality</b>!', fvSur: 'How to · 30 seconds', fvTitre: 'To play and join the leaderboard', fvChapeau: 'This OneDrive preview cannot save scores. Install the favorite below once: it opens the game in SharePoint, with your EDF account.', fvGlissezMoi: '⬆ Drag me to the favorites bar ⬆', fvNePasCliquer: 'Don\'t click: hold the button and drag it up into the favorites bar.', fvEtape1: 'Show the Edge favorites bar: <b>Ctrl + Shift + B</b>.', fvEtape2: '<b>Drag the yellow button</b> onto that bar, then release.', fvEtape3: '<b>Click the "⭐ Quality Game 2026" favorite</b>: the game opens with your name and your scores count.', fvEtape4: 'Next time: open this link or the QualityWeek2026 folder, then click the favorite.', fvSecours: 'Dragging doesn\'t work?', fvSecoursTexte: 'Add any page to your favorites (<b>Ctrl + D</b>), then right-click that favorite › <b>Edit</b>. Name it "Quality Game 2026" and paste this code in place of the URL:', fvCopier: '📋 Copy the code', fvCopie: '✅ Code copied', fvFermer: 'Play without saving', donneesApercuCourt: '⚠️ Scores are not saved in this preview.', fvOuvrir: '⭐ How to', favoriGlisser: 'Drag this button to the favorites bar (Ctrl+Shift+B to show it). Then open the QualityWeek2026 folder in the browser and click the favorite.', donneesBtnChoisir: 'Choose the scores folder', donneesBtnRelier: 'Allow', donneesBtnReessayer: 'Retry',
     piliersTitre: 'The 4 Pillars of Performance',
     piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
     p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> faults instead of suffering them.',
@@ -1304,7 +1321,11 @@ function detecterSharePoint() {
 const spChemin = c => encodeURI(c).replace(/'/g, "''");
 async function spFetch(chemin, opts = {}) {
   const r = await fetch(SP.site + chemin, { credentials: 'include', cache: 'no-store', ...opts, headers: { Accept: 'application/json;odata=nometadata', ...(opts.headers || {}) } });
-  if (!r.ok) { const e = new Error('SharePoint ' + r.status); e.status = r.status; throw e; }
+  if (!r.ok) {
+    let detail = '';
+    try { const j = await r.json(); detail = (j['odata.error'] || j.error || {}).message; detail = (detail && (detail.value || detail)) || ''; } catch (_) { /* pas de JSON */ }
+    const e = new Error('SharePoint ' + r.status + (detail ? ' : ' + String(detail).slice(0, 160) : '')); e.status = r.status; throw e;
+  }
   return r;
 }
 async function spJeton() {
@@ -1320,7 +1341,12 @@ async function spEcrire(nom, data) {
 async function spSupprimer(nom) {
   await spFetch(`/_api/web/GetFileByServerRelativeUrl('${spChemin(SP.donnees + '/' + nom)}')`, { method: 'POST', headers: { 'X-RequestDigest': await spJeton(), 'X-HTTP-Method': 'DELETE', 'IF-MATCH': '*' } });
 }
-async function spCreerDossier() { await spFetch(`/_api/web/folders/add('${spChemin(SP.donnees)}')`, { method: 'POST', headers: { 'X-RequestDigest': await spJeton() } }); }
+async function spCreerDossier() {   // crée « donnees » dans le dossier du jeu (méthode actuelle, puis l'ancienne)
+  const post = { method: 'POST', headers: { 'X-RequestDigest': await spJeton() } };
+  try { await spFetch(`/_api/web/GetFolderByServerRelativeUrl('${spChemin(SP.dossier)}')/AddSubFolderUsingPath(DecodedUrl='${spChemin(CONFIG.sharepoint.sousDossier)}')`, post); }
+  catch (e) { await spFetch(`/_api/web/folders/add('${spChemin(SP.donnees)}')`, post); }
+}
+const spEtape = (quoi, f) => f().catch(e => { e.message = quoi + ' — ' + e.message; throw e; });   // dit quelle opération a échoué
 
 /* signature d'un fichier joueur (le sel reste dans le code : il arrête les retouches à la main, pas un développeur décidé) */
 function hacher53(str) {
@@ -1333,21 +1359,22 @@ function hacher53(str) {
 const signer = d => hacher53('QW26·Courseulles·⚓·' + JSON.stringify([d.login, d.parties, d.carriere]));
 // contrôle de vraisemblance : un score hors de portée du jeu est écarté
 const plausible = x => x.score >= 0 && (x.mode === 'rapide' ? x.score <= 7500 && x.temps >= 60 : x.score <= 9000 && x.temps >= 120);
+const DEMO_LOGIN = 'demo-diagnostic';
 const nomFichier = login => 'joueur-' + login.replace(/[^a-z0-9._-]/gi, '_') + '.json';
 
 async function chargerSharePoint() {
   let fichiers;
   try { fichiers = await spListe(); }
   catch (e) {
-    if (e.status === 404) { try { await spCreerDossier(); fichiers = []; } catch (e2) { throw e; } }
-    else throw e;
+    if (e.status !== 404) { e.message = t('spEtapeLire') + ' — ' + e.message; throw e; }
+    await spEtape(t('spEtapeCreer'), spCreerDossier); fichiers = [];   // premier joueur : le dossier « donnees » n'existe pas encore
   }
   const lus = [];
   const noms = fichiers.map(f => f.Name).filter(n => /^joueur-.*\.json$/.test(n));
   for (let i = 0; i < noms.length; i += 6) lus.push(...await Promise.all(noms.slice(i, i + 6).map(n => spLire(n).catch(() => null))));
   BD.parties = []; BD.carrieres = {};
   for (const d of lus) {
-    if (!d || !d.login) continue;
+    if (!d || !d.login || d.login.startsWith(DEMO_LOGIN)) continue;   // une démo de diagnostic oubliée ne compte jamais
     const signe = d.sig === signer(d);
     for (const x of d.parties || []) BD.parties.push({ ...x, login: d.login, suspect: !signe || !plausible(x) });
     if (d.carriere) BD.carrieres[d.login] = { ...d.carriere, login: d.login, suspect: !signe };
@@ -1361,7 +1388,12 @@ async function ecrireJoueur(login) {
     parties, carriere: c ? (({ login: _l, suspect: _s, ...x }) => x)(c) : null };
   if (!parties.length && !d.carriere) { await spSupprimer(nomFichier(login)).catch(() => {}); return; }
   d.sig = signer(d);
-  await spEcrire(nomFichier(login), d);
+  try { await spEcrire(nomFichier(login), d); }
+  catch (e) {
+    if (e.status !== 404) { e.message = t('spEtapeEcrire') + ' — ' + e.message; throw e; }
+    await spEtape(t('spEtapeCreer'), spCreerDossier);   // dossier supprimé ou jamais créé : on le recrée, puis on réessaie
+    await spEtape(t('spEtapeEcrire'), () => spEcrire(nomFichier(login), d));
+  }
 }
 async function initSharePoint() {
   donnees.etat = 'sp-charge'; majEtatDonnees();
@@ -3356,11 +3388,119 @@ function ouvrirAdmin() {
 function fermerAdmin() { $('ecranAdmin').hidden = true; rafraichirClassements(); majBoutonJouer(); }
 $('adFermer').addEventListener('click', fermerAdmin);
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('ecranAdmin').hidden) fermerAdmin(); });
-for (const v of ['parties', 'carrieres']) $('adVue' + v.charAt(0).toUpperCase() + v.slice(1)).addEventListener('click', () => {
+for (const v of ['parties', 'carrieres', 'diag']) $('adVue' + v.charAt(0).toUpperCase() + v.slice(1)).addEventListener('click', () => {
   admin.vue = v;
-  $('adVueParties').classList.toggle('actif', v === 'parties'); $('adVueCarrieres').classList.toggle('actif', v === 'carrieres');
+  $('adVueParties').classList.toggle('actif', v === 'parties'); $('adVueCarrieres').classList.toggle('actif', v === 'carrieres'); $('adVueDiag').classList.toggle('actif', v === 'diag');
   $('adVider').hidden = v !== 'parties';
+  $('adContenu').hidden = v === 'diag'; $('adDiag').hidden = v !== 'diag';
   afficherAdmin();
+});
+
+/* ---------- Diagnostic : on teste chaque maillon, dans l'ordre, avec le message exact en cas d'échec ---------- */
+const diag = { lignes: [] };
+async function etape(titre, f) {
+  const li = document.createElement('li'); li.innerHTML = '<span class="st">⏳</span><b></b><small></small>';
+  li.querySelector('b').textContent = titre; $('diagListe').append(li);
+  const l = { titre, etat: 'ok', detail: '' }; diag.lignes.push(l);
+  try { const r = await f(); l.etat = r && r.info ? 'info' : 'ok'; l.detail = (r && (r.detail || (typeof r === 'string' ? r : ''))) || ''; }
+  catch (e) { l.etat = 'ko'; l.detail = (e && e.message) || String(e); }
+  li.className = l.etat; li.querySelector('.st').textContent = { ok: '✅', ko: '❌', info: 'ℹ️' }[l.etat]; li.querySelector('small').textContent = l.detail;
+  return l.etat !== 'ko';
+}
+const ligneDemo = login => ({ id: 'demo' + Date.now().toString(36), date: Date.now(), pseudo: '🤖 Démo diagnostic', ...(login ? { login } : {}), mode: 'rapide', jour: 1,
+  score: 1234, energie: 1200, reparations: 5, ameliorations: 3, evitees: 2, dispo: 95, comboMax: 2, temps: 90, explosions: 0, langue, version: CONFIG.version });
+async function diagSharePoint() {
+  if (!await etape('Connexion au compte', async () => { const u = await (await spFetch('/_api/web/currentuser')).json(); return (u.Title || '?') + ' · ' + (u.Email || u.UserPrincipalName || '?'); })) return;
+  if (!await etape('Jeton d\'écriture SharePoint', async () => { SP.digestT = 0; await spJeton(); return 'obtenu'; })) return;
+  await etape('Dossier du jeu et index.html', async () => {
+    const f = await (await spFetch(`/_api/web/GetFileByServerRelativeUrl('${spChemin(SP.dossier + '/index.html')}')?$select=TimeLastModified,Length`)).json();
+    return SP.dossier + ' · index.html du ' + new Date(f.TimeLastModified).toLocaleString('fr-FR') + ' (' + Math.round(f.Length / 1024) + ' ko)';
+  });
+  if (!await etape('Dossier « ' + CONFIG.sharepoint.sousDossier + ' »', async () => {
+    let existe = true;
+    try { existe = (await (await spFetch(`/_api/web/GetFolderByServerRelativeUrl('${spChemin(SP.donnees)}')?$select=Exists`)).json()).Exists !== false; }
+    catch (e) { if (e.status !== 404) throw e; existe = false; }
+    if (existe) return 'présent';
+    await spCreerDossier(); return { info: true, detail: 'absent : créé à l\'instant' };
+  })) return;
+  const test = 'diagnostic-' + joueur.login.replace(/[^a-z0-9._-]/gi, '_') + '.json';
+  if (!await etape('Écriture, relecture et suppression d\'un fichier test', async () => {
+    const jeton = Math.random().toString(36).slice(2);
+    await spEcrire(test, { jeton, date: new Date().toISOString() });
+    if ((await spLire(test)).jeton !== jeton) throw new Error('le fichier relu ne correspond pas');
+    await spSupprimer(test); return test + ' : écrit, relu, supprimé';
+  })) return;
+  await etape('Fichiers des joueurs', async () => {
+    const noms = (await spListe()).map(f => f.Name).filter(n => /^joueur-.*\.json$/.test(n));
+    let bons = 0, mauvais = 0;
+    for (const n of noms) { const d = await spLire(n).catch(() => null); if (d && d.sig === signer(d)) bons++; else mauvais++; }
+    return noms.length + ' fichier(s) · ' + bons + ' signature(s) valide(s)' + (mauvais ? ' · ⚠ ' + mauvais + ' modifié(s) ou illisible(s)' : '');
+  });
+  await etape('Partie de démo (enregistrée, relue, puis effacée)', async () => {
+    const login = DEMO_LOGIN + '@qw26', ligne = ligneDemo(login);
+    BD.parties.push(ligne);
+    try {
+      await ecrireJoueur(login);
+      const d = await spLire(nomFichier(login));
+      if (!d.parties.some(x => x.id === ligne.id)) throw new Error('partie de démo absente du fichier relu');
+      if (d.sig !== signer(d)) throw new Error('signature du fichier de démo invalide');
+    } finally { BD.parties = BD.parties.filter(x => x.login !== login); await ecrireJoueur(login).catch(() => {}); }
+    return 'écrite, relue avec une signature valide, puis effacée';
+  });
+  if (donnees.etat !== 'sp') await etape('Remise en route de l\'enregistrement', async () => {
+    donnees.etat = 'sp'; donnees.erreur = '';
+    const mes = BD.parties.some(x => x.login === joueur.login);
+    if (mes) await ecrireJoueur(joueur.login);
+    majEtatDonnees();
+    return mes ? 'les parties jouées pendant la panne sont enregistrées' : 'enregistrement réactivé';
+  });
+}
+async function diagStand() {
+  if (dansUnApercu()) { await etape('Mode', async () => { throw new Error('aperçu OneDrive / SharePoint : écriture impossible. Utilisez le favori ⭐, ou ouvrez le fichier depuis l\'Explorateur Windows.'); }); return; }
+  if (!await etape('Accès au dossier des scores', async () => {
+    if (!window.showDirectoryPicker) throw new Error('ce navigateur ne sait pas écrire de fichiers : utilisez Edge ou Chrome');
+    if (!donnees.dossier) throw new Error('aucun dossier choisi : cliquez sur « 📁 Choisir le dossier des scores »');
+    const perm = await donnees.dossier.queryPermission({ mode: 'readwrite' });
+    if (perm !== 'granted') throw new Error('autorisation « ' + perm + ' » : cliquez sur « 🔌 Autoriser le dossier »');
+    return '« ' + donnees.dossier.name + ' » · écriture autorisée';
+  })) return;
+  if (!await etape('Écriture, relecture et suppression d\'un fichier test', async () => {
+    const nom = 'qualite2026-diagnostic.json', jeton = Math.random().toString(36).slice(2);
+    await ecrireJSON(nom, { jeton });
+    const r = await lireJSON(nom); if (!r || r.jeton !== jeton) throw new Error('le fichier relu ne correspond pas');
+    await donnees.dossier.removeEntry(nom);
+    if (donnees.etat !== 'ok') { donnees.etat = 'ok'; majEtatDonnees(); }   // l'accès marche : on réactive l'enregistrement
+    return nom + ' : écrit, relu, supprimé';
+  })) return;
+  await etape('Fichiers des scores', async () => {
+    const sc = await lireJSON(CONFIG.fichiers.scores), ca = await lireJSON(CONFIG.fichiers.carrieres);
+    return CONFIG.fichiers.scores + ' : ' + (sc ? (sc.parties || []).length + ' partie(s)' : 'pas encore créé') + ' · '
+      + CONFIG.fichiers.carrieres + ' : ' + (ca ? Object.keys(ca.carrieres || {}).length + ' carrière(s)' : 'pas encore créé');
+  });
+  await etape('Partie de démo (enregistrée, relue, puis effacée)', async () => {
+    const ligne = ligneDemo(null);
+    BD.parties.push(ligne);
+    let vu = false;
+    try { if (!await enregistrer()) throw new Error('enregistrement refusé (' + donnees.etat + ')'); const sc = await lireJSON(CONFIG.fichiers.scores); vu = !!sc && sc.parties.some(x => x.id === ligne.id); }
+    finally { BD.parties = BD.parties.filter(x => x.id !== ligne.id); await enregistrer(); }
+    if (!vu) throw new Error('partie de démo absente du fichier relu');
+    return 'écrite dans ' + CONFIG.fichiers.scores + ', relue, puis effacée';
+  });
+}
+async function lancerDiagnostic() {
+  $('diagListe').replaceChildren(); diag.lignes = []; $('diagLancer').disabled = true; msgAdmin('');
+  await etape('Environnement', async () => ({ info: true, detail: 'version ' + CONFIG.version + ' · ' + (SP.actif ? 'lien partagé (favori)' : dansUnApercu() ? 'aperçu' : 'stand')
+    + ' · script : ' + window.QW_VIA + ' · ' + ((navigator.userAgent.match(/(Edg|Chrome|Firefox)\/[\d.]+/) || [navigator.userAgent])[0]) }));
+  try { await (SP.actif ? diagSharePoint() : diagStand()); } finally { $('diagLancer').disabled = false; afficherAdmin(); }
+  const ko = diag.lignes.filter(l => l.etat === 'ko').length;
+  msgAdmin(ko ? '❌ ' + ko + ' étape(s) en échec : copiez le rapport et envoyez-le.' : '✅ Tout fonctionne.', !!ko);
+}
+$('diagLancer').addEventListener('click', lancerDiagnostic);
+$('diagCopier').addEventListener('click', async () => {
+  const txt = 'Diagnostic Jeu Qualité 2026 · ' + new Date().toLocaleString('fr-FR') + '\n'
+    + diag.lignes.map(l => ({ ok: '✅', ko: '❌', info: 'ℹ️' }[l.etat]) + ' ' + l.titre + (l.detail ? ' — ' + l.detail : '')).join('\n');
+  try { await navigator.clipboard.writeText(txt); msgAdmin('📋 Rapport copié : collez-le dans votre message.'); }
+  catch (e) { const z = document.createElement('textarea'); z.value = txt; document.body.append(z); z.select(); const ok = document.execCommand('copy'); z.remove(); msgAdmin(ok ? '📋 Rapport copié.' : txt, !ok); }
 });
 $('adDossierBtn').addEventListener('click', () => relierDossier(donnees.etat === 'relier' ? true : 'changer').then(afficherAdmin));
 $('adExporter').addEventListener('click', () => {
@@ -3378,6 +3518,7 @@ async function sauverAdmin(message, logins) {
 }
 
 function afficherAdmin() {
+  if (admin.vue === 'diag') return;
   const f = $('adFiltre').value.trim().toLowerCase();
   const parties = admin.vue === 'parties';
   const toutes = parties ? [...BD.parties].reverse() : classementCarriere();
