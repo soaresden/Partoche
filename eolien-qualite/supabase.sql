@@ -14,7 +14,7 @@ create table if not exists public.scores (
   created_at     timestamptz not null default now(),
   login          text        not null check (char_length(login)  between 1 and 64),
   pseudo         text        not null check (char_length(pseudo) between 1 and 24),
-  source         text        not null default 'saisie' check (source in ('windows', 'saisie')),
+  source         text        not null default 'saisie' check (source in ('windows', 'sharepoint', 'saisie')),
   mode           text        not null default 'rapide' check (mode in ('rapide', 'carriere')),
   jour           integer     not null default 1 check (jour between 1 and 1000),
   score          integer     not null check (score between 0 and 100000),
@@ -28,6 +28,9 @@ create table if not exists public.scores (
   langue         text        check (langue in ('fr', 'en')),
   version        text
 );
+-- (mise à niveau : accepte aussi les comptes Microsoft 365 détectés via SharePoint)
+alter table public.scores drop constraint if exists scores_source_check;
+alter table public.scores add constraint scores_source_check check (source in ('windows', 'sharepoint', 'saisie'));
 create index if not exists scores_login_date_idx on public.scores (login, created_at desc);
 create index if not exists scores_mode_idx       on public.scores (mode, score desc);
 

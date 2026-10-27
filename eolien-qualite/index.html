@@ -16,7 +16,8 @@
     --orange: #ff7a1a;
     --vert: #3ddc97;
     --rouge: #ff4d5e;
-    --theme: #d42a2a;
+    --theme: #d43a3a;
+    --c-bleu: #2f5db3; --c-rouge: #d43a3a; --c-vert: #4caf50; --c-jaune: #f2b705; --c-marine: #16305f; --c-ciel: #9fc0f0;
     --verre: rgba(6, 38, 58, .86);
     --bord: rgba(169, 207, 228, .25);
   }
@@ -94,88 +95,104 @@
   .toast { font-size: 14px; animation: entre .3s ease-out; border-left: 4px solid var(--vert); line-height: 1.35; }
   .toast b { color: var(--vert); }
 
-  /* ---------- Accueil, dans l'esprit de l'identité « Quality: Powering Performance » ---------- */
-  #ecranAccueil { position: fixed; inset: 0; overflow-y: auto; overflow-x: hidden;
-    background: radial-gradient(ellipse at 30% 20%, #56625f, #3e4847 55%, #2b3334); }
-  #reseau { position: absolute; top: 0; left: 0; width: 100%; pointer-events: none; }
-  #btnLangue { position: fixed; top: 18px; right: 18px; z-index: 2; border: 2px solid rgba(255,255,255,.6); background: rgba(0,0,0,.15);
-    color: #fff; border-radius: 99px; padding: 8px 16px; font-weight: 700; letter-spacing: .06em; }
-  #btnLangue:hover { background: rgba(255,255,255,.12); }
-  .hero { position: relative; min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(320px, .9fr); gap: 40px;
-    align-items: center; max-width: 1360px; margin: 0 auto; padding: 72px 28px 56px; }
-  .hero-in { text-align: center; }
-  .pastille { display: inline-flex; align-items: center; gap: 10px; padding: 12px 26px; border-radius: 99px; background: var(--theme);
-    color: #fff; font-weight: 700; font-size: 18px; box-shadow: 0 8px 24px rgba(212,42,42,.35); }
-  .hero h1 { font-family: "Playfair Display", Georgia, serif; font-weight: 800; font-size: clamp(42px, 6.6vw, 96px); line-height: 1; margin: 28px 0 10px; letter-spacing: -.01em; }
-  .hero .fr { font-family: "Playfair Display", Georgia, serif; font-style: italic; font-size: clamp(19px, 2.2vw, 28px); color: #e9eeee; margin: 0 0 16px; }
-  .hero p.intro { font-size: clamp(15px, 1.5vw, 19px); color: #e3e9e9; line-height: 1.5; max-width: 760px; margin: 0 auto 26px; }
-  .hero .boutons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-  .btn-rouge { border: 0; border-radius: 10px; padding: 16px 30px; background: var(--theme); color: #fff; font-weight: 700; font-size: 18px;
-    box-shadow: 0 10px 24px rgba(0,0,0,.3); transition: transform .12s, background .12s; }
-  .btn-rouge:hover { background: #e23535; transform: translateY(-2px); }
-  .btn-rouge.contour { background: transparent; border: 2px solid rgba(255,255,255,.7); }
+  /* ---------- Accueil : une seule page en onglets, aux couleurs du parc éolien en mer du Calvados ---------- */
+  #ecranAccueil { position: fixed; inset: 0; display: grid; grid-template-rows: auto auto auto 1fr auto; overflow: hidden;
+    background: linear-gradient(115deg, rgba(10,25,58,.95) 0%, rgba(18,42,90,.88) 48%, rgba(29,63,143,.62) 100%); }
+  .bande { height: 6px; background: linear-gradient(90deg, var(--c-bleu) 0 25%, var(--c-rouge) 25% 50%, var(--c-vert) 50% 75%, var(--c-jaune) 75% 100%); }
+  .barre-haut { display: flex; align-items: center; gap: 14px; padding: 10px 22px 8px; }
+  .marque { line-height: 1.2; min-width: 0; }
+  .marque b { display: block; font-size: 16px; letter-spacing: .01em; }
+  .marque span { font-size: 12.5px; color: var(--c-ciel); }
+  .rebours { margin-left: auto; display: flex; gap: 14px; align-items: flex-end; }
+  .rebours div { text-align: center; min-width: 46px; }
+  .rebours b { display: block; font-size: 26px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  .rebours span { font-size: 10px; letter-spacing: .12em; color: var(--c-ciel); text-transform: uppercase; }
+  .rebours-msg { margin-left: auto; font-weight: 700; font-size: 17px; color: var(--c-jaune); }
+  #btnLangue { border: 2px solid rgba(255,255,255,.5); background: rgba(255,255,255,.06); color: #fff; border-radius: 99px; padding: 7px 14px; font-weight: 700; letter-spacing: .06em; }
+  #btnLangue:hover { background: rgba(255,255,255,.14); }
+  .onglets-acc { display: flex; gap: 4px; padding: 0 22px; border-bottom: 1px solid rgba(255,255,255,.12); overflow-x: auto; scrollbar-width: none; }
+  .onglets-acc button { position: relative; border: 0; background: transparent; color: #c6d4ee; padding: 11px 18px 13px; font-weight: 600; font-size: 15px;
+    border-radius: 12px 12px 0 0; white-space: nowrap; transition: background .15s, color .15s; }
+  .onglets-acc button:hover { color: #fff; background: rgba(255,255,255,.05); }
+  .onglets-acc button .pt { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); margin-right: 8px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent); }
+  .onglets-acc button::after { content: ''; position: absolute; left: 12px; right: 12px; bottom: -1px; height: 3px; border-radius: 3px; background: var(--c); transform: scaleX(0); transition: transform .2s; }
+  .onglets-acc button.actif { color: #fff; background: rgba(255,255,255,.08); }
+  .onglets-acc button.actif::after { transform: scaleX(1); }
+  .panneaux { position: relative; min-height: 0; padding: 16px 22px; }
+  .panneau-acc { display: none; height: 100%; min-height: 0; gap: 18px; animation: entre .3s ease-out; }
+  .panneau-acc.actif { display: grid; }
+  #pAccueil { grid-template-columns: minmax(0, 1.2fr) minmax(300px, .8fr); }
+  #pJouer { grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr; }
+  #pPiliers, #pTheme { grid-template-rows: auto 1fr; }
+  .tete-panneau { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  .tete-panneau h2 { font-family: "Playfair Display", Georgia, serif; font-size: clamp(26px, 3.4vh + .6vw, 40px); margin: 0; }
+  .tete-panneau p { margin: 0; color: #d2ddf2; font-size: 15px; line-height: 1.45; flex: 1 1 380px; }
+  .bloc { min-height: 0; overflow: auto; background: rgba(9,24,56,.74); border: 1px solid rgba(255,255,255,.13); border-radius: 22px;
+    padding: 20px 22px; backdrop-filter: blur(8px); box-shadow: 0 18px 50px rgba(0,0,0,.3); }
+  .bloc-jeu { display: flex; flex-direction: column; }
+  .pastille { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 99px; background: var(--c-rouge);
+    color: #fff; font-weight: 700; font-size: 15px; box-shadow: 0 6px 18px rgba(212,58,58,.35); }
+  .bloc-jeu h1 { font-family: "Playfair Display", Georgia, serif; font-weight: 800; font-size: clamp(32px, 5.4vh + 1.2vw, 70px); line-height: 1; margin: 14px 0 6px; letter-spacing: -.01em; }
+  .bloc-jeu h1 em { font-style: normal; background: linear-gradient(90deg, var(--c-jaune), #ffd96b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .bloc-jeu .fr { font-family: "Playfair Display", Georgia, serif; font-style: italic; font-size: clamp(16px, 1.6vh + .6vw, 24px); color: #e3eaf8; margin: 0 0 8px; }
+  .bloc-jeu .intro { font-size: clamp(13.5px, 1vh + .45vw, 16px); color: #d2ddf2; line-height: 1.5; margin: 0 0 12px; }
+  .btn-rouge { border: 0; border-radius: 12px; padding: 13px 24px; background: var(--c-rouge); color: #fff; font-weight: 700; font-size: 17px;
+    box-shadow: 0 10px 24px rgba(212,58,58,.3); transition: transform .12s, background .12s; white-space: nowrap; }
+  .btn-rouge:hover { background: #e24848; transform: translateY(-2px); }
   .btn-rouge:disabled { opacity: .6; cursor: wait; transform: none; }
-  .rebours { display: flex; gap: clamp(16px, 3.4vw, 40px); justify-content: center; margin-top: 36px; }
-  .rebours div { text-align: center; }
-  .rebours b { display: block; font-size: clamp(36px, 5vw, 62px); font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
-  .rebours span { font-size: 13px; letter-spacing: .14em; color: var(--gris); text-transform: uppercase; }
-  .rebours-msg { margin-top: 34px; font-size: clamp(20px, 2.6vw, 28px); font-weight: 700; }
-  .defile { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); color: var(--gris); font-size: 13px; animation: flotte 1.6s infinite alternate; }
 
-  .carte { background: rgba(20,30,32,.74); border: 1px solid rgba(255,255,255,.14); border-radius: 22px; padding: 22px 24px;
+  .carte { background: rgba(9,24,56,.78); border: 1px solid rgba(255,255,255,.14); border-radius: 22px; padding: 22px 24px;
     backdrop-filter: blur(10px); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
-  .carte h3 { font-family: "Playfair Display", Georgia, serif; font-size: 28px; margin: 4px 0 12px; line-height: 1.1; }
-  .classements h3 { margin-bottom: 4px; }
-  .classements h4 { margin: 16px 0 6px; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .classements h4 small { font-weight: 500; color: var(--gris); font-size: 12px; }
+  .carte h3, .bloc h3 { font-family: "Playfair Display", Georgia, serif; font-size: 26px; margin: 2px 0 10px; line-height: 1.1; }
+  .classements h4 { margin: 14px 0 6px; font-size: 15px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .classements h4 small { font-weight: 500; color: var(--c-ciel); font-size: 12px; }
   .onglets { display: flex; gap: 6px; margin-bottom: 6px; }
-  .onglets button { flex: 1; border: 1px solid rgba(255,255,255,.2); background: transparent; color: var(--gris); border-radius: 10px; padding: 5px; font-size: 13px; }
-  .onglets button.actif { background: rgba(212,42,42,.22); color: #fff; border-color: var(--theme); }
+  .onglets button { flex: 1; border: 1px solid rgba(255,255,255,.2); background: transparent; color: #c6d4ee; border-radius: 10px; padding: 5px; font-size: 13px; }
+  .onglets button.actif { background: rgba(47,93,179,.35); color: #fff; border-color: var(--c-bleu); }
   ol.liste { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 5px; }
   ol.liste li { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 11px; background: rgba(255,255,255,.06); font-size: 14.5px; }
-  ol.liste li.moi { background: rgba(255,210,63,.18); outline: 1px solid var(--jaune); }
-  ol.liste .r { font-weight: 700; text-align: center; color: var(--gris); }
+  ol.liste li.moi { background: rgba(242,183,5,.18); outline: 1px solid var(--c-jaune); }
+  ol.liste .r { font-weight: 700; text-align: center; color: #c6d4ee; }
   ol.liste .p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  ol.liste .p small { color: var(--gris); margin-left: 6px; font-size: 12px; }
+  ol.liste .p small { color: #c6d4ee; margin-left: 6px; font-size: 12px; }
   ol.liste .s { font-weight: 700; color: var(--jaune); font-variant-numeric: tabular-nums; white-space: nowrap; }
-  ol.liste .s small { font-weight: 500; color: var(--gris); font-size: 11px; }
-  ol.liste li.vide { display: block; color: var(--gris); font-size: 14px; padding: 12px 4px; text-align: center; background: none; }
+  ol.liste .s small { font-weight: 500; color: #c6d4ee; font-size: 11px; }
+  ol.liste li.vide { display: block; color: #c6d4ee; font-size: 14px; padding: 12px 4px; text-align: center; background: none; }
 
-  .section { position: relative; max-width: 1120px; margin: 0 auto; padding: 24px 16px 56px; }
-  .section h2.grand { font-family: "Playfair Display", Georgia, serif; font-size: clamp(30px, 4vw, 46px); text-align: center; margin: 10px 0 8px; }
-  .section p.chapeau { text-align: center; color: #d5dede; max-width: 780px; margin: 0 auto 26px; font-size: 17px; line-height: 1.5; }
-  .grille-jeu { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  .surtitre { color: #ff8a8a; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
+  .surtitre { color: var(--c-jaune); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
   .etapes { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 12px; }
   .etapes li { display: grid; grid-template-columns: 42px 1fr; gap: 12px; align-items: center; font-size: 15px; line-height: 1.4; }
   .etapes .ico { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-size: 21px; background: rgba(255,255,255,.08); }
   .etapes b { color: #fff; }
-  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 14px; }
-  .mode { text-align: left; border: 2px solid rgba(255,255,255,.18); background: rgba(255,255,255,.05); color: var(--encre); border-radius: 14px; padding: 12px 14px; }
-  .mode b { display: block; font-size: 17px; margin-bottom: 3px; }
-  .mode span { font-size: 13px; color: var(--gris); line-height: 1.35; display: block; }
-  .mode.actif { border-color: var(--theme); background: rgba(212,42,42,.16); }
-  label.nom { display: block; font-size: 13px; color: var(--gris); margin: 10px 0 6px; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 2px 0 10px; }
+  .mode { text-align: left; border: 2px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: var(--encre); border-radius: 14px; padding: 10px 14px; transition: border-color .15s, background .15s; }
+  .mode b { display: block; font-size: 16px; margin-bottom: 2px; }
+  .mode span { font-size: 12.5px; color: #c6d4ee; line-height: 1.35; display: block; }
+  .mode[data-mode=rapide].actif { border-color: var(--c-jaune); background: rgba(242,183,5,.13); }
+  .mode[data-mode=carriere].actif { border-color: var(--c-vert); background: rgba(76,175,80,.15); }
+  label.nom { display: block; font-size: 13px; color: #c6d4ee; margin: 6px 0 6px; }
   .ligne { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
   .champ { flex: 1 1 180px; min-width: 0; font: inherit; font-size: 17px; padding: 12px 14px; border-radius: 12px;
     border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: var(--encre); outline: none; -webkit-user-select: text; user-select: text; }
-  .champ:focus { border-color: var(--theme); }
+  .champ:focus { border-color: var(--c-jaune); }
   .champ.code { flex: 0 0 120px; letter-spacing: .4em; text-align: center; font-variant-numeric: tabular-nums; }
-  .info { font-size: 13px; color: var(--gris); margin-top: 8px; min-height: 18px; line-height: 1.4; }
+  .info { font-size: 13px; color: #c6d4ee; margin-top: 8px; line-height: 1.4; }
   .info b { color: #fff; }
   .info.err { color: #ffb3b3; }
-  .lien { background: none; border: 0; color: #ff9a9a; text-decoration: underline; padding: 0; font-size: 13px; }
-  .boite-carriere { margin-top: 10px; padding: 12px 14px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px dashed rgba(255,255,255,.2); }
+  .info:empty { display: none; }
+  .lien { background: none; border: 0; color: #ffd27a; text-decoration: underline; padding: 0; font-size: 13px; }
+  .boite-carriere { margin-top: 10px; padding: 10px 12px; border-radius: 14px; background: rgba(76,175,80,.08); border: 1px dashed rgba(76,175,80,.5); }
 
-  .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .themes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; min-height: 0; align-content: start; }
   .themes.piliers { grid-template-columns: repeat(4, 1fr); }
-  .theme { background: rgba(20,30,32,.6); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 20px; }
-  .piliers .theme { border-top: 4px solid var(--theme); }
+  .theme { background: rgba(9,24,56,.74); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 18px; backdrop-filter: blur(8px); }
   .theme .ic { font-size: 28px; }
-  .theme h4 { font-size: 18px; margin: 10px 0 6px; }
-  .theme p { margin: 0; color: #d5dede; font-size: 14.5px; line-height: 1.5; }
-  .theme p em { color: #ffb3b3; font-style: normal; font-weight: 600; }
-  .pied { text-align: center; color: #aab6b6; font-size: 13px; padding: 10px 16px 40px; }
+  .theme h4 { font-size: 17px; margin: 8px 0 6px; }
+  .theme p { margin: 0; color: #d2ddf2; font-size: 14px; line-height: 1.5; }
+  .theme p em { color: #ffd27a; font-style: normal; font-weight: 600; }
+  .piliers .theme { border-top: 5px solid var(--c); padding-top: 22px; }
+  .piliers .theme .ic { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 25%, transparent); }
+  .pied { text-align: center; color: #9fb2d6; font-size: 12px; padding: 6px 16px 10px; }
 
   /* ---------- Panneaux de jeu (relève, fin, base) ---------- */
   .voile { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; overflow-y: auto;
@@ -262,7 +279,7 @@
   .admin tr.modifie td { background: rgba(255,210,63,.08); }
   .admin #adMsg { min-height: 20px; font-size: 14px; color: var(--doux); }
   .admin #adMsg.err { color: #ffb3ba; }
-  .logo-secret { position: absolute; top: 14px; left: 16px; z-index: 2; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%;
+  .logo-secret { flex: none; width: 48px; height: 48px; padding: 0; border: 0; border-radius: 50%;
     background: none; cursor: default; -webkit-tap-highlight-color: transparent; }
   .logo-secret:focus { outline: none; }
   .logo-secret svg { display: block; width: 100%; height: 100%; }
@@ -276,13 +293,21 @@
   @keyframes flotte { to { transform: translate(-50%, 6px); } }
 
   @media (max-width: 1100px) {
-    .hero { grid-template-columns: 1fr; padding-top: 84px; }
     .themes.piliers, .boutique { grid-template-columns: repeat(2, 1fr); }
+    .themes { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 860px), (max-height: 560px) {
+    .panneaux { overflow-y: auto; }
+    .panneau-acc.actif { height: auto; }
+    #pAccueil, #pJouer { grid-template-columns: 1fr; }
+    .bloc { overflow: visible; }
+    .rebours div { min-width: 34px; } .rebours b { font-size: 19px; }
   }
   @media (max-width: 760px) {
-    .grille-jeu, .panneau, .themes, .themes.piliers, .boutique, .modes { grid-template-columns: 1fr; }
+    .panneau, .themes, .themes.piliers, .boutique, .modes { grid-template-columns: 1fr; }
     .stats { grid-template-columns: repeat(2, 1fr); }
-    .hero { padding: 84px 16px 48px; gap: 28px; }
+    .barre-haut { flex-wrap: wrap; padding: 8px 12px; } .marque { flex: 1 1 60%; } .rebours { order: 3; margin: 0 auto; }
+    .onglets-acc, .panneaux { padding-left: 12px; padding-right: 12px; }
     #hud { grid-template-columns: auto 1fr auto; padding: 6px; gap: 6px; }
     .hud-c { min-width: 0; }
     .heure, .score-hud { font-size: 21px; }
@@ -322,61 +347,82 @@
 <div id="bandeau" class="chip"></div>
 <div id="toasts"></div>
 
-<!-- ======================= Accueil ======================= -->
+<!-- ======================= Accueil : une seule page, en onglets ======================= -->
 <div id="ecranAccueil">
-  <canvas id="reseau"></canvas>
-  <button class="logo-secret" id="logo" type="button" aria-label="World Quality Week 2026">
-    <svg viewBox="0 0 64 64" aria-hidden="true">
-      <circle cx="32" cy="32" r="31" fill="#d42a2a"/>
-      <path d="M6 50 q6.5-5 13 0 t13 0 t13 0 t13 0 V64 H6z" fill="#8f1717"/>
-      <path d="M30.5 26 h3 l1.6 25 h-6.2z" fill="#fff"/>
-      <g class="rotor" fill="#fff">
-        <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z"/>
-        <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z" transform="rotate(120 32 25)"/>
-        <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z" transform="rotate(240 32 25)"/>
-        <circle cx="32" cy="25" r="2.6" fill="#f3d0d0"/>
-      </g>
-    </svg>
-  </button>
-  <button id="btnLangue" type="button">EN</button>
-
-  <section class="hero">
-    <div class="hero-in">
-      <div class="pastille" data-i18n="dates"></div>
-      <h1>Quality: Powering Performance</h1>
-      <p class="fr" data-i18n="sousTitre"></p>
-      <p class="intro" data-i18n="intro"></p>
-      <div class="boutons">
-        <button class="btn-rouge" data-aller="jouer" data-i18n="btnJouerHero"></button>
-        <button class="btn-rouge contour" data-aller="piliers" data-i18n="btnTheme"></button>
-      </div>
-      <div class="rebours" id="rebours">
-        <div><b id="rbJ">00</b><span data-i18n="jours"></span></div>
-        <div><b id="rbH">00</b><span data-i18n="heures"></span></div>
-        <div><b id="rbM">00</b><span data-i18n="minutes"></span></div>
-        <div><b id="rbS">00</b><span data-i18n="secondes"></span></div>
-      </div>
-      <div class="rebours-msg" id="reboursMsg" hidden></div>
+  <div class="bande"></div>
+  <header class="barre-haut">
+    <button class="logo-secret" id="logo" type="button" aria-label="World Quality Week 2026">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="gLogo" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3f7fc4"/><stop offset="1" stop-color="#1d3f8f"/></linearGradient></defs>
+        <circle cx="32" cy="32" r="31" fill="url(#gLogo)"/>
+        <path d="M6 50 q6.5-5 13 0 t13 0 t13 0 t13 0 V64 H6z" fill="#16305f"/>
+        <path d="M30.5 26 h3 l1.6 25 h-6.2z" fill="#fff"/>
+        <g class="rotor" fill="#fff">
+          <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z"/>
+          <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z" transform="rotate(120 32 25)"/>
+          <path d="M31 25 q-1.6-9 1-17 q2.6 8 1 17z" transform="rotate(240 32 25)"/>
+          <circle cx="32" cy="25" r="2.6" fill="#f2b705"/>
+        </g>
+      </svg>
+    </button>
+    <div class="marque"><b data-i18n="marque"></b><span data-i18n="marqueSous"></span></div>
+    <div class="rebours" id="rebours">
+      <div><b id="rbJ">00</b><span data-i18n="jours"></span></div>
+      <div><b id="rbH">00</b><span data-i18n="heures"></span></div>
+      <div><b id="rbM">00</b><span data-i18n="minutes"></span></div>
+      <div><b id="rbS">00</b><span data-i18n="secondes"></span></div>
     </div>
-    <div class="carte classements">
-      <h3 data-i18n="lbTitre"></h3>
-      <h4><span>⚡ Sprint 90 s</span><small data-i18n="lbSprintSous"></small></h4>
-      <div class="onglets" data-cible="listeSprint" data-cle="p">
-        <button data-v="jour" class="actif" data-i18n="ongletJour"></button>
-        <button data-v="tout" data-i18n="ongletTout"></button>
+    <div class="rebours-msg" id="reboursMsg" hidden></div>
+    <button id="btnLangue" type="button">EN</button>
+  </header>
+  <nav class="onglets-acc" id="ongletsAcc">
+    <button type="button" class="actif" data-tab="pAccueil" style="--c: var(--c-bleu)"><i class="pt"></i><span data-i18n="tabAccueil"></span></button>
+    <button type="button" data-tab="pJouer" style="--c: var(--c-rouge)"><i class="pt"></i><span data-i18n="tabJouer"></span></button>
+    <button type="button" data-tab="pPiliers" style="--c: var(--c-vert)"><i class="pt"></i><span data-i18n="tabPiliers"></span></button>
+    <button type="button" data-tab="pTheme" style="--c: var(--c-jaune)"><i class="pt"></i><span data-i18n="tabTheme"></span></button>
+  </nav>
+  <main class="panneaux">
+    <section class="panneau-acc actif" id="pAccueil">
+      <div class="bloc bloc-jeu">
+        <div class="pastille" data-i18n="dates"></div>
+        <h1>Quality: <em>Powering</em> Performance</h1>
+        <p class="fr" data-i18n="sousTitre"></p>
+        <p class="intro" data-i18n="intro"></p>
+        <div class="modes" id="modes">
+          <button class="mode actif" data-mode="rapide"><b>⚡ Sprint 90 s</b><span data-i18n="modeSprint"></span></button>
+          <button class="mode" data-mode="carriere"><b data-i18n="lbCarriere"></b><span data-i18n="modeCarriere"></span></button>
+        </div>
+        <label class="nom" for="pseudo" data-i18n="nomLabel"></label>
+        <div class="ligne">
+          <input id="pseudo" class="champ" maxlength="24" autocomplete="nickname" data-i18n-ph="nomPh">
+          <button class="btn-rouge" id="btnJouer"></button>
+        </div>
+        <div class="boite-carriere" id="boiteCarriere" hidden>
+          <div class="info" id="carLocal" hidden></div>
+          <div id="carCodeLigne">
+            <label class="nom" for="code" style="margin-top:0" data-i18n="carCode"></label>
+            <div class="ligne"><input id="code" class="champ code" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"><span class="info" style="flex:1;margin:0" data-i18n="carAide"></span></div>
+          </div>
+        </div>
+        <div class="info" id="infoLogin"></div>
+        <div class="info err" id="infoErreur"></div>
       </div>
-      <ol class="liste" id="listeSprint"><li class="vide">…</li></ol>
-      <h4><span data-i18n="lbCarriere"></span><small data-i18n="lbCarriereSous"></small></h4>
-      <ol class="liste" id="listeCarriere"><li class="vide">…</li></ol>
-    </div>
-    <div class="defile" data-i18n="defile"></div>
-  </section>
+      <div class="bloc classements">
+        <h3 data-i18n="lbTitre"></h3>
+        <h4><span>⚡ Sprint 90 s</span><small data-i18n="lbSprintSous"></small></h4>
+        <div class="onglets" data-cible="listeSprint" data-cle="p">
+          <button data-v="jour" class="actif" data-i18n="ongletJour"></button>
+          <button data-v="tout" data-i18n="ongletTout"></button>
+        </div>
+        <ol class="liste" id="listeSprint"><li class="vide">…</li></ol>
+        <h4><span data-i18n="lbCarriere"></span><small data-i18n="lbCarriereSous"></small></h4>
+        <ol class="liste" id="listeCarriere"><li class="vide">…</li></ol>
+      </div>
+    </section>
 
-  <section class="section" id="jouer">
-    <h2 class="grand" data-i18n="jouerTitre"></h2>
-    <p class="chapeau" data-i18n="jouerChapeau"></p>
-    <div class="grille-jeu">
-      <div class="carte">
+    <section class="panneau-acc" id="pJouer">
+      <div class="tete-panneau"><h2 data-i18n="jouerTitre"></h2><p data-i18n="jouerChapeau"></p></div>
+      <div class="bloc">
         <div class="surtitre" data-i18n="commentJouer"></div>
         <ul class="etapes">
           <li><span class="ico">👆</span><span data-i18n-html="etape1"></span></li>
@@ -386,56 +432,41 @@
           <li><span class="ico">🛡️</span><span data-i18n-html="etape5"></span></li>
         </ul>
       </div>
-      <div class="carte">
-        <div class="surtitre" data-i18n="choixMode"></div>
-        <div class="modes" id="modes">
-          <button class="mode actif" data-mode="rapide"><b>⚡ Sprint 90 s</b><span data-i18n="modeSprint"></span></button>
-          <button class="mode" data-mode="carriere"><b data-i18n="lbCarriere"></b><span data-i18n="modeCarriere"></span></button>
-        </div>
-        <label class="nom" for="pseudo" data-i18n="nomLabel"></label>
-        <div class="ligne">
-          <input id="pseudo" class="champ" maxlength="24" autocomplete="nickname" data-i18n-ph="nomPh">
-        </div>
-        <div class="boite-carriere" id="boiteCarriere" hidden>
-          <div class="info" id="carLocal" hidden></div>
-          <div id="carCodeLigne">
-            <label class="nom" for="code" style="margin-top:0" data-i18n="carCode"></label>
-            <div class="ligne"><input id="code" class="champ code" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"><span class="info" style="flex:1;margin:0" data-i18n="carAide"></span></div>
-          </div>
-        </div>
-        <div class="ligne" style="margin-top:14px">
-          <button class="btn-rouge" id="btnJouer"></button>
-        </div>
-        <div class="info" id="infoLogin"></div>
-        <div class="info err" id="infoErreur"></div>
+      <div class="bloc">
+        <div class="surtitre" data-i18n="legendeTitre"></div>
+        <ul class="etapes">
+          <li><span class="ico">❗</span><span data-i18n-html="l1"></span></li>
+          <li><span class="ico" style="font-size:13px;font-weight:800;color:#1b1b1b;background:#ff8c3c">×3</span><span data-i18n-html="l2"></span></li>
+          <li><span class="ico" style="background:rgba(242,183,5,.25)">✨</span><span data-i18n-html="l3"></span></li>
+          <li><span class="ico">🔁</span><span data-i18n-html="l4"></span></li>
+          <li><span class="ico">💶</span><span data-i18n-html="l5"></span></li>
+        </ul>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="section" id="piliers">
-    <h2 class="grand" data-i18n="piliersTitre"></h2>
-    <p class="chapeau" data-i18n="piliersChapeau"></p>
-    <div class="themes piliers">
-      <div class="theme"><div class="ic">🛰️</div><h4 data-i18n="p1t"></h4><p data-i18n-html="p1"></p></div>
-      <div class="theme"><div class="ic">🤝</div><h4 data-i18n="p2t"></h4><p data-i18n-html="p2"></p></div>
-      <div class="theme"><div class="ic">📏</div><h4 data-i18n="p3t"></h4><p data-i18n-html="p3"></p></div>
-      <div class="theme"><div class="ic">🌱</div><h4 data-i18n="p4t"></h4><p data-i18n-html="p4"></p></div>
-    </div>
-  </section>
+    <section class="panneau-acc" id="pPiliers">
+      <div class="tete-panneau"><h2 data-i18n="piliersTitre"></h2><p data-i18n="piliersChapeau"></p></div>
+      <div class="themes piliers">
+        <div class="theme" style="--c: var(--c-bleu)"><div class="ic">🛰️</div><h4 data-i18n="p1t"></h4><p data-i18n-html="p1"></p></div>
+        <div class="theme" style="--c: var(--c-rouge)"><div class="ic">🤝</div><h4 data-i18n="p2t"></h4><p data-i18n-html="p2"></p></div>
+        <div class="theme" style="--c: var(--c-vert)"><div class="ic">📏</div><h4 data-i18n="p3t"></h4><p data-i18n-html="p3"></p></div>
+        <div class="theme" style="--c: var(--c-jaune)"><div class="ic">🌱</div><h4 data-i18n="p4t"></h4><p data-i18n-html="p4"></p></div>
+      </div>
+    </section>
 
-  <section class="section" id="theme">
-    <h2 class="grand" data-i18n="themeTitre"></h2>
-    <p class="chapeau" data-i18n="themeChapeau"></p>
-    <div class="themes">
-      <div class="theme"><div class="ic">🛡️</div><h4 data-i18n="t1t"></h4><p data-i18n-html="t1"></p></div>
-      <div class="theme"><div class="ic">📊</div><h4 data-i18n="t2t"></h4><p data-i18n-html="t2"></p></div>
-      <div class="theme"><div class="ic">🔁</div><h4 data-i18n="t3t"></h4><p data-i18n-html="t3"></p></div>
-      <div class="theme"><div class="ic">🌦️</div><h4 data-i18n="t4t"></h4><p data-i18n-html="t4"></p></div>
-      <div class="theme"><div class="ic">💶</div><h4 data-i18n="t5t"></h4><p data-i18n-html="t5"></p></div>
-      <div class="theme"><div class="ic">⚡</div><h4 data-i18n="t6t"></h4><p data-i18n-html="t6"></p></div>
-    </div>
-  </section>
-  <div class="pied" data-i18n="pied"></div>
+    <section class="panneau-acc" id="pTheme">
+      <div class="tete-panneau"><h2 data-i18n="themeTitre"></h2><p data-i18n="themeChapeau"></p></div>
+      <div class="themes">
+        <div class="theme"><div class="ic">🛡️</div><h4 data-i18n="t1t"></h4><p data-i18n-html="t1"></p></div>
+        <div class="theme"><div class="ic">📊</div><h4 data-i18n="t2t"></h4><p data-i18n-html="t2"></p></div>
+        <div class="theme"><div class="ic">🔁</div><h4 data-i18n="t3t"></h4><p data-i18n-html="t3"></p></div>
+        <div class="theme"><div class="ic">🌦️</div><h4 data-i18n="t4t"></h4><p data-i18n-html="t4"></p></div>
+        <div class="theme"><div class="ic">💶</div><h4 data-i18n="t5t"></h4><p data-i18n-html="t5"></p></div>
+        <div class="theme"><div class="ic">⚡</div><h4 data-i18n="t6t"></h4><p data-i18n-html="t6"></p></div>
+      </div>
+    </section>
+  </main>
+  <footer class="pied" data-i18n="pied"></footer>
 </div>
 
 <!-- ======================= Relève d'équipe ======================= -->
@@ -566,8 +597,8 @@ const CONFIG = {
 
 const PARAMS = {
   vitesse: 430, stock: 8, conso: .7, tRep: 1.8, tFiab: [2.0, 2.8], tBase: 3, coutFiab: 1,
-  risqueFragile: 1 / 22, risqueNormal: 1 / 2500, rampe: 1, usure: .5, usureMax: 3,
-  effets: { brouillard: .65, houle: 1.3 }, cable: false, freqMeteo: 15, maxZones: 2, prevision: 3, scada: 0,
+  risqueFragile: 1 / 55, risqueNormal: 1 / 6000, rampe: .6, usure: .5, usureMax: 3,
+  effets: { brouillard: .65, houle: 1.3 }, cable: false, freqMeteo: 22, maxZones: 2, prevision: 3, scada: 0,
   meteo: [['brouillard'], ['houle', 'brouillard'], ['houle', 'brouillard']]
 };
 
@@ -631,9 +662,16 @@ const I18N = {
   fr: {
     dates: '📅 9 – 13 novembre 2026',
     sousTitre: 'La qualité, moteur de la performance',
-    intro: 'Semaine mondiale de la qualité 2026 : partout dans le monde, on célèbre le rôle de la qualité dans la performance des organisations et de la société. Chez nous, elle se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
-    btnJouerHero: 'Jouer ▶', btnTheme: 'Explorer le thème',
-    jours: 'jours', heures: 'heures', minutes: 'minutes', secondes: 'secondes', defile: '▼ faites défiler',
+    intro: 'Cette année, la qualité se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
+    marque: 'Parc éolien en mer du Calvados · Courseulles-sur-Mer', marqueSous: 'Semaine mondiale de la qualité · 9 – 13 novembre 2026',
+    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité',
+    jours: 'jours', heures: 'heures', minutes: 'min', secondes: 's',
+    legendeTitre: 'Repères à l\'écran',
+    l1: '<b>Bulle rouge</b> : éolienne en panne, l\'icône indique le type de panne.',
+    l2: '<b>Badge ×N</b> : nombre de pannes. Les récidivistes sont vos priorités.',
+    l3: '<b>Éolienne dorée</b> : fiabilisée. Or pâle au niveau 1, or vif et scintillante au niveau 2.',
+    l4: '<b>Combo</b> : la même opération enchaînée va plus vite et rapporte un bonus.',
+    l5: '<b>Carrière</b> : chaque soir, ventes − pièces − carburant = budget pour améliorer le bateau.',
     msgSemaine: '🎉 C\'est la Semaine de la qualité !', msgJournee: '🌍 Aujourd\'hui, c\'est la Journée mondiale de la qualité !', msgMerci: 'Merci à toutes et à tous pour cette Semaine de la qualité !',
     lbTitre: '🏆 Classements', lbSprintSous: 'meilleur score', lbCarriere: '🧭 Carrière', lbCarriereSous: 'énergie cumulée',
     ongletJour: 'Aujourd\'hui', ongletTout: 'Général',
@@ -658,7 +696,7 @@ const I18N = {
     errNom: 'Indiquez votre nom.', errCode: 'Choisissez un code de 4 chiffres.',
     errCodeFaux: 'Ce nom a déjà une carrière avec un autre code. Entrez le bon code pour la reprendre, ou choisissez un autre nom.',
     errHorsLigne: 'Hors ligne : la carrière est gardée sur ce poste uniquement.',
-    infoLoginWin: 'Connecté en tant que <b>{login}</b> (session Windows)', infoLoginAstuce: 'Astuce : lancez le jeu avec <b>Jouer.bat</b> pour être reconnu automatiquement.',
+    infoLoginWin: 'Connecté en tant que <b>{login}</b>', infoLoginSp: 'Connecté en tant que <b>{login}</b> (compte Microsoft 365)', infoLoginAstuce: '',
     piliersTitre: 'Les 4 piliers de la performance',
     piliersChapeau: 'Le thème 2026 s\'appuie sur quatre piliers. Voici comment chacun prend vie dans le jeu… et sur un parc éolien en mer.',
     p1t: 'Innovation & technologie', p1: 'Supervision SCADA, alarmes prédictives, capteurs redondants : la technologie permet d\'<em>anticiper</em> la panne au lieu de la subir.',
@@ -742,10 +780,17 @@ const I18N = {
   },
   en: {
     dates: '📅 9 – 13 November 2026',
-    sousTitre: 'World Quality Week 2026',
-    intro: 'A global celebration of the role quality plays in driving organizational and societal performance. Here, it plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
-    btnJouerHero: 'Play ▶', btnTheme: 'Explore the theme',
-    jours: 'days', heures: 'hours', minutes: 'minutes', secondes: 'seconds', defile: '▼ scroll down',
+    sousTitre: 'Quality as the engine of performance',
+    intro: 'This year, quality plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
+    marque: 'Calvados offshore wind farm · Courseulles-sur-Mer', marqueSous: 'World Quality Week · 9 – 13 November 2026',
+    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality',
+    jours: 'days', heures: 'hrs', minutes: 'min', secondes: 'sec',
+    legendeTitre: 'On-screen cues',
+    l1: '<b>Red bubble</b>: turbine down, the icon shows the type of fault.',
+    l2: '<b>×N badge</b>: number of failures. Repeat offenders are your priority.',
+    l3: '<b>Golden turbine</b>: reinforced. Pale gold at level 1, bright sparkling gold at level 2.',
+    l4: '<b>Combo</b>: chaining the same operation goes faster and earns a bonus.',
+    l5: '<b>Career</b>: every evening, sales − parts − fuel = budget to upgrade the boat.',
     msgSemaine: '🎉 It\'s World Quality Week!', msgJournee: '🌍 Today is World Quality Day!', msgMerci: 'Thank you all for World Quality Week!',
     lbTitre: '🏆 Leaderboards', lbSprintSous: 'best score', lbCarriere: '🧭 Career', lbCarriereSous: 'total energy',
     ongletJour: 'Today', ongletTout: 'All time',
@@ -770,7 +815,7 @@ const I18N = {
     errNom: 'Please enter your name.', errCode: 'Choose a 4-digit code.',
     errCodeFaux: 'This name already has a career with another code. Enter the right code to resume it, or pick another name.',
     errHorsLigne: 'Offline: the career is kept on this computer only.',
-    infoLoginWin: 'Signed in as <b>{login}</b> (Windows session)', infoLoginAstuce: 'Tip: launch the game with <b>Jouer.bat</b> to be recognised automatically.',
+    infoLoginWin: 'Signed in as <b>{login}</b>', infoLoginSp: 'Signed in as <b>{login}</b> (Microsoft 365 account)', infoLoginAstuce: '',
     piliersTitre: 'The 4 Pillars of Performance',
     piliersChapeau: 'The 2026 theme rests on four pillars. Here is how each one comes alive in the game… and on an offshore wind farm.',
     p1t: 'Innovation & Technology', p1: 'SCADA monitoring, predictive alarms, redundant sensors: technology lets you <em>anticipate</em> failures instead of suffering them.',
@@ -880,16 +925,46 @@ const stock = {
 const echapper = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 /* =====================================================================
-   Identité du joueur : login Windows transmis par le lanceur (?login=)
+   Identité du joueur
+   - page publiée sur SharePoint : compte Microsoft 365 de la personne connectée
+     (API REST du site, appelée avec sa session : aucune saisie, aucun lanceur) ;
+   - sinon : ?login=… dans l'adresse, ou le dernier login connu sur ce poste ;
+   - à défaut, le pseudo saisi sert d'identifiant.
    ===================================================================== */
 const joueur = (() => {
   const q = new URLSearchParams(location.search);
-  let viaUrl = (q.get('login') || q.get('user') || '').trim().slice(0, 64);
-  if (/^%.*%$/.test(viaUrl)) viaUrl = '';
-  if (viaUrl) stock.set('eq_login', viaUrl);
+  const viaUrl = (q.get('login') || q.get('user') || '').trim().slice(0, 64);
+  if (viaUrl) { stock.set('eq_login', viaUrl); stock.set('eq_source', 'windows'); }
   const login = viaUrl || stock.get('eq_login') || '';
-  return { login, source: login ? 'windows' : 'saisie', pseudo: stock.get('eq_pseudo') || login };
+  return { login, source: login ? (stock.get('eq_source') || 'windows') : 'saisie', pseudo: stock.get('eq_pseudo') || '' };
 })();
+
+async function detecterCompteSharePoint() {
+  if (!/^https?:$/.test(location.protocol) || location.hostname === 'localhost') return;
+  // on remonte l'arborescence de la page jusqu'au site SharePoint qui répond
+  const dossiers = location.pathname.split('/').slice(1, -1);
+  const essais = [];
+  for (let n = dossiers.length; n >= 0 && essais.length < 5; n--) essais.push('/' + dossiers.slice(0, n).join('/'));
+  for (const site of essais) {
+    try {
+      const r = await fetch(location.origin + site.replace(/\/$/, '') + '/_api/web/currentuser',
+        { headers: { Accept: 'application/json;odata=nometadata' }, credentials: 'include' });
+      if (!r.ok) continue;
+      const u = await r.json();
+      const login = (u.Email || u.UserPrincipalName || String(u.LoginName || '').split('|').pop() || '').trim().toLowerCase().slice(0, 64);
+      if (!login) return;
+      joueur.login = login; joueur.source = 'sharepoint';
+      stock.set('eq_login', login); stock.set('eq_source', 'sharepoint');
+      if (!$('pseudo').value.trim() && u.Title) { $('pseudo').value = String(u.Title).trim().slice(0, 24); majBoutonJouer(); }
+      majInfoLogin();
+      return;
+    } catch (e) { /* pas sur SharePoint : on continue sans */ }
+  }
+}
+function majInfoLogin() {
+  $('infoLogin').innerHTML = !joueur.login ? t('infoLoginAstuce')
+    : t(joueur.source === 'sharepoint' ? 'infoLoginSp' : 'infoLoginWin', { login: echapper(joueur.login) });
+}
 let modeChoisi = stock.get('eq_mode') === 'carriere' ? 'carriere' : 'rapide';
 
 /* =====================================================================
@@ -907,7 +982,7 @@ async function sb(chemin, corps, entetes = {}) {
 }
 const debutDuJour = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.toISOString(); };
 
-const tableaux = { listeSprint: { p: 'jour', mode: 'rapide' }, listeCarriere: { mode: 'carriere' }, listeFin: { p: 'jour', mode: 'rapide' } };
+const tableaux = { listeSprint: { p: 'jour', mode: 'rapide', nb: 6 }, listeCarriere: { mode: 'carriere', nb: 5 }, listeFin: { p: 'jour', mode: 'rapide' } };
 async function chargerClassement(cible) {
   const ol = $(cible), tb = tableaux[cible];
   const ligne = (rang, pseudo, sous, valeur, unite) => {
@@ -922,11 +997,11 @@ async function chargerClassement(cible) {
   };
   try {
     if (tb.mode === 'carriere') {
-      const lignes = await sb('/rest/v1/rpc/classement_carriere', { nb: 8 });
+      const lignes = await sb('/rest/v1/rpc/classement_carriere', { nb: tb.nb || 8 });
       ol.replaceChildren(...lignes.map(l => ligne(l.rang, l.pseudo, t('jourCourt', { n: l.jour }), l.total_mwh, 'MWh')));
       if (!lignes.length) ol.innerHTML = '<li class="vide">' + t('lbVideCarriere') + '</li>';
     } else {
-      const lignes = await sb('/rest/v1/rpc/classement', { nb: 8, depuis: tb.p === 'jour' ? debutDuJour() : null, p_mode: 'rapide' });
+      const lignes = await sb('/rest/v1/rpc/classement', { nb: tb.nb || 8, depuis: tb.p === 'jour' ? debutDuJour() : null, p_mode: 'rapide' });
       ol.replaceChildren(...lignes.map(l => ligne(l.rang, l.pseudo, '🛡️' + l.ameliorations, l.score, 'pts')));
       if (!lignes.length) ol.innerHTML = '<li class="vide">' + t('lbVide') + '</li>';
     }
@@ -1030,7 +1105,6 @@ function redimensionner() {
   cv.width = innerWidth * dpr; cv.height = innerHeight * dpr;
   echelle = Math.min(innerWidth / W, innerHeight / H);
   decX = (innerWidth - W * echelle) / 2; decY = (innerHeight - H * echelle) / 2;
-  dimensionnerReseau();
 }
 const versEcran = (x, y) => ({ x: x * echelle + decX, y: y * echelle + decY });
 
@@ -1091,13 +1165,13 @@ function creerParc(sauvegarde) {
 /* Paramètres de la journée : sprint, ou carrière (difficulté qui monte + améliorations achetées) */
 function parametres(mode, car) {
   const P = JSON.parse(JSON.stringify(PARAMS));
-  if (mode === 'rapide') { P.risqueFragile *= 2.2; return P; }   // sprint : les fragiles récidivent dès la 1re minute
-  const j = car.jour, u = car.upg, k = Math.min(2.2, 1 + .1 * (j - 1));
+  if (mode === 'rapide') { return P; }
+  const j = car.jour, u = car.upg, k = Math.min(1.8, 1 + .07 * (j - 1));
   P.risqueFragile *= k; P.risqueNormal *= k;
   const m = [['brouillard'], ['houle', 'brouillard'], ['houle', 'brouillard']];
   if (j >= 2) { m[0].push('dauphins'); m[2].push('dauphins'); }
   if (j >= 3) { m[1].push('grain'); m[2].push('grain', 'grain'); P.effets = { brouillard: .5, houle: 1.5 }; P.maxZones = 3; }
-  P.meteo = m; P.freqMeteo = Math.max(7, 16 - 2 * j);
+  P.meteo = m; P.freqMeteo = Math.max(10, 22 - 2 * j);
   P.cable = j >= 4;
   P.vitesse *= 1 + .12 * u.moteur; P.stock += 2 * u.soute; P.conso *= [1, .7, .5][u.reservoir];
   P.tRep *= 1 - .1 * u.equipe; P.tFiab = P.tFiab.map(x => x * (1 - .1 * u.equipe));
@@ -1234,7 +1308,7 @@ function majParc(dt) {
       }
       const r = risque(e);
       if (e.niveau > 0) partie.evitees += (r / (FACTEUR_NIVEAU[e.niveau] * e.usure) - r) * dt;
-      if (partie.tShift > 3 && Math.random() < r * dt) {
+      if (partie.tShift > (partie.shift ? 3 : 6) && Math.random() < r * dt) {
         if (M.scada >= 2) { e.alerte = 5; sons.alerte(); astuce('alerte', t('tutoAlerte', { id: e.id }), 5); }
         else tomberEnPanne(e);
       }
@@ -1851,25 +1925,41 @@ function dessinerEolienne(e, survol, rangs) {
     const pul = .5 + .5 * Math.sin(horloge * 8);
     ctx.fillStyle = `rgba(255,77,94,${.2 + .22 * pul})`; ctx.beginPath(); ctx.ellipse(x, y + 1, 20 + pul * 5, 8 + pul * 2, 0, 0, 6.28); ctx.fill();
   }
+  const or = e.niveau > 0;   // fiabilisée : l'éolienne passe à l'or
+  if (or) {
+    const rh = 32 + e.niveau * 8, g = ctx.createRadialGradient(x - 3.5, hy, 0, x - 3.5, hy, rh);
+    g.addColorStop(0, `rgba(255,205,60,${e.niveau === 2 ? .5 : .32})`); g.addColorStop(1, 'rgba(255,205,60,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x - 3.5, hy, rh, 0, 6.28); ctx.fill();
+  }
   for (let i = 0; i < e.niveau; i++) {
-    ctx.strokeStyle = i ? '#ffd23f' : '#3ddc97'; ctx.lineWidth = 2.2;
+    ctx.strokeStyle = i ? '#ffb300' : '#ffd23f'; ctx.lineWidth = 2.6;
     ctx.beginPath(); ctx.ellipse(x, y + 1, 12 + i * 5, 5 + i * 2, 0, 0, 6.28); ctx.stroke();
   }
   if (e.eclat > 0) { ctx.strokeStyle = `rgba(255,255,255,${Math.min(1, e.eclat)})`; ctx.lineWidth = 2; const r = 16 + (1.5 - e.eclat) * 30; ctx.beginPath(); ctx.ellipse(x, y, r, r * .4, 0, 0, 6.28); ctx.stroke(); }
   ctx.fillStyle = '#e0b100'; ctx.fillRect(x - 5, y - 8, 10, 9);
   ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.ellipse(x, y - 8, 5, 2, 0, 0, 6.28); ctx.fill();
-  ctx.fillStyle = '#eef3f6'; ctx.beginPath(); ctx.moveTo(x - 2.8, y - 8); ctx.lineTo(x - 1.4, hy + 1); ctx.lineTo(x + 1.4, hy + 1); ctx.lineTo(x + 2.8, y - 8); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = e.marche ? '#f1f5f8' : '#ffd0d5'; ctx.beginPath(); ctx.roundRect(x - 3.5, hy - 3, 10, 6, 2.5); ctx.fill();
+  if (or) { const gm = ctx.createLinearGradient(x - 3, 0, x + 3, 0); gm.addColorStop(0, '#fff2b8'); gm.addColorStop(1, '#d19a00'); ctx.fillStyle = gm; } else ctx.fillStyle = '#eef3f6';
+  ctx.beginPath(); ctx.moveTo(x - 2.8, y - 8); ctx.lineTo(x - 1.4, hy + 1); ctx.lineTo(x + 1.4, hy + 1); ctx.lineTo(x + 2.8, y - 8); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = !e.marche ? '#ffd0d5' : or ? '#ffc933' : '#f1f5f8'; ctx.beginPath(); ctx.roundRect(x - 3.5, hy - 3, 10, 6, 2.5); ctx.fill();
   ctx.save(); ctx.translate(x - 3.5, hy); ctx.rotate(e.angle);
-  ctx.fillStyle = tourne ? '#ffffff' : e.coupe ? '#ffd9a8' : '#e8c1c6';
+  ctx.fillStyle = tourne ? ['#ffffff', '#ffe27a', '#ffc21a'][e.niveau] : e.coupe ? '#ffd9a8' : '#e8c1c6';
   for (let i = 0; i < 3; i++) { pale(25); ctx.rotate(2.0944); }
   ctx.restore();
+  if (e.niveau === 2) {   // scintillement des éoliennes au maximum
+    for (let i = 0; i < 2; i++) {
+      const ph = (horloge * .9 + i * .5 + e.x * .003) % 1, a = Math.sin(ph * Math.PI);
+      const sx = x - 3.5 + Math.cos(i * 2.4 + e.y) * 20, sy = hy + Math.sin(i * 1.7 + e.x) * 16, r = 1.5 + a * 3;
+      ctx.fillStyle = `rgba(255,248,210,${a})`;
+      ctx.beginPath(); ctx.moveTo(sx, sy - r); ctx.lineTo(sx + r * .3, sy - r * .3); ctx.lineTo(sx + r, sy); ctx.lineTo(sx + r * .3, sy + r * .3);
+      ctx.lineTo(sx, sy + r); ctx.lineTo(sx - r * .3, sy + r * .3); ctx.lineTo(sx - r, sy); ctx.lineTo(sx - r * .3, sy - r * .3); ctx.closePath(); ctx.fill();
+    }
+  }
   if (nuit > .2 && Math.sin(horloge * 3.2 + e.x * .01) > 0) {   // balisage aérien de nuit
     const g = ctx.createRadialGradient(x - 1, hy - 4, 0, x - 1, hy - 4, 7);
     g.addColorStop(0, 'rgba(255,40,40,1)'); g.addColorStop(1, 'rgba(255,40,40,0)');
     ctx.fillStyle = g; ctx.fillRect(x - 9, hy - 12, 16, 16);
   }
-  ctx.font = '600 9.5px Inter, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.fillText(e.id, x, y + 14);
+  ctx.font = '600 9.5px Inter, sans-serif'; ctx.fillStyle = or ? '#ffd23f' : 'rgba(255,255,255,.65)'; ctx.fillText(e.id, x, y + 14);
   const compte = M.scada >= 1 && partie && partie.mode === 'carriere' ? e.histo : e.nbPannes;
   if (compte >= 2) {   // historique visible : les récidivistes se repèrent
     ctx.fillStyle = e.niveau ? 'rgba(61,220,151,.9)' : 'rgba(255,140,60,.95)';
@@ -2001,30 +2091,15 @@ function majHud() {
 /* =====================================================================
    Accueil : fond « réseau », compte à rebours, langue, modes
    ===================================================================== */
-const rcv = $('reseau'), rctx = rcv.getContext('2d');
-const noeuds = Array.from({ length: 70 }, () => ({ x: Math.random(), y: Math.random(), vx: rand(-.01, .01), vy: rand(-.01, .01), r: rand(1, 2.6) }));
-function dimensionnerReseau() {
-  const el = $('ecranAccueil');
-  rcv.width = el.clientWidth * dpr; rcv.height = el.scrollHeight * dpr;
-  rcv.style.height = el.scrollHeight + 'px';
-}
-function dessinerReseau(dt) {
-  const w = rcv.width, h = rcv.height;
-  rctx.clearRect(0, 0, w, h);
-  for (const n of noeuds) { n.x = (n.x + n.vx * dt + 1) % 1; n.y = (n.y + n.vy * dt + 1) % 1; }
-  rctx.lineWidth = dpr;
-  const lien = 240 * dpr;
-  for (let i = 0; i < noeuds.length; i++) for (let j = i + 1; j < noeuds.length; j++) {
-    const a = noeuds[i], b = noeuds[j], d = Math.hypot((a.x - b.x) * w, (a.y - b.y) * h);
-    if (d < lien) { rctx.strokeStyle = `rgba(255,255,255,${.12 * (1 - d / lien)})`; rctx.beginPath(); rctx.moveTo(a.x * w, a.y * h); rctx.lineTo(b.x * w, b.y * h); rctx.stroke(); }
-  }
-  for (const n of noeuds) { rctx.fillStyle = 'rgba(255,255,255,.35)'; rctx.beginPath(); rctx.arc(n.x * w, n.y * h, n.r * dpr, 0, 6.28); rctx.fill(); }
-  rctx.strokeStyle = 'rgba(255,255,255,.05)'; rctx.lineWidth = 70 * dpr;   // grandes ondulations douces
-  for (const [k, ph] of [[.12, 0], [.3, 2]]) {
-    rctx.beginPath();
-    for (let x = 0; x <= w; x += 24) rctx.lineTo(x, h * k + Math.sin(x / w * 5 + horloge * .25 + ph) * innerHeight * dpr * .12);
-    rctx.stroke();
-  }
+/* À l'accueil, le parc tourne en fond et le bateau fait sa tournée */
+let flaner = null;
+function promenade(dt) {
+  if (!flaner || dist(bateau.x, bateau.y, flaner.x, flaner.y) < 8) flaner = amarrage(pick(eoliennes));
+  const dx = flaner.x - bateau.x, dy = flaner.y - bateau.y, d = Math.hypot(dx, dy) || 1, v = Math.min(170, d * 2);
+  bateau.vx += (dx / d * v - bateau.vx) * Math.min(1, dt * 3); bateau.vy += (dy / d * v - bateau.vy) * Math.min(1, dt * 3);
+  bateau.x += bateau.vx * dt; bateau.y += bateau.vy * dt; bateau.visible = true;
+  bateau.cap += (((Math.atan2(bateau.vy, bateau.vx) - bateau.cap + Math.PI * 3) % (Math.PI * 2)) - Math.PI) * Math.min(1, dt * 5);
+  if (Math.random() < dt * 25) particules.push({ type: 'sillage', x: bateau.x - Math.cos(bateau.cap) * 14, y: bateau.y - Math.sin(bateau.cap) * 14, r: 2, vie: 1.1, max: 1.1 });
 }
 
 function majRebours() {
@@ -2073,7 +2148,11 @@ function choisirMode(m) {
   majCarteCarriere();
 }
 document.querySelectorAll('#modes .mode').forEach(b => b.addEventListener('click', () => choisirMode(b.dataset.mode)));
-document.querySelectorAll('[data-aller]').forEach(b => b.addEventListener('click', () => $(b.dataset.aller).scrollIntoView({ behavior: 'smooth' })));
+function ongletAccueil(id) {
+  document.querySelectorAll('#ongletsAcc button').forEach(b => b.classList.toggle('actif', b.dataset.tab === id));
+  document.querySelectorAll('.panneau-acc').forEach(p => p.classList.toggle('actif', p.id === id));
+}
+document.querySelectorAll('#ongletsAcc button').forEach(b => b.addEventListener('click', () => ongletAccueil(b.dataset.tab)));
 
 function appliquerLangue() {
   document.documentElement.lang = langue;
@@ -2081,10 +2160,9 @@ function appliquerLangue() {
   document.querySelectorAll('[data-i18n-html]').forEach(el => { el.innerHTML = t(el.dataset.i18nHtml); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   $('btnLangue').textContent = langue === 'fr' ? 'EN' : 'FR';
-  $('infoLogin').innerHTML = joueur.login ? t('infoLoginWin', { login: echapper(joueur.login) }) : t('infoLoginAstuce');
+  majInfoLogin();
   majRebours(); majCarteCarriere();
   for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
-  requestAnimationFrame(dimensionnerReseau);
 }
 $('btnLangue').addEventListener('click', () => { langue = langue === 'fr' ? 'en' : 'fr'; stock.set('eq_langue', langue); appliquerLangue(); });
 
@@ -2226,7 +2304,8 @@ function boucle(maintenant) {
   const dt = Math.min(.05, (maintenant - avant) / 1000); avant = maintenant;
   if (etat === 'jeu') { majPartie(dt); if (etat === 'jeu') majHud(); }
   majCommun(dt);
-  if ($('ecranAccueil').hidden) dessiner(); else dessinerReseau(dt);
+  if (etat === 'accueil') promenade(dt);
+  dessiner();
   requestAnimationFrame(boucle);
 }
 
@@ -2240,8 +2319,9 @@ $('btnRejouer').addEventListener('click', lancerJournee);
 function retourAccueil() {
   etat = 'accueil'; partie = null;
   for (const id of ['ecranFin', 'ecranBase', 'ecranReleve', 'hud', 'file']) $(id).hidden = true;
-  $('ecranAccueil').hidden = false; $('ecranAccueil').scrollTop = 0;
-  majCarteCarriere(); dimensionnerReseau();
+  $('ecranAccueil').hidden = false; ongletAccueil('pAccueil');
+  eoliennes.forEach(e => { e.marche = true; e.coupe = false; e.alerte = 0; });
+  majCarteCarriere();
   for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
 }
 $('btnAccueil').addEventListener('click', retourAccueil);
@@ -2253,7 +2333,7 @@ setInterval(majRebours, 1000);
 carriere = carriereLocale();
 choisirMode(modeChoisi);
 appliquerLangue();
-if (document.fonts) document.fonts.ready.then(dimensionnerReseau);
+detecterCompteSharePoint();
 requestAnimationFrame(boucle);
 </script>
 </body>
