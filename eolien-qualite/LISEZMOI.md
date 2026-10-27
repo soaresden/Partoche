@@ -30,6 +30,11 @@ SharePoint**, avec le compte de la personne : le jeu sait qui joue et peut enreg
 3. Ouvrir le dossier `QualityWeek2026` dans le navigateur, puis **cliquer sur le favori** : le jeu se lance,
    le nom est déjà rempli et les scores s'enregistrent.
 
+**Sécurité de SharePoint.** SharePoint n'exécute que les scripts qui portent son jeton de sécurité. Le favori reprend ce jeton,
+et sinon lance le jeu autrement. Si le jeu ne démarre pas, le favori affiche la raison exacte : envoyez-la, avec une capture de la console (F12).
+Les polices Google sont bloquées par SharePoint : le jeu utilise alors les polices du système, sans gêne.
+Quand le code du favori change (nouvelle version), il faut **refaire le glisser** du bouton jaune.
+
 **Données et anti-triche**
 - Chaque joueur écrit **uniquement son fichier** : `donnees/joueur-<adresse e-mail>.json` (ses parties, sa carrière, son temps de jeu).
 - Chaque fichier est **signé**. Un fichier modifié à la main ne passe plus le contrôle : ses scores sont écartés des classements

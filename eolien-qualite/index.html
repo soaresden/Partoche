@@ -791,6 +791,8 @@
 
 <script>
 'use strict';
+// erreurs de démarrage, relues par le favori pour dire pourquoi le jeu ne démarre pas
+window.QW_ERREURS = []; addEventListener('error', e => window.QW_ERREURS.push(e.message));
 
 /* =====================================================================
    Réglages
@@ -809,7 +811,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.6'
+  version: '2026.7'
 };
 
 const PARAMS = {
@@ -1349,7 +1351,7 @@ async function initSharePoint() {
 /* le favori à partager : il charge index.html depuis le dossier SharePoint et l'affiche en plein écran dans la page */
 function codeFavori() {
   const d = CONFIG.sharepoint.dossier.replace(/'/g, "\\'");
-  return 'javascript:' + encodeURIComponent(`(async()=>{const d='${d}';if(!/\\.sharepoint\\.com$/.test(location.hostname)){alert('Ouvrez d\\'abord le dossier QualityWeek2026 dans OneDrive / SharePoint (navigateur), puis cliquez sur ce favori.');return}try{const s=d.split('/').slice(0,3).join('/');const r=await fetch(location.origin+s+"/_api/web/GetFileByServerRelativeUrl('"+encodeURI(d+'/index.html').replace(/'/g,"''")+"')/$value",{credentials:'include',cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const h=await r.text();window.QW_DOSSIER=d;const f=document.createElement('iframe');f.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483647;background:#fff';f.allow='autoplay';f.srcdoc=h;document.body.append(f);document.documentElement.style.overflow='hidden'}catch(e){alert('Impossible de charger le jeu : '+e.message)}})()`);
+  return 'javascript:' + encodeURIComponent(`(async()=>{const d='${d}';if(!/\\.sharepoint\\.com$/.test(location.hostname)){alert('Ouvrez d\\'abord le dossier QualityWeek2026 dans OneDrive / SharePoint (navigateur), puis cliquez sur ce favori.');return}try{const s=d.split('/').slice(0,3).join('/');const r=await fetch(location.origin+s+"/_api/web/GetFileByServerRelativeUrl('"+encodeURI(d+'/index.html').replace(/'/g,"''")+"')/$value",{credentials:'include',cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);let h=await r.text();window.QW_DOSSIER=d;const i=h.indexOf('<script>'),j=h.lastIndexOf('</scr'+'ipt>'),c=i<0?'':h.slice(i+8,j);const n=(document.querySelector('script[nonce]')||{}).nonce||'';if(n)h=h.replace('<script>','<script nonce="'+n+'">');const f=document.createElement('iframe');f.style.cssText='position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483647;background:#fff';f.allow='autoplay';const pb=m=>alert('Le jeu n\\'a pas pu démarrer : '+m+'\\nEnvoyez une capture de la console (F12) à l\\'organisateur.');f.onload=()=>setTimeout(()=>{const w=f.contentWindow;if(w.QW_PRET)return;if(!w.QW_ERREURS){try{w.eval(c)}catch(e){pb(e.message);return}}setTimeout(()=>{if(!w.QW_PRET)pb((w.QW_ERREURS||[])[0]||'raison inconnue')},1500)},1200);f.srcdoc=h;document.documentElement.append(f);document.documentElement.style.overflow='hidden'}catch(e){alert('Impossible de charger le jeu : '+e.message)}})()`);
 }
 
 /* Relie le dossier des scores. Sans geste de l'utilisateur, on ne fait que vérifier l'autorisation déjà donnée. */
@@ -3543,6 +3545,7 @@ if (!detecterSharePoint()) Object.assign(BD, lireLocal());
 choisirMode(modeChoisi);
 appliquerLangue();
 if (SP.actif) initSharePoint(); else relierDossier(false);
+window.QW_PRET = true;
 requestAnimationFrame(boucle);
 </script>
 </body>
