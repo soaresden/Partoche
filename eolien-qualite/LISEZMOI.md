@@ -75,15 +75,15 @@ les joueurs ne peuvent pas les modifier.
 
 ## Les deux façons de jouer
 
-- **⚡ Sprint 90 s, pour tout le monde.** Une journée (6 h → 22 h) en 90 secondes. Avant de jouer, une carte présente les règles en 20 secondes,
+- **⚡ Sprint 3 min, pour tout le monde.** Une journée (6 h → 22 h) en 3 minutes (trois shifts d'une minute). Avant de jouer, une carte présente les règles en 20 secondes,
   puis un petit dessin animé (11 s, on peut le passer) montre le CTV qui se prépare à Ouistreham et appareille.
   On clique sur une éolienne orange et on choisit **Réparer** (rapide) ou **Fiabiliser** (plus long, mais le défaut ne revient presque plus : l'éolienne devient dorée).
   Au 1er défaut, on répare et on observe : la fiabilisation n'est possible qu'**à partir du 2ᵉ défaut** (la cause est alors confirmée).
   À ce moment, le jeu se met en pause une fois : « C'est la 2ᵉ fois que cette éolienne a un problème : il serait temps de la fiabiliser, tu ne penses pas ? »
   On n'a que **5 kits de fiabilisation** : impossible de tout fiabiliser, il faut garder les kits pour celles qui reviennent le plus (Pareto).
-  Chaque défaut coûte **50 points** (coût de la non-qualité), détaillé en fin de partie.
+  Chaque défaut coûte **40 points** (coût de la non-qualité), détaillé en fin de partie.
   Il n'y a pas de pièces, de carburant ni de météo à gérer. Tous les joueurs d'une même journée ont le même vent, pour un classement équitable.
-  Réglage vérifié au bot : fiabiliser les récidivistes rapporte environ 10 % de points de plus que courir d'une panne à l'autre.
+  Réglage vérifié au bot : 20 à 30 défauts par partie, et fiabiliser les récidivistes rapporte environ 12 % de points de plus que courir d'une panne à l'autre.
 - **🧭 Carrière, pour ceux qui accrochent.** Des journées de 3 minutes, reprises avec son nom. Chaque soir, l'électricité vendue,
   moins les pièces, le carburant et les rotors remplacés, donne un budget pour améliorer le bateau à la base.
   Une mécanique s'ajoute chaque jour :
@@ -122,8 +122,9 @@ et le **planificateur** : 8 puis 10 ordres dans la barre du bas, et le bouton «
 - L'écran de fin remercie le joueur et propose **Pile Poil**, l'autre jeu du projet.
 
 **L'accueil** est en fête : guirlande, confettis, ballons « Q » à éclater d'un clic, feux d'artifice (plus nombreux le jeudi 12 novembre).
-L'onglet **Animations** propose quatre petits films : le CTV qui appareille, « Réparer ou fiabiliser ? »,
-le transfert du technicien sur l'éolienne, et une journée au parc en accéléré jusqu'au feu d'artifice.
+L'onglet **Animations** propose quatre petits films : le CTV qui appareille ; « Réparer ou fiabiliser ? » (34 s, sur trois jours,
+avec la courbe du coût de la non-qualité) ; « J'ai vu ça, je capitalise » (34 s : une Lessons Learnt créée dans WAVE, son circuit
+Qualité, retrouvée et likée par un collègue, et trois défauts évités ailleurs) ; une journée au parc en accéléré jusqu'au feu d'artifice.
 
 Le vocabulaire reste neutre vis-à-vis du constructeur : on parle de « défauts » et d'éoliennes « plus exposées » (houle, embruns),
 jamais de matériel peu fiable. Pour retirer les incendies et les explosions, passez `incendies: false` dans `CONFIG`,

@@ -635,7 +635,7 @@
         <p class="fr" data-i18n="sousTitre"></p>
         <p class="intro" data-i18n="intro"></p>
         <div class="modes" id="modes">
-          <button class="mode actif" data-mode="rapide"><b>⚡ Sprint 90 s</b><span data-i18n="modeSprint"></span></button>
+          <button class="mode actif" data-mode="rapide"><b>⚡ Sprint 3 min</b><span data-i18n="modeSprint"></span></button>
           <button class="mode" data-mode="carriere"><b data-i18n="lbCarriere"></b><span data-i18n="modeCarriere"></span></button>
         </div>
         <label class="nom" for="pseudo" data-i18n="nomLabel"></label>
@@ -651,7 +651,7 @@
       </div>
       <div class="bloc classements">
         <h3 data-i18n="lbTitre"></h3>
-        <h4><span>⚡ Sprint 90 s</span><small data-i18n="lbSprintSous"></small></h4>
+        <h4><span>⚡ Sprint 3 min</span><small data-i18n="lbSprintSous"></small></h4>
         <div class="onglets" data-cible="listeSprint" data-cle="p">
           <button data-v="jour" class="actif" data-i18n="ongletJour"></button>
           <button data-v="tout" data-i18n="ongletTout"></button>
@@ -718,11 +718,11 @@
         </button>
         <button class="anim" type="button" id="animFiab">
           <span class="vignette"><canvas id="vignetteFiab" width="640" height="360"></canvas><i>▶</i></span>
-          <span class="txt"><b data-i18n="anFiabTitre"></b><span data-i18n="anFiabTxt"></span><small>⏱ 13 s</small></span>
+          <span class="txt"><b data-i18n="anFiabTitre"></b><span data-i18n="anFiabTxt"></span><small>⏱ 34 s</small></span>
         </button>
-        <button class="anim" type="button" id="animTrans">
-          <span class="vignette"><canvas id="vignetteTrans" width="640" height="360"></canvas><i>▶</i></span>
-          <span class="txt"><b data-i18n="anTransTitre"></b><span data-i18n="anTransTxt"></span><small>⏱ 12 s</small></span>
+        <button class="anim" type="button" id="animRex">
+          <span class="vignette"><canvas id="vignetteRex" width="640" height="360"></canvas><i>▶</i></span>
+          <span class="txt"><b data-i18n="anRexTitre"></b><span data-i18n="anRexTxt"></span><small>⏱ 34 s</small></span>
         </button>
         <button class="anim" type="button" id="animJour">
           <span class="vignette"><canvas id="vignetteJour" width="640" height="360"></canvas><i>▶</i></span>
@@ -962,14 +962,14 @@ const CONFIG = {
   debutSemaine: '2026-11-09T00:00:00',
   finSemaine: '2026-11-14T00:00:00',
   journeeMondiale: '2026-11-12',
-  dureeShift: { rapide: 30, carriere: 60 },   // secondes par shift (3 shifts par journée)
+  dureeShift: { rapide: 60, carriere: 60 },   // secondes par shift (3 shifts par journée)
   prixMWh: .08,       // k€ : 80 € le MWh vendu
   prixPiece: 4,       // k€ par pièce de rechange consommée
   prixPlein: 3,       // k€ par passage à la base (carburant)
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.15'
+  version: '2026.16'
 };
 
 const PARAMS = {
@@ -1052,7 +1052,7 @@ const I18N = {
     sousTitre: 'La qualité, moteur de la performance',
     intro: 'Cette année, la qualité se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
     marque: 'Semaine mondiale de la qualité 2026', marqueSous: '9 – 13 novembre · Journée mondiale de la qualité le jeudi 12',
-    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'Les petits films du jeu, à regarder quand vous voulez.', animCtvTitre: '🚤 Le CTV appareille', animCtvTxt: 'Au lever du jour à Ouistreham : chargement des pièces, briefing, une mouette affamée… et cap sur le parc.', animFin: '🎉 Bonne Semaine de la qualité !', anFiabTitre: '🛡️ Réparer ou fiabiliser ?', anFiabTxt: 'Deux éoliennes, le même défaut qui revient. À gauche on répare encore et encore ; à droite on traite la cause.', anFiabFin: 'Traiter la cause, ça paie !', anFiabSous: 'Réparer, c\'est utile. Éviter que ça revienne, c\'est la performance.', anFiabGauche: '🔧 On répare…', anFiabDroite: '🛡️ On fiabilise', anFiabLeg: [[0, 'Deux éoliennes exposées, le même défaut qui revient…'], [1.2, '1er défaut : on répare des deux côtés'], [3.6, '2e défaut : à droite, on traite la cause (fiabilisation)'], [6, 'À gauche, ça recommence…'], [8.4, '… et encore. À droite : pause café ☕'], [10.6, 'Le coût de la non-qualité grimpe à gauche']], anTransTitre: '🪜 Le transfert', anTransTxt: 'Le CTV pousse contre l\'échelle, le technicien s\'accroche à la ligne de vie et monte… avec une passagère surprise.', anTransFin: 'La sécurité d\'abord', anTransSous: 'Au-delà de 1,5 m de houle, on ne transfère pas.', anTransLeg: [[0, 'Approche de l\'éolienne C04'], [3, 'Le bateau pousse contre l\'échelle : contact !'], [4.4, 'Harnais accroché à la ligne de vie ✔'], [5.2, 'On attend la crête de la vague… maintenant !'], [6.2, 'Montée à l\'échelle jusqu\'à la plateforme'], [8.4, 'Arrivé ! Une mouette aussi…']], anJourTitre: '🌅 Une journée au parc', anJourTxt: 'De l\'aube à la nuit en accéléré : le vent qui varie, les dauphins, le CTV, les feux des nacelles… et la fête.', anJourFin: '🎆 Joyeuse Semaine de la qualité !', anJourSous: 'Le parc ne dort jamais', anJourLeg: [[0, '06:00 · le parc se réveille'], [1.5, 'Le vent forcit : les rotors accélèrent'], [3.1, 'Visite des dauphins 🐬'], [4.4, 'Le CTV part en tournée'], [7, '18:00 · le vent tombe, le soleil aussi'], [8.6, 'La nuit, les feux rouges des nacelles veillent'], [10.1, '… et c\'est la fête de la qualité ! 🎆']],
+    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'Les petits films du jeu, à regarder quand vous voulez.', animCtvTitre: '🚤 Le CTV appareille', animCtvTxt: 'Au lever du jour à Ouistreham : chargement des pièces, briefing, une mouette affamée… et cap sur le parc.', animFin: '🎉 Bonne Semaine de la qualité !', anFiabTitre: '🛡️ Réparer ou fiabiliser ?', anFiabTxt: 'Deux éoliennes, le même défaut qui revient. À gauche on répare encore et encore ; à droite on traite la cause.', anFiabFin: 'Traiter la cause, ça paie !', anFiabSous: 'Réparer, c\'est utile. Éviter que ça revienne, c\'est la performance.', anFiabGauche: '🔧 On répare…', anFiabDroite: '🛡️ On fiabilise', anFiabJours: ['Lundi', 'Mardi', 'Mercredi'], anFiabWave: 'WAVE · LL partagée', anFiabCourbe: '💸 Coût de la non-qualité, cumulé', anFiabLeg: [[0, 'Lundi · deux éoliennes exposées, le même défaut qui revient…'], [1.5, '1er défaut : on répare des deux côtés, on observe'], [4.5, '2e défaut : la cause est confirmée. À droite, on fiabilise'], [7.5, 'À gauche, on se contente de réparer… et ça recommence'], [10.2, 'Mardi · à gauche, rebelote. À droite, rien à signaler'], [16, 'Le technicien de gauche fatigue, la courbe du coût grimpe'], [19.2, 'Mercredi · à droite, on a même le temps de partager l\'expérience dans WAVE'], [23, 'À gauche : neuf interventions en trois jours'], [27.6, 'Même éolienne, même défaut : deux façons de faire']], anRexTitre: '⚓ J\'ai vu ça, je capitalise', anRexTxt: 'Un technicien repère un joint qui suinte et le partage dans WAVE. Le lendemain, un collègue le retrouve… et trois défauts sont évités ailleurs.', anRexFin: 'J\'ai vu ça, je capitalise', anRexSous: 'Une leçon partagée, c\'est un défaut évité ailleurs.', anRexVu: 'J\'ai vu ça…', anRexCapi: '… je capitalise !', anRexOu: 'Courseulles · C04 · bride de la pièce de transition', anRexCrit: 'criticité : moyenne', anRexQuoi: 'Joint de bride qui suinte. Cause probable : couple de serrage trop faible au montage. Recommandation : contrôler le couple sur toutes les brides du même lot.', anRexDoublon: '🔎 Doublons : aucune LL sur ce sujet ✓', anRexCircuit: 'Le circuit d\'une LL', anRexEtapes: [['📥', 'Dépôt'], ['🔍', 'Tri Qualité'], ['✅', 'Approbation'], ['📚', 'LL Database']], anRexTitreLL: 'Joint de bride qui suinte : couple trop faible', anRexLendemain: 'Le lendemain, à la base…', anRexCherche: 'bride', anRexAuteur: 'technicien CTV', anRexComs: [['Responsable Qualité', 'Merci ! LL intégrée au plan de contrôle ✔'], ['Chef d\'Équipe CTV', 'Même lot sur B07, D02 et E05 : on contrôle demain matin 👍'], ['Superviseur SCADA', 'Je mets une alerte sur ces brides en attendant 📡']], anRexEvites: '🛡️ 3 défauts évités grâce à une LL', anRexAutres: ['Saint-Nazaire', 'Fécamp', 'Dieppe-Le Tréport'], anRexLeg: [[0, 'C04 · un technicien remarque un joint de bride qui suinte'], [3.4, 'Photo : j\'ai vu ça…'], [5.2, 'Dans WAVE : I want to create a LL'], [8, 'Ce qui s\'est passé, la cause, la recommandation'], [11.6, 'Envoyée : en attente du contrôle Qualité'], [13, 'Tri Qualité, approbation, validation : la LL rejoint la base'], [18.6, 'Le lendemain, un collègue cherche « bride »…'], [21.4, '👍 Les pouces montent, les commentaires arrivent'], [26.2, 'Même lot ailleurs : on contrôle avant la panne'], [28.6, 'Et la leçon voyage vers les autres parcs']], anJourTitre: '🌅 Une journée au parc', anJourTxt: 'De l\'aube à la nuit en accéléré : le vent qui varie, les dauphins, le CTV, les feux des nacelles… et la fête.', anJourFin: '🎆 Joyeuse Semaine de la qualité !', anJourSous: 'Le parc ne dort jamais', anJourLeg: [[0, '06:00 · le parc se réveille'], [1.5, 'Le vent forcit : les rotors accélèrent'], [3.1, 'Visite des dauphins 🐬'], [4.4, 'Le CTV part en tournée'], [7, '18:00 · le vent tombe, le soleil aussi'], [8.6, 'La nuit, les feux rouges des nacelles veillent'], [10.1, '… et c\'est la fête de la qualité ! 🎆']],
     jours: 'jours', heures: 'heures', minutes: 'min', secondes: 's',
     legendeTitre: 'Repères à l\'écran',
     l1: '<b>Bulle orange</b> : éolienne en défaut, <b>bridée à 40 %</b>. Laissée trop longtemps, elle passe en <b>arrêt de sécurité</b> (bulle rouge), puis peut prendre feu 🔥 et exploser 💥, ce qui coupe le string en aval.',
@@ -1074,7 +1074,7 @@ const I18N = {
     etape4: '<b>Surveillez la météo</b> : brouillard, houle, grains… les zones sont annoncées avant d\'arriver. Le vent varie aussi : rafales et accalmies font tourner les éoliennes plus ou moins vite.',
     etape5: '<b>Repérez les récidivistes</b> (badge ×N) : quelques éoliennes, plus exposées à la mer, concentrent l\'essentiel des défauts. Fiabilisez-les !',
     choixMode: 'Choisissez votre partie',
-    modeSprint: 'Une journée en 90 secondes, deux boutons à connaître. Idéal pour découvrir !',
+    modeSprint: 'Une journée en 3 minutes, deux boutons à connaître. Idéal pour découvrir !',
     modeCarriere: 'Pour ceux qui accrochent : une nouveauté chaque jour, un budget pour améliorer le bateau. Reprenez-la avec votre nom.',
     nomLabel: 'Votre nom pour le classement', nomPh: 'Prénom N.',
     btnSprint: 'Goooooooooo Offshore ▶', btnCarriereNew: 'Commencer ma carrière ▶', btnCarriereSuite: 'Continuer · jour {n} ▶', patience: 'Connexion…',
@@ -1082,7 +1082,7 @@ const I18N = {
     rg1: 'Une éolienne <b>orange</b> signale un défaut : elle tourne au ralenti.',
     rg2: '<b>Cliquez dessus</b> et choisissez : <b>Réparer</b> (rapide) ou <b>Fiabiliser</b> (plus long, mais le défaut ne revient presque plus : elle devient <b>dorée</b> ✨). Le bateau y va tout seul.',
     rg3: 'Les mêmes éoliennes reviennent souvent (badge <b>×N</b>) : ce sont elles qu\'il faut fiabiliser.',
-    rg4Sprint: '<b>90 secondes</b>, une journée de 6 h à 22 h : produisez un maximum d\'énergie !',
+    rg4Sprint: '<b>3 minutes</b>, une journée de 6 h à 22 h : produisez un maximum d\'énergie !',
     rg4Carriere: 'Une journée de <b>3 minutes</b>. Le soir, l\'électricité vendue rapporte un budget pour améliorer le bateau.',
     rgNouveauTitre: 'Nouveau aujourd\'hui',
     rgNouveau: { 1: '📦 Le bateau emporte un nombre limité de <b>pièces</b> : cliquez sur ⚓ la base, en bas à gauche, pour recharger.',
@@ -1129,7 +1129,7 @@ const I18N = {
     pied: 'Semaine mondiale de la qualité · 9 – 13 novembre 2026 · Journée mondiale de la qualité le jeudi 12 novembre · #WQW26',
     enService: 'en service', pic: '· 🏙️ pic ×1,5', ordres: 'Ordres', annuler: 'Cliquer pour annuler', base: 'Base',
     shiftNom: ['matin', 'après-midi', 'soir'], shiftTitre: ['shift du matin', 'shift de l\'après-midi', 'shift du soir'],
-    hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Jour {j} · ', modeNom: { rapide: 'Sprint 90 s', carriere: 'Carrière · jour {j}' },
+    hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Jour {j} · ', modeNom: { rapide: 'Sprint 3 min', carriere: 'Carrière · jour {j}' },
     depart: '🚤 06:00 · {shift} · {mode}',
     tutoPanne: '⚠️ <b>{id}</b> signale un défaut : elle tourne bridée à 40 %. <b>Cliquez dessus</b> et donnez un ordre : le bateau ira tout seul.',
     tutoApres: '👍 Relancée ! Le badge <b>×N</b> sous une éolienne compte ses défauts : les plus exposées se repèrent vite. Ce sont elles qu\'il faut <b>fiabiliser</b> 🛡️.',
@@ -1179,7 +1179,7 @@ const I18N = {
     ],
     morale: 'Réparer, c\'est utile. Éviter que le défaut revienne, c\'est ça qui fait la performance.',
     btnRejouer: 'Rejouer ↻', btnAccueil: 'Accueil', btnBase: '⚓ Améliorer le bateau', btnJour: 'Jour {n} ▶',
-    lbFinSprint: '🏆 Sprint 90 s', lbFinCarriere: '🏆 Carrière',
+    lbFinSprint: '🏆 Sprint 3 min', lbFinCarriere: '🏆 Carrière',
     compteTitre: 'Compte du jour {j}', cVentes: 'Ventes d\'électricité ({mwh} MWh)', cPieces: 'Pièces de rechange ({n})', cCarbu: 'Carburant ({n} pleins)',
     cResultat: 'Résultat du jour', cBudget: 'Budget disponible',
     cCopq: '💸 Dont <b>coût de la non-qualité</b> : {n} réparations = {k} k€ partis en défauts répétables.',
@@ -1199,7 +1199,7 @@ const I18N = {
     sousTitre: 'Quality as the engine of performance',
     intro: 'This year, quality plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
     marque: 'World Quality Week 2026', marqueSous: '9 – 13 November · World Quality Day on Thursday 12th',
-    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'The game\'s short films, to watch whenever you like.', animCtvTitre: '🚤 The CTV sets sail', animCtvTxt: 'Daybreak in Ouistreham: loading parts, safety briefing, a hungry seagull… and off to the farm.', animFin: '🎉 Happy World Quality Week!', anFiabTitre: '🛡️ Repair or reinforce?', anFiabTxt: 'Two turbines, the same fault coming back. On the left we repair again and again; on the right we treat the cause.', anFiabFin: 'Treating the cause pays off!', anFiabSous: 'Repairing is useful. Stopping it coming back is performance.', anFiabGauche: '🔧 We repair…', anFiabDroite: '🛡️ We reinforce', anFiabLeg: [[0, 'Two exposed turbines, the same fault coming back…'], [1.2, '1st fault: both sides repair'], [3.6, '2nd fault: on the right, we treat the cause (reinforcement)'], [6, 'On the left, here it goes again…'], [8.4, '… and again. On the right: coffee break ☕'], [10.6, 'The cost of poor quality climbs on the left']], anTransTitre: '🪜 The transfer', anTransTxt: 'The CTV pushes against the ladder, the technician clips onto the lifeline and climbs… with a surprise passenger.', anTransFin: 'Safety first', anTransSous: 'Above 1.5 m of swell, no transfer.', anTransLeg: [[0, 'Approaching turbine C04'], [3, 'The boat pushes against the ladder: contact!'], [4.4, 'Harness clipped to the lifeline ✔'], [5.2, 'Wait for the crest of the wave… now!'], [6.2, 'Climbing the ladder to the platform'], [8.4, 'Made it! So did a seagull…']], anJourTitre: '🌅 A day at the farm', anJourTxt: 'From dawn to night in fast-forward: shifting wind, dolphins, the CTV, nacelle lights… and a party.', anJourFin: '🎆 Happy World Quality Week!', anJourSous: 'The farm never sleeps', anJourLeg: [[0, '6 am · the farm wakes up'], [1.5, 'The wind picks up: rotors speed up'], [3.1, 'Dolphins drop by 🐬'], [4.4, 'The CTV sets off on its round'], [7, '6 pm · the wind drops, so does the sun'], [8.6, 'At night, the nacelles\' red lights keep watch'], [10.1, '… and it\'s quality party time! 🎆']],
+    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'The game\'s short films, to watch whenever you like.', animCtvTitre: '🚤 The CTV sets sail', animCtvTxt: 'Daybreak in Ouistreham: loading parts, safety briefing, a hungry seagull… and off to the farm.', animFin: '🎉 Happy World Quality Week!', anFiabTitre: '🛡️ Repair or reinforce?', anFiabTxt: 'Two turbines, the same fault coming back. On the left we repair again and again; on the right we treat the cause.', anFiabFin: 'Treating the cause pays off!', anFiabSous: 'Repairing is useful. Stopping it coming back is performance.', anFiabGauche: '🔧 We repair…', anFiabDroite: '🛡️ We reinforce', anFiabJours: ['Monday', 'Tuesday', 'Wednesday'], anFiabWave: 'WAVE · LL shared', anFiabCourbe: '💸 Cost of poor quality, cumulative', anFiabLeg: [[0, 'Monday · two exposed turbines, the same fault coming back…'], [1.5, '1st fault: both sides repair and watch'], [4.5, '2nd fault: the cause is confirmed. On the right, we reinforce'], [7.5, 'On the left, we just repair… and here it goes again'], [10.2, 'Tuesday · on the left, again. On the right, all quiet'], [16, 'The left technician tires, the cost curve climbs'], [19.2, 'Wednesday · on the right, there is even time to share the lesson in WAVE'], [23, 'On the left: nine interventions in three days'], [27.6, 'Same turbine, same fault: two ways of working']], anRexTitre: '⚓ I saw it, I share it', anRexTxt: 'A technician spots a weeping seal and shares it in WAVE. The next day a colleague finds it… and three faults are avoided elsewhere.', anRexFin: 'I saw it, I share it', anRexSous: 'A shared lesson is a fault avoided elsewhere.', anRexVu: 'I saw it…', anRexCapi: '… I share it!', anRexOu: 'Courseulles · C04 · transition piece flange', anRexCrit: 'criticality: medium', anRexQuoi: 'Weeping flange seal. Probable cause: bolt torque too low at assembly. Recommendation: check the torque on all flanges from the same batch.', anRexDoublon: '🔎 Duplicates: no LL on this topic ✓', anRexCircuit: 'The journey of an LL', anRexEtapes: [['📥', 'Submitted'], ['🔍', 'Quality check'], ['✅', 'Approval'], ['📚', 'LL Database']], anRexTitreLL: 'Weeping flange seal: torque too low', anRexLendemain: 'The next day, at the base…', anRexCherche: 'flange', anRexAuteur: 'CTV technician', anRexComs: [['Quality Manager', 'Thanks! LL added to the inspection plan ✔'], ['CTV Crew Lead', 'Same batch on B07, D02 and E05: checking tomorrow morning 👍'], ['SCADA Supervisor', 'Setting an alert on those flanges meanwhile 📡']], anRexEvites: '🛡️ 3 faults avoided thanks to one LL', anRexAutres: ['Saint-Nazaire', 'Fécamp', 'Dieppe-Le Tréport'], anRexLeg: [[0, 'C04 · a technician notices a weeping flange seal'], [3.4, 'Photo: I saw it…'], [5.2, 'In WAVE: I want to create a LL'], [8, 'What happened, the cause, the recommendation'], [11.6, 'Submitted: pending Quality check'], [13, 'Quality check, approval, validation: the LL joins the database'], [18.6, 'The next day, a colleague searches "flange"…'], [21.4, '👍 Thumbs up and comments roll in'], [26.2, 'Same batch elsewhere: checked before it fails'], [28.6, 'And the lesson travels to the other farms']], anJourTitre: '🌅 A day at the farm', anJourTxt: 'From dawn to night in fast-forward: shifting wind, dolphins, the CTV, nacelle lights… and a party.', anJourFin: '🎆 Happy World Quality Week!', anJourSous: 'The farm never sleeps', anJourLeg: [[0, '6 am · the farm wakes up'], [1.5, 'The wind picks up: rotors speed up'], [3.1, 'Dolphins drop by 🐬'], [4.4, 'The CTV sets off on its round'], [7, '6 pm · the wind drops, so does the sun'], [8.6, 'At night, the nacelles\' red lights keep watch'], [10.1, '… and it\'s quality party time! 🎆']],
     jours: 'days', heures: 'hrs', minutes: 'min', secondes: 'sec',
     legendeTitre: 'On-screen cues',
     l1: '<b>Orange bubble</b>: turbine fault, <b>derated to 40%</b>. Left too long, it goes into <b>safety shutdown</b> (red bubble), then may catch fire 🔥 and explode 💥, cutting the string downstream.',
@@ -1221,7 +1221,7 @@ const I18N = {
     etape4: '<b>Watch the weather</b>: fog, swell, squalls… zones are forecast before they arrive. The wind varies too: gusts and lulls make turbines spin faster or slower.',
     etape5: '<b>Spot the repeat offenders</b> (×N badge): a few turbines, more exposed to the sea, account for most faults. Reinforce them!',
     choixMode: 'Choose your game',
-    modeSprint: 'One day in 90 seconds, two buttons to know. Perfect to start!',
+    modeSprint: 'One day in 3 minutes, two buttons to know. Perfect to start!',
     modeCarriere: 'For those who get hooked: something new every day, a budget to upgrade the boat. Resume it with your name.',
     nomLabel: 'Your name for the leaderboard', nomPh: 'First name L.',
     btnSprint: 'Goooooooooo Offshore ▶', btnCarriereNew: 'Start my career ▶', btnCarriereSuite: 'Continue · day {n} ▶', patience: 'Connecting…',
@@ -1229,7 +1229,7 @@ const I18N = {
     rg1: 'An <b>orange</b> turbine reports a fault: it runs at reduced power.',
     rg2: '<b>Click it</b> and choose: <b>Repair</b> (quick) or <b>Reinforce</b> (longer, but the fault hardly ever comes back: it turns <b>golden</b> ✨). The boat sails there on its own.',
     rg3: 'The same turbines come back often (<b>×N</b> badge): those are the ones to reinforce.',
-    rg4Sprint: '<b>90 seconds</b>, one day from 6 am to 10 pm: produce as much energy as you can!',
+    rg4Sprint: '<b>3 minutes</b>, one day from 6 am to 10 pm: produce as much energy as you can!',
     rg4Carriere: 'A <b>3-minute</b> day. In the evening, the electricity sold earns a budget to upgrade the boat.',
     rgNouveauTitre: 'New today',
     rgNouveau: { 1: '📦 The boat carries a limited number of <b>spare parts</b>: click ⚓ the base, bottom left, to reload.',
@@ -1276,7 +1276,7 @@ const I18N = {
     pied: 'World Quality Week · 9 – 13 November 2026 · World Quality Day on Thursday 12 November · #WQW26',
     enService: 'online', pic: '· 🏙️ peak ×1.5', ordres: 'Orders', annuler: 'Click to cancel', base: 'Base',
     shiftNom: ['morning', 'afternoon', 'evening'], shiftTitre: ['morning shift', 'afternoon shift', 'evening shift'],
-    hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Day {j} · ', modeNom: { rapide: 'Sprint 90 s', carriere: 'Career · day {j}' },
+    hudShift: 'Shift {n}/3 · {nom}', hudJour: 'Day {j} · ', modeNom: { rapide: 'Sprint 3 min', carriere: 'Career · day {j}' },
     depart: '🚤 06:00 · {shift} · {mode}',
     tutoPanne: '⚠️ <b>{id}</b> reports a fault: it runs derated at 40%. <b>Click it</b> and give an order: the boat will go on its own.',
     tutoApres: '👍 Back online! The <b>×N</b> badge under a turbine counts its faults: the most exposed ones stand out quickly. Those are the ones to <b>reinforce</b> 🛡️.',
@@ -1326,7 +1326,7 @@ const I18N = {
     ],
     morale: 'Repairing is useful. Stopping the fault from coming back is what drives performance.',
     btnRejouer: 'Play again ↻', btnAccueil: 'Home', btnBase: '⚓ Upgrade the boat', btnJour: 'Day {n} ▶',
-    lbFinSprint: '🏆 Sprint 90 s', lbFinCarriere: '🏆 Career',
+    lbFinSprint: '🏆 Sprint 3 min', lbFinCarriere: '🏆 Career',
     compteTitre: 'Day {j} account', cVentes: 'Electricity sales ({mwh} MWh)', cPieces: 'Spare parts ({n})', cCarbu: 'Fuel ({n} refills)',
     cResultat: 'Day result', cBudget: 'Available budget',
     cCopq: '💸 Of which <b>cost of poor quality</b>: {n} repairs = €{k}k spent on avoidable faults.',
@@ -1473,7 +1473,7 @@ function hacher53(str) {
 }
 const signer = d => hacher53('QW26·Courseulles·⚓·' + JSON.stringify([d.login, d.parties, d.carriere]));
 // contrôle de vraisemblance : un score hors de portée du jeu est écarté
-const plausible = x => x.score >= 0 && (x.mode === 'rapide' ? x.score <= 7500 && x.temps >= 60 : x.score <= 9000 && x.temps >= 120);
+const plausible = x => x.score >= 0 && (x.mode === 'rapide' ? x.score <= 7500 && x.temps >= 120 : x.score <= 9000 && x.temps >= 120);
 const DEMO_LOGIN = 'demo-diagnostic';
 const nomFichier = login => 'joueur-' + login.replace(/[^a-z0-9._-]/gi, '_') + '.json';
 
@@ -1825,11 +1825,11 @@ function parametres(mode, car) {
   const P = JSON.parse(JSON.stringify(PARAMS));
   if (mode === 'rapide') {   // Sprint : l'essentiel seulement (réparer ou fiabiliser), pour ceux qui ne jouent jamais
     Object.assign(P, { pieces: false, carburant: false, meteoZones: false, ossDepot: false, ossPanne: false, incendies: false });
-    // réglé au bot (equilibre) : fiabiliser les récidivistes rapporte ~10 % de plus que courir d'une panne à l'autre
-    Object.assign(P, { nbFragiles: 8, risqueFragile: 1 / 36, risqueNormal: 1 / 1400,   // quelques éoliennes reviennent, les autres tombent rarement
+    // réglé au bot (equilibre) : fiabiliser les récidivistes rapporte ~12 % de plus que courir d'une panne à l'autre
+    Object.assign(P, { nbFragiles: 8, risqueFragile: 1 / 100, risqueNormal: 1 / 3000,   // 180 s : 20 à 30 défauts ; quelques éoliennes reviennent, les autres tombent rarement
       fiabApres: 2,     // la cause n'est confirmée qu'au 2e défaut : avant, on répare et on observe
       kits: 5,          // on ne peut pas tout fiabiliser : on garde les kits pour celles qui reviennent (Pareto)
-      coutDefaut: 50 }); // chaque défaut coûte des points : le coût de la non-qualité
+      coutDefaut: 40 }); // chaque défaut coûte des points : le coût de la non-qualité
     return P;
   }
   // Carrière : une mécanique de plus chaque jour
@@ -2305,7 +2305,7 @@ function lancerJournee() {
   etat = 'regles';   // la journée ne démarre qu'après la carte des règles
   for (const id of ['ecranAccueil', 'ecranFin', 'ecranReleve', 'ecranBase', 'hud', 'file']) $(id).hidden = true;
   const carr = partie.mode === 'carriere', j = partie.jour;
-  $('rgSur').textContent = carr ? t('rgSurCarriere', { pseudo: carriere.pseudo }) : 'Sprint 90 s';
+  $('rgSur').textContent = carr ? t('rgSurCarriere', { pseudo: carriere.pseudo }) : 'Sprint 3 min';
   $('rgTitre').textContent = carr ? t('rgJour', { j }) : t('rgTitre');
   const lignes = [['🟠', t('rg1')], ['👆', t('rg2')], carr ? ['🔁', t('rg3')] : ['🛡️', t('rg3Sprint', { k: M.kits, c: M.coutDefaut })], ['⏱️', t(carr ? 'rg4Carriere' : 'rg4Sprint')]];
   const nouveau = carr ? t('rgNouveau')[Math.min(j, 5)] : null;
@@ -2316,7 +2316,7 @@ function lancerJournee() {
 }
 $('btnGo').addEventListener('click', () => {
   $('ecranRegles').hidden = true;
-  if (partie.mode === 'rapide') interlude.jouer('⚡ Sprint 90 s', partir);   // le Sprint commence par le départ du CTV
+  if (partie.mode === 'rapide') interlude.jouer('⚡ Sprint 3 min', partir);   // le Sprint commence par le départ du CTV
   else if (partie.jour >= 2) ouvrirBriefing();   // carrière : on prépare la tournée avant d'appareiller
   else partir();
 });
@@ -2947,8 +2947,9 @@ const interlude = (() => {
     c.font = '800 ' + taillePx + 'px "Fira Sans", sans-serif'; c.fillText(txt, 800, y); c.restore();
   };
 
-  /* ----- « Réparer ou fiabiliser ? » : deux éoliennes, le même défaut qui revient ----- */
-  const FIAB = { gauche: [1.2, 3.6, 6.0, 8.4, 10.6], droite: [1.2, 3.6] };
+  /* ----- « Réparer ou fiabiliser ? » : deux éoliennes, le même défaut qui revient, sur trois jours ----- */
+  const FIAB = { gauche: [1.5, 4.5, 7.5, 11, 13.8, 16.6, 19.6, 22.6, 25.4], droite: [1.5, 4.5] };
+  const finIntervention = (cote, d) => d + (cote === 'droite' && d === 4.5 ? 2.4 : 1.4);
   function visite(t, td, duree) {   // le petit CTV : arrive, intervient, repart (positions relatives au pied de l'éolienne)
     const u = t - td; if (u < 0 || u > duree + 1.2) return null;
     const arrive = lisse(u / .5), part = lisse((u - .5 - duree) / .6);
@@ -2956,94 +2957,225 @@ const interlude = (() => {
   }
   function animFiab(t) {
     t0Anim = t;
-    cielJour('#5ea6dd', '#cfe8f7', 640); merPlate(640, t);
+    const jour = Math.min(2, Math.floor(t / 10)), soir = t < 30 ? cl(((t % 10) - 9) / .6) * (1 - cl(((t % 10) - 9.6) / .4)) : 0;
+    cielJour(mixC('#5ea6dd', '#2b2f63', soir), mixC('#cfe8f7', '#ff9a66', soir), 640); merPlate(640, t, mixC('#3d86c2', '#24406b', soir), '#123f6e');
     c.fillStyle = 'rgba(255,255,255,.85)'; c.fillRect(797, 0, 6, 900);
     c.fillStyle = '#0255a1'; c.beginPath(); c.arc(800, 420, 34, 0, 6.28); c.fill(); c.fillStyle = '#fff'; c.font = '800 26px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('VS', 800, 429);
+    // le jour, en haut au centre
+    c.fillStyle = 'rgba(6,20,45,.72)'; c.beginPath(); c.roundRect(700, 140, 200, 46, 23); c.fill();
+    c.fillStyle = '#ffd23f'; c.font = '800 24px "Fira Sans", sans-serif'; c.fillText('📅 ' + tx('anFiabJours')[jour], 800, 172);
+    const couts = {};
     for (const cote of ['gauche', 'droite']) {
       const cx = cote === 'gauche' ? 400 : 1200, pannes = FIAB[cote].filter(d => t >= d);
       const derniere = pannes.length ? pannes[pannes.length - 1] : -9;
-      const fiabT = cote === 'droite' ? 4.1 : Infinity, dore = t >= fiabT + 1.5;
-      const enPanne = pannes.length && t < derniere + (cote === 'droite' && derniere === 3.6 ? 2.1 : 1.35);
-      const ang = enPanne ? (cote === 'gauche' ? 1.1 : 1.1) : t * (dore ? 2.2 : 2);
-      eolProfil(cx, 640, 320, ang, { dore, alerte: enPanne });
-      if (cote === 'droite' && t > fiabT && t < fiabT + 1.8) {   // la fiabilisation : un anneau doré qui monte
-        const u = (t - fiabT) / 1.8; c.strokeStyle = 'rgba(255,210,63,' + (1 - u) + ')'; c.lineWidth = 6; c.beginPath(); c.ellipse(cx, 620 - u * 320, 40 + u * 20, 10, 0, 0, 6.28); c.stroke();
+      const fiabT = cote === 'droite' ? 5 : Infinity, dore = t >= fiabT + 1.9;
+      const enPanne = pannes.length && t < finIntervention(cote, derniere);
+      eolProfil(cx, 640, 320, enPanne ? 1.1 : t * (dore ? 2.2 : 2), { dore, alerte: enPanne });
+      if (cote === 'droite' && t > fiabT && t < fiabT + 1.9) {   // la fiabilisation : un anneau doré qui monte
+        const u = (t - fiabT) / 1.9; c.strokeStyle = 'rgba(255,210,63,' + (1 - u) + ')'; c.lineWidth = 6; c.beginPath(); c.ellipse(cx, 620 - u * 320, 40 + u * 20, 10, 0, 0, 6.28); c.stroke();
         c.fillStyle = '#ffd23f'; for (let i = 0; i < 8; i++) { const a = i * .785 + t * 3; c.beginPath(); c.arc(cx + Math.cos(a) * 60, 600 - u * 320 + Math.sin(a) * 18, 3, 0, 6.28); c.fill(); }
       }
-      // le bateau : une visite par défaut, plus longue pour fiabiliser
-      for (const d of FIAB[cote]) {
-        const longue = cote === 'droite' && d === 3.6, v = visite(t, d, longue ? 1.5 : .8); if (!v) continue;
+      for (const d of FIAB[cote]) {   // le bateau : une visite par défaut, plus longue pour fiabiliser
+        const longue = cote === 'droite' && d === 4.5, v = visite(t, d, longue ? 1.9 : .9); if (!v) continue;
         c.save(); c.translate(cx + v.dx - 30, 646); c.scale(.42, .42); bateau(0, 0, 0, 0, t, { feu: false }); c.restore();
-        const fatigue = cote === 'gauche' ? pannes.length : 0;
         technicien(cx + v.dx + 70, 632, t * 9, { marche: false });
-        if (fatigue >= 3) { c.fillStyle = '#7fd3f5'; c.beginPath(); c.ellipse(cx + v.dx + 82, 586 + (t * 40 % 12), 2.5, 4, 0, 0, 6.28); c.fill(); }
+        if (cote === 'gauche' && pannes.length >= 4) { c.fillStyle = '#7fd3f5'; c.beginPath(); c.ellipse(cx + v.dx + 82, 586 + (t * 40 % 12), 2.5, 4, 0, 0, 6.28); c.fill(); }
         if (v.travail && Math.sin(t * 30) > 0) { c.fillStyle = longue ? '#ffd23f' : '#fff6a0'; c.beginPath(); c.arc(cx - 16, 600, 7, 0, 6.28); c.fill(); }
       }
-      // à droite, une fois fiabilisée : pause café
-      if (cote === 'droite' && t > 6.2) {
+      if (cote === 'droite' && t > 7.6) {   // à droite, une fois fiabilisée : pause café, puis on partage l'expérience
         c.save(); c.translate(cx - 360, 646); c.scale(.42, .42); bateau(0, 0, 0, 0, t, { feu: false }); c.restore();
-        technicien(cx - 300, 632, t, { cafe: true });
-        c.font = '26px sans-serif'; c.textAlign = 'center'; c.fillText(t % 2 < 1 ? '😎' : '☕', cx - 300, 556);
+        technicien(cx - 300, 632, t, { cafe: t < 19 });
+        c.font = '26px sans-serif'; c.textAlign = 'center';
+        if (t < 19) c.fillText(t % 2 < 1 ? '😎' : '☕', cx - 300, 556);
+        else {   // la bulle « Wave » : la leçon est partagée
+          const bx = cx - 380;
+          c.fillStyle = '#001A70'; c.beginPath(); c.roundRect(bx, 470, 240, 70, 14); c.fill();
+          c.fillStyle = '#FE5716'; c.beginPath(); c.roundRect(bx + 10, 480, 30, 30, 8); c.fill();
+          c.fillStyle = '#fff'; c.font = '700 17px "Fira Sans", sans-serif'; c.textAlign = 'left'; c.fillText('⚓', bx + 17, 501);
+          c.fillText(tx('anFiabWave'), bx + 48, 501); c.font = '600 15px "Fira Sans", sans-serif'; c.fillText('👍 ' + Math.min(12, Math.floor((t - 19) * 2)), bx + 20, 528);
+        }
       }
       // compteurs
-      const rep = pannes.filter(d => t > d + (cote === 'droite' && d === 3.6 ? 2.1 : 1.35)).length;
+      const rep = pannes.filter(d => t > finIntervention(cote, d)).length;
+      couts[cote] = pannes.length * 40;
       c.fillStyle = 'rgba(6,20,45,.72)'; c.beginPath(); c.roundRect(cx - 230, 18, 460, 104, 18); c.fill();
       c.fillStyle = '#fff'; c.font = '800 30px "Fira Sans", sans-serif'; c.textAlign = 'center';
       c.fillText(tx(cote === 'gauche' ? 'anFiabGauche' : 'anFiabDroite'), cx, 58);
       c.font = '700 26px "Fira Sans", sans-serif'; c.fillStyle = cote === 'gauche' ? '#ffb3ba' : '#9cf5c9';
-      c.fillText((cote === 'gauche' ? '🔧 ×' + rep : '🔧 ×' + Math.min(rep, 1) + (dore ? '   🛡️ ×1' : '')) + '     💸 −' + pannes.length * 50, cx, 104);
-      if (cote === 'gauche' && pannes.length >= 4) { c.font = '42px sans-serif'; c.fillText('😩', cx + 150, 330); }
+      c.fillText((cote === 'gauche' ? '🔧 ×' + rep : '🔧 ×' + Math.min(rep, 1) + (dore ? '   🛡️ ×1' : '')) + '     💸 −' + couts[cote], cx, 104);
+      if (cote === 'gauche' && pannes.length >= 5) { c.font = '42px sans-serif'; c.fillText(pannes.length >= 8 ? '😵' : '😩', cx + 150, 330); }
+    }
+    // la courbe du coût de la non-qualité, cumulé
+    const gx = 620, gy = 250, gw = 360, gh = 90, tMax = 30, cMax = 400;
+    c.fillStyle = 'rgba(6,20,45,.72)'; c.beginPath(); c.roundRect(gx - 20, gy - 34, gw + 40, gh + 50, 14); c.fill();
+    c.fillStyle = '#fff'; c.font = '700 16px "Fira Sans", sans-serif'; c.textAlign = 'left'; c.fillText(tx('anFiabCourbe'), gx, gy - 12);
+    for (const [cote, col] of [['gauche', '#ff8a8a'], ['droite', '#5ee0a0']]) {
+      c.strokeStyle = col; c.lineWidth = 4; c.beginPath(); c.moveTo(gx, gy + gh);
+      let n = 0; for (let u = 0; u <= Math.min(t, tMax); u += .1) { while (n < FIAB[cote].length && FIAB[cote][n] <= u) n++; c.lineTo(gx + gw * u / tMax, gy + gh - gh * Math.min(1, n * 40 / cMax)); }
+      c.stroke();
     }
   }
 
-  /* ----- « Le transfert » : le CTV pousse contre l'échelle, le technicien monte ----- */
-  const houle = (x, t) => 650 + 13 * Math.sin(t * 1.4 - x / 160);
-  function animTransfert(t) {
-    t0Anim = t;
-    cielJour('#6aa9db', '#d9ecf8', 700);
-    c.fillStyle = '#2f73ad'; c.beginPath(); c.moveTo(-400, 900); for (let x = -400; x <= 2000; x += 20) c.lineTo(x, houle(x, t) - 4); c.lineTo(2000, 900); c.closePath(); c.fill();   // la mer, derrière
-    c.fillStyle = 'rgba(255,255,255,.8)'; for (const [x, y, r] of [[300, 140, 50], [360, 130, 38], [1250, 190, 44], [1310, 182, 30]]) { c.beginPath(); c.arc(x + t * 6, y, r, 0, 6.28); c.fill(); }
-    // la pièce de transition, l'échelle et la plateforme
-    c.fillStyle = '#eef2f6'; c.fillRect(968, -60, 64, 380);
-    c.fillStyle = '#f2b705'; c.fillRect(940, 300, 120, 640);
-    c.fillStyle = '#c08f00'; c.fillRect(940, 300, 10, 640);
-    c.fillStyle = '#3a2400'; c.font = '800 26px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText('C04', 1000, 470);
-    c.fillStyle = '#5b6573'; c.fillRect(860, 292, 280, 12);
-    c.strokeStyle = '#f2b705'; c.lineWidth = 4; c.beginPath(); c.moveTo(864, 292); c.lineTo(864, 250); c.lineTo(1136, 250); c.lineTo(1136, 292); for (let x = 900; x < 1136; x += 40) { c.moveTo(x, 292); c.lineTo(x, 250); } c.stroke();
-    c.strokeStyle = '#2c3440'; c.lineWidth = 5; c.beginPath(); c.moveTo(904, 300); c.lineTo(904, 900); c.moveTo(930, 300); c.lineTo(930, 900); c.stroke();
-    c.lineWidth = 3; c.beginPath(); for (let y = 312; y < 900; y += 22) { c.moveTo(904, y); c.lineTo(930, y); } c.stroke();
-    c.fillStyle = '#16181c'; c.fillRect(888, 420, 12, 480);   // tube de défense : le bateau pousse contre
-    // le CTV
-    const approche = lisse(t / 3), x0 = mix(-520, 540, 1 - (1 - approche) ** 2), v = t < 3 ? 380 * (1 - t / 3) : 0;
-    const y0 = houle(x0 + 170, t) - 6, a = t < 3 ? 0 : .025 * Math.sin(t * 1.4 - 2.6);
-    bateau(x0, y0, a, v, t, { feu: false });
-    if (t > 2.9 && t < 3.3) { c.fillStyle = 'rgba(255,255,255,.9)'; for (let i = 0; i < 6; i++) { c.beginPath(); c.arc(886 + Math.cos(i) * 18, 640 + Math.sin(i * 2) * 10, 4, 0, 6.28); c.fill(); } }
-    // la mer par-dessus la coque
-    c.fillStyle = 'rgba(30,96,150,.55)'; c.beginPath(); c.moveTo(-400, 900);
-    for (let x = -400; x <= 2000; x += 20) c.lineTo(x, houle(x, t) + 8); c.lineTo(2000, 900); c.closePath(); c.fill();
-    c.strokeStyle = 'rgba(255,255,255,.4)'; c.lineWidth = 2; c.beginPath(); for (let x = -400; x <= 2000; x += 20) c[x === -400 ? 'moveTo' : 'lineTo'](x, houle(x, t) + 8); c.stroke();
-    // le technicien : de la poupe à l'étrave, puis l'échelle
-    let tx2, ty2, opts = {};
-    const pontY = y0 - 34;
-    if (t < 3.4) { tx2 = x0 + 120; ty2 = pontY; }
-    else if (t < 4.4) { const u = (t - 3.4); tx2 = mix(x0 + 120, x0 + 300, u); ty2 = pontY - 12 * u; opts.marche = true; }
-    else if (t < 5.2) { tx2 = x0 + 300; ty2 = pontY - 12; }
-    else if (t < 8) { const u = lisse((t - 5.2) / 2.8); tx2 = 917; ty2 = mix(pontY - 12, 292, u); opts.marche = true; }
-    else { tx2 = mix(917, 990, lisse((t - 8) / .5)); ty2 = 292; opts.salut = t > 8.5 && t < 9.2; }
-    if (t > 4.4) { c.strokeStyle = '#ff7a1a'; c.lineWidth = 2; c.beginPath(); c.moveTo(917, 250); c.lineTo(tx2, ty2 - 30); c.stroke(); }   // ligne de vie
-    technicien(tx2, ty2, t * 8, { ...opts, bulle: t > 9.4 && t < 10.6 });
-    // la mouette qui se pose sur le casque
-    if (t > 8.4) {
-      const u = lisse((t - 8.4) / 1), gx = mix(1700, tx2 + 2, u), gy = mix(120, ty2 - 56, u) - Math.sin(u * 3.14) * 40, vole = u < 1;
-      c.save(); c.translate(gx, gy); c.scale(-1, 1);
-      c.fillStyle = '#fff'; c.beginPath(); c.ellipse(0, 0, 13, 7, 0, 0, 6.28); c.fill(); c.beginPath(); c.arc(11, -5, 5.5, 0, 6.28); c.fill();
-      c.fillStyle = '#f2b705'; c.beginPath(); c.moveTo(16, -5); c.lineTo(24, -3); c.lineTo(16, -2); c.fill();
-      c.fillStyle = '#9aa7b6'; c.beginPath(); c.moveTo(-6, -2); c.lineTo(4, -2); c.lineTo(-4, vole ? -14 - Math.sin(t * 22) * 12 : -10); c.closePath(); c.fill();
-      c.restore();
-      if (t > 9.4) son('mouette2', () => sons.mouette());
+  /* ----- « J'ai vu ça, je capitalise » : un retour d'expérience partagé dans WAVE ----- */
+  const ecrit = (txt, t, t1, t2) => txt.slice(0, Math.round(txt.length * cl((t - t1) / (t2 - t1))));
+  function lignes(txt, x, y, larg, haut) {   // texte sur plusieurs lignes
+    const mots = txt.split(' '); let l = '', yy = y;
+    for (const m of mots) { if (c.measureText(l + m).width > larg && l) { c.fillText(l.trim(), x, yy); l = ''; yy += haut; } l += m + ' '; }
+    if (l.trim()) c.fillText(l.trim(), x, yy);
+  }
+  function telephone(x, y, w, h, ecran) {
+    c.fillStyle = '#11151c'; c.beginPath(); c.roundRect(x - 12, y - 12, w + 24, h + 24, 40); c.fill();
+    c.save(); c.beginPath(); c.roundRect(x, y, w, h, 30); c.clip();
+    c.fillStyle = '#f4f6f9'; c.fillRect(x, y, w, h);
+    c.fillStyle = '#001A70'; c.fillRect(x, y, w, 92);   // en-tête WAVE
+    c.fillStyle = '#FE5716'; c.beginPath(); c.roundRect(x + 18, y + 34, 42, 42, 10); c.fill();
+    c.fillStyle = '#fff'; c.font = '700 22px "Segoe UI", sans-serif'; c.textAlign = 'center'; c.fillText('⚓', x + 39, y + 63);
+    c.textAlign = 'left'; c.font = '800 22px "Segoe UI", sans-serif'; c.fillText('WAVE', x + 72, y + 55);
+    c.font = '500 14px "Segoe UI", sans-serif'; c.fillStyle = 'rgba(255,255,255,.8)'; c.fillText('Offshore Lessons Learnt', x + 72, y + 75);
+    ecran(x, y + 92, w);
+    c.restore();
+    c.fillStyle = '#11151c'; c.beginPath(); c.roundRect(x + w / 2 - 50, y - 4, 100, 16, 8); c.fill();
+  }
+  function bloc(x, y, w, h, coul, titre) {
+    c.fillStyle = coul; c.beginPath(); c.roundRect(x, y, w, h, 12); c.fill();
+    c.fillStyle = '#001A70'; c.font = '700 14px "Segoe UI", sans-serif'; c.textAlign = 'left'; c.fillText(titre, x + 12, y + 22);
+  }
+  function scenePlateforme(t) {
+    cielJour('#6aa9db', '#d9ecf8', 640); merPlate(640, t);
+    c.fillStyle = '#eef2f6'; c.fillRect(1010, -60, 120, 420);
+    c.fillStyle = '#f2b705'; c.fillRect(960, 360, 220, 600);
+    c.fillStyle = '#5b6573'; c.fillRect(700, 352, 520, 14);
+    c.strokeStyle = '#f2b705'; c.lineWidth = 5; c.beginPath(); c.moveTo(704, 352); c.lineTo(704, 290); c.lineTo(1216, 290); c.lineTo(1216, 352); for (let x = 744; x < 1216; x += 44) { c.moveTo(x, 352); c.lineTo(x, 290); } c.stroke();
+    // la bride et ses boulons, au pied du mât
+    c.fillStyle = '#8a96a6'; c.fillRect(996, 330, 148, 22);
+    c.fillStyle = '#3d4654'; for (let x = 1004; x < 1140; x += 18) { c.beginPath(); c.arc(x, 341, 5, 0, 6.28); c.fill(); }
+    const goutte = (t * .9) % 1;   // le joint qui suinte
+    c.fillStyle = '#5a3a12'; c.beginPath(); c.ellipse(1076, 352 + goutte * 26, 4, 6, 0, 0, 6.28); c.fill();
+    c.fillStyle = 'rgba(90,58,18,.5)'; c.beginPath(); c.ellipse(1076, 353, 14, 4, 0, 0, 6.28); c.fill();
+    // le technicien
+    const tx2 = mix(760, 930, lisse((t - .3) / 1.4));
+    c.save(); c.translate(tx2, 352); c.scale(2.2, 2.2); technicien(0, 0, t * 8, { marche: t < 1.7 }); c.restore();
+    if (t > 1.8 && t < 3.4) {   // la loupe
+      const a = lisse((t - 1.8) / .4);
+      c.save(); c.globalAlpha = a; c.strokeStyle = '#11151c'; c.lineWidth = 10; c.fillStyle = 'rgba(255,255,255,.92)';
+      c.beginPath(); c.arc(1290, 220, 110, 0, 6.28); c.fill(); c.stroke(); c.beginPath(); c.moveTo(1212, 298); c.lineTo(1150, 360); c.stroke();
+      c.fillStyle = '#8a96a6'; c.fillRect(1200, 200, 180, 40); c.fillStyle = '#3d4654'; for (let x = 1212; x < 1380; x += 32) { c.beginPath(); c.arc(x, 220, 10, 0, 6.28); c.fill(); }
+      c.fillStyle = '#5a3a12'; c.beginPath(); c.ellipse(1290, 252 + goutte * 30, 8, 12, 0, 0, 6.28); c.fill(); c.restore();
     }
-    if (t > 3) son('contact', () => bip(90, .25, 'triangle', .08));
-    if (t > 4.4) son('clip', () => { bip(1400, .05, 'square', .03); bip(1800, .05, 'square', .03, .07); });
+    if (t > 3.4) {   // la photo
+      c.save(); c.translate(tx2 + 30, 250); c.fillStyle = '#11151c'; c.beginPath(); c.roundRect(0, 0, 26, 44, 5); c.fill(); c.restore();
+      const f = 1 - cl((t - 3.7) / .5); if (t > 3.7 && f > 0) { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = 'rgba(255,255,255,' + f + ')'; c.fillRect(0, 0, cvI.width, cvI.height); c.restore(); }
+      son('photo', () => { bip(2200, .04, 'square', .03); bip(1400, .08, 'square', .02, .05); });
+    }
+  }
+  function sceneSaisie(t) {
+    c.fillStyle = '#0B3C8D'; c.fillRect(-400, -100, 2400, 1100);
+    c.fillStyle = 'rgba(255,255,255,.08)'; for (let i = 0; i < 9; i++) { c.beginPath(); c.arc(200 + i * 160, 450 + Math.sin(t + i) * 30, 60 + i * 6, 0, 6.28); c.fill(); }
+    c.fillStyle = '#fff'; c.font = '800 46px "Fira Sans", sans-serif'; c.textAlign = 'center';
+    c.fillText(tx('anRexVu'), 320, 420); if (t > 11.6) c.fillText(tx('anRexCapi'), 1290, 420);
+    const y0 = mix(900, 40, lisse((t - 5) / .7));
+    telephone(590, y0, 420, 800, (x, y, w) => {
+      c.fillStyle = '#e6ecf5'; c.beginPath(); c.roundRect(x + 16, y + 14, w - 32, 36, 18); c.fill();
+      c.fillStyle = '#001A70'; c.font = '700 15px "Segoe UI", sans-serif'; c.textAlign = 'left'; c.fillText('✍️  I want to create a LL', x + 30, y + 38);
+      bloc(x + 16, y + 64, w - 32, 76, '#dbe8fb', '📍 Where');
+      c.fillStyle = '#12213b'; c.font = '500 15px "Segoe UI", sans-serif'; lignes(ecrit(tx('anRexOu'), t, 5.8, 7.2), x + 30, y + 106, w - 64, 20);
+      bloc(x + 16, y + 152, w - 32, 76, '#ffe5d9', '⚠️ How important');
+      if (t > 7.4) {
+        c.fillStyle = '#a4262c'; c.beginPath(); c.roundRect(x + 30, y + 182, 82, 30, 15); c.fill(); c.fillStyle = '#fff'; c.font = '700 14px "Segoe UI", sans-serif'; c.fillText('Avoid', x + 50, y + 202);
+        c.fillStyle = '#4b5a6b'; c.beginPath(); c.roundRect(x + 122, y + 182, 120, 30, 15); c.strokeStyle = '#8494a6'; c.lineWidth = 1.5; c.stroke(); c.font = '600 14px "Segoe UI", sans-serif'; c.fillText('Do it again', x + 138, y + 202);
+        if (t > 7.8) { c.fillStyle = '#12213b'; c.fillText(tx('anRexCrit'), x + 256, y + 202); }
+      }
+      bloc(x + 16, y + 240, w - 32, 250, '#d9f1fb', '📝 What happened');
+      c.fillStyle = '#12213b'; c.font = '500 15px "Segoe UI", sans-serif'; lignes(ecrit(tx('anRexQuoi'), t, 8, 10.4), x + 30, y + 290, w - 64, 22);
+      if (t > 10.4) {   // la photo jointe
+        c.fillStyle = '#8a96a6'; c.beginPath(); c.roundRect(x + 30, y + 404, 110, 72, 8); c.fill();
+        c.fillStyle = '#3d4654'; for (let i = 0; i < 5; i++) { c.beginPath(); c.arc(x + 44 + i * 20, y + 436, 5, 0, 6.28); c.fill(); }
+        c.fillStyle = '#5a3a12'; c.beginPath(); c.ellipse(x + 84, y + 458, 4, 7, 0, 0, 6.28); c.fill();
+        c.fillStyle = '#4b5a6b'; c.font = '500 13px "Segoe UI", sans-serif'; c.fillText('📎 photo_C04_bride.jpg', x + 150, y + 446);
+      }
+      if (t > 10.9) { c.fillStyle = '#1e7b34'; c.font = '600 14px "Segoe UI", sans-serif'; c.fillText(tx('anRexDoublon'), x + 30, y + 524); }
+      const appui = t > 11.6;
+      c.fillStyle = appui ? '#1e7b34' : '#FE5716'; c.beginPath(); c.roundRect(x + 16, y + 548, w - 32, 54, 14); c.fill();
+      c.fillStyle = '#fff'; c.font = '800 19px "Segoe UI", sans-serif'; c.textAlign = 'center'; c.fillText(appui ? '✅ Pending QA check' : 'Submit ▶', x + w / 2, y + 582);
+      if (appui) son('envoi', () => { bip(880, .1, 'triangle', .06); bip(1320, .16, 'triangle', .06, .1); });
+    });
+  }
+  function sceneCircuit(t) {
+    c.fillStyle = '#f4f6f9'; c.fillRect(-400, -100, 2400, 1100);
+    c.fillStyle = '#001A70'; c.font = '800 40px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText(tx('anRexCircuit'), 800, 170);
+    const etapes = tx('anRexEtapes'), xs = [230, 610, 990, 1370];
+    xs.forEach((x, i) => {
+      const actif = t > 13.4 + i * 1.3;
+      c.fillStyle = actif ? '#001A70' : '#fff'; c.strokeStyle = '#001A70'; c.lineWidth = 3; c.beginPath(); c.roundRect(x - 150, 300, 300, 150, 20); c.fill(); c.stroke();
+      c.fillStyle = actif ? '#fff' : '#001A70'; c.font = '700 44px sans-serif'; c.fillText(etapes[i][0], x, 362);
+      c.font = '700 21px "Segoe UI", sans-serif'; c.fillText(etapes[i][1], x, 418);
+      if (i < 3) { c.strokeStyle = '#FE5716'; c.lineWidth = 6; c.beginPath(); c.moveTo(x + 160, 375); c.lineTo(x + 220, 375); c.lineTo(x + 206, 362); c.moveTo(x + 220, 375); c.lineTo(x + 206, 388); c.stroke(); }
+      if (i === 2 && t > 16.3) { c.fillStyle = '#1e7b34'; c.font = '800 30px sans-serif'; c.fillText('✔', x + 120, 316); }
+    });
+    // la fiche LL qui avance d'étape en étape
+    const k = cl((t - 13.2) / 4.4) * 3, i0 = Math.floor(k), fx = mix(xs[Math.min(i0, 3)], xs[Math.min(i0 + 1, 3)], lisse(k - i0));
+    c.save(); c.translate(fx, 520 + Math.sin(t * 5) * 4); c.fillStyle = '#fff'; c.strokeStyle = '#FE5716'; c.lineWidth = 3; c.beginPath(); c.roundRect(-120, 0, 240, 84, 12); c.fill(); c.stroke();
+    c.fillStyle = '#001A70'; c.font = '800 18px "Segoe UI", sans-serif'; c.fillText('LL · C04', 0, 32); c.font = '500 15px "Segoe UI", sans-serif'; c.fillStyle = '#4b5a6b'; c.fillText(tx('anRexTitreLL'), 0, 60); c.restore();
+    c.fillStyle = '#4b5a6b'; c.font = '600 20px "Segoe UI", sans-serif'; c.fillText('1 - Open  →  2 - Processing  →  3 - Integrated', 800, 720);
+  }
+  function sceneRecherche(t) {
+    c.fillStyle = '#7d8a99'; c.fillRect(-400, 560, 2400, 400); cielJour('#8fb8de', '#e4eef7', 560);
+    c.fillStyle = '#0b2f63'; c.fillRect(60, 470, 170, 90); c.fillStyle = '#00a9e9'; c.fillRect(80, 420, 130, 50);
+    c.fillStyle = '#fff'; c.font = '800 44px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText(tx('anRexLendemain'), 1290, 300);
+    c.save(); c.translate(1290, 600); c.scale(2.4, 2.4); technicien(0, 0, t, { cafe: true }); c.restore();
+    telephone(590, 40, 420, 800, (x, y, w) => {
+      c.fillStyle = '#e6ecf5'; c.beginPath(); c.roundRect(x + 16, y + 14, w - 32, 36, 18); c.fill();
+      c.fillStyle = '#001A70'; c.font = '700 15px "Segoe UI", sans-serif'; c.textAlign = 'left'; c.fillText("🔎  I want to search for LL's", x + 30, y + 38);
+      c.fillStyle = '#fff'; c.strokeStyle = '#8494a6'; c.lineWidth = 1.5; c.beginPath(); c.roundRect(x + 16, y + 64, w - 32, 44, 10); c.fill(); c.stroke();
+      c.fillStyle = '#12213b'; c.font = '500 17px "Segoe UI", sans-serif'; c.fillText('🔍 ' + ecrit(tx('anRexCherche'), t, 18.8, 19.6) + (Math.sin(t * 8) > 0 ? '|' : ''), x + 30, y + 93);
+      if (t > 19.8) {
+        c.fillStyle = '#fff'; c.beginPath(); c.roundRect(x + 16, y + 122, w - 32, 170, 14); c.fill(); c.strokeStyle = '#dde3ea'; c.stroke();
+        c.fillStyle = '#a4262c'; c.beginPath(); c.roundRect(x + 30, y + 136, 64, 24, 12); c.fill(); c.fillStyle = '#fff'; c.font = '700 13px "Segoe UI", sans-serif'; c.fillText('Avoid', x + 44, y + 153);
+        c.fillStyle = '#1e7b34'; c.fillText('✔ Lessons Learnt Database', x + 104, y + 153);
+        c.fillStyle = '#12213b'; c.font = '700 16px "Segoe UI", sans-serif'; lignes(tx('anRexTitreLL'), x + 30, y + 186, w - 64, 22);
+        c.fillStyle = '#4b5a6b'; c.font = '500 14px "Segoe UI", sans-serif'; c.fillText('Courseulles · C04 · ' + tx('anRexAuteur'), x + 30, y + 238);
+        const likes = t < 21.4 ? 0 : Math.min(14, 1 + Math.floor((t - 21.4) * 5));
+        c.fillStyle = likes ? '#0B3C8D' : '#e6ecf5'; c.beginPath(); c.roundRect(x + 30, y + 250, 96, 30, 15); c.fill();
+        c.fillStyle = likes ? '#fff' : '#0B3C8D'; c.font = '700 15px "Segoe UI", sans-serif'; c.fillText('👍 ' + likes, x + 48, y + 271);
+        if (likes) son('like', () => bip(1046, .1, 'triangle', .06));
+        for (let i = 0; i < 6; i++) { const u = ((t - 21.4) * 1.3 - i * .35); if (u > 0 && u < 1.6) { c.globalAlpha = 1 - u / 1.6; c.font = '26px sans-serif'; c.fillText('👍', x + 60 + i * 30, y + 250 - u * 120); c.globalAlpha = 1; } }
+      }
+      const coms = tx('anRexComs');
+      coms.forEach(([qui, txt], i) => {
+        if (t < 22.4 + i * 1.2) return;
+        const yy = y + 310 + i * 128;
+        c.fillStyle = '#fff'; c.beginPath(); c.roundRect(x + 16, yy, w - 32, 116, 14); c.fill();
+        c.fillStyle = '#0B3C8D'; c.font = '700 14px "Segoe UI", sans-serif'; c.textAlign = 'left'; c.fillText(qui, x + 30, yy + 26);
+        c.fillStyle = '#12213b'; c.font = '500 15px "Segoe UI", sans-serif'; lignes(txt, x + 30, yy + 52, w - 64, 21);
+      });
+    });
+  }
+  function sceneParc(t) {
+    cielJour('#5ea6dd', '#cfe8f7', 900);
+    c.fillStyle = '#123f6e'; c.beginPath(); c.roundRect(120, 160, 1360, 560, 30); c.fill();
+    const ids = ['A04', 'B07', 'C02', 'C04', 'D02', 'D06', 'E05', 'E08', 'F03', 'F06', 'G02', 'G05'], cibles = { B07: 26.4, D02: 27.1, E05: 27.8 };
+    ids.forEach((id, i) => {
+      const x = 260 + (i % 6) * 216, y = 330 + Math.floor(i / 6) * 230;
+      eolProfil(x, y + 60, 120, t * 2 + i, { dore: id === 'C04' || (cibles[id] && t > cibles[id]) });
+      c.fillStyle = '#fff'; c.font = '700 18px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText(id, x, y + 92);
+      if (cibles[id] && t > cibles[id]) { c.fillStyle = '#1e7b34'; c.beginPath(); c.arc(x + 46, y - 60, 20, 0, 6.28); c.fill(); c.fillStyle = '#fff'; c.font = '800 22px sans-serif'; c.fillText('✓', x + 46, y - 52); son('ok' + id, () => bip(1320, .12, 'triangle', .05)); }
+      if (id === 'C04') { c.fillStyle = '#FE5716'; c.beginPath(); c.roundRect(x - 34, y - 134, 68, 28, 14); c.fill(); c.fillStyle = '#fff'; c.font = '700 15px "Segoe UI", sans-serif'; c.fillText('⚓ LL', x, y - 114); }
+    });
+    if (t > 28.4) { c.fillStyle = 'rgba(6,20,45,.8)'; c.beginPath(); c.roundRect(470, 70, 660, 70, 35); c.fill(); c.fillStyle = '#9cf5c9'; c.font = '800 30px "Fira Sans", sans-serif'; c.textAlign = 'center'; c.fillText(tx('anRexEvites'), 800, 116); }
+    if (t > 29) {
+      c.fillStyle = '#ffd23f'; c.font = '700 24px "Fira Sans", sans-serif';
+      tx('anRexAutres').forEach((nom, i) => { const u = lisse((t - 29 - i * .3) / .6); c.globalAlpha = u; c.fillText('↗ ' + nom, 360 + i * 440, 698); c.globalAlpha = 1; });
+    }
+  }
+  function animRex(t) {
+    t0Anim = t;
+    if (t < 5) scenePlateforme(t);
+    else if (t < 12.9) sceneSaisie(t);
+    else if (t < 18.4) sceneCircuit(t);
+    else if (t < 26) sceneRecherche(t);
+    else sceneParc(t);
+    const fondu = Math.max(0, ...[5, 12.9, 18.4, 26].map(b => 1 - Math.abs(t - b) / .25));   // petit fondu entre les scènes
+    if (fondu > 0) { c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.fillStyle = 'rgba(11,22,51,' + fondu + ')'; c.fillRect(0, 0, cvI.width, cvI.height); c.restore(); }
   }
 
   /* ----- « Une journée au parc en accéléré » : de l'aube au feu d'artifice ----- */
@@ -3111,8 +3243,8 @@ const interlude = (() => {
         if (t > 6.6) son('corne', () => { bip(147, .9, 'sawtooth', .07); bip(220, .9, 'sawtooth', .05); });
       },
       fixe(tv) { ciel(tv); mer(tv); quai(tv); amarre(tv); ctv(tv); equipe(tv); grue(tv); mouette(tv); } },
-    fiab: { duree: 13.4, titreA: 11.2, finLeg: 11, leg: 'anFiabLeg', sous: '{anFiabSous}', dessiner: t => animFiab(t), fixe: tv => animFiab(tv) },
-    transfert: { duree: 12.4, titreA: 10.2, finLeg: 10, leg: 'anTransLeg', sous: '{anTransSous}', dessiner: t => animTransfert(t), fixe: tv => animTransfert(tv) },
+    fiab: { duree: 34, titreA: 30.6, finLeg: 30.4, leg: 'anFiabLeg', sous: '{anFiabSous}', dessiner: t => animFiab(t), fixe: tv => animFiab(tv) },
+    rex: { duree: 34, titreA: 30.6, finLeg: 30.4, leg: 'anRexLeg', sous: '{anRexSous}', dessiner: t => animRex(t), fixe: tv => animRex(tv) },
     journee: { duree: 14, titreA: 12.3, finLeg: 12.2, leg: 'anJourLeg', sous: '{anJourSous}', dessiner: (t, dt) => animJournee(t, dt), fixe: tv => animJournee(tv) }
   };
   let anim = 'ctv';
@@ -3161,7 +3293,7 @@ const interlude = (() => {
   addEventListener('keydown', e => { if (actif && [' ', 'Enter', 'Escape'].includes(e.key)) { e.preventDefault(); e.stopPropagation(); finir(); } }, true);
   return { jouer, vignette };
 })();
-const VIGNETTES = [['Ctv', 'ctv', 7.4, 'animFin'], ['Fiab', 'fiab', 9.2, 'anFiabFin'], ['Trans', 'transfert', 7.2, 'anTransFin'], ['Jour', 'journee', 10.9, 'anJourFin']];
+const VIGNETTES = [['Ctv', 'ctv', 7.4, 'animFin'], ['Fiab', 'fiab', 21, 'anFiabFin'], ['Rex', 'rex', 12.2, 'anRexFin'], ['Jour', 'journee', 10.9, 'anJourFin']];
 const dessinerVignettes = () => VIGNETTES.forEach(([id, a, tv]) => interlude.vignette($('vignette' + id), tv, a));
 dessinerVignettes(); if (document.fonts) document.fonts.ready.then(dessinerVignettes);
 for (const [id, a, , fin] of VIGNETTES) $('anim' + id).addEventListener('click', () => { initAudio(); interlude.jouer(t(fin), () => {}, a); });
