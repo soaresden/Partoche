@@ -93,10 +93,15 @@ les joueurs ne peuvent pas les modifier.
   On clique sur une éolienne orange et on choisit **Réparer** (rapide) ou **Fiabiliser** (plus long, mais le défaut ne revient presque plus : l'éolienne devient dorée).
   Au 1er défaut, on répare et on observe : la fiabilisation n'est possible qu'**à partir du 2ᵉ défaut** (la cause est alors confirmée).
   À ce moment, le jeu se met en pause une fois : « C'est la 2ᵉ fois que cette éolienne a un problème : il serait temps de la fiabiliser, tu ne penses pas ? »
-  On n'a que **5 kits de fiabilisation** : impossible de tout fiabiliser, il faut garder les kits pour celles qui reviennent le plus (Pareto).
-  Chaque défaut coûte **40 points** (coût de la non-qualité), détaillé en fin de partie.
+  On n'a que **3 kits de fiabilisation** : impossible de tout fiabiliser, il faut garder les kits pour celles qui reviennent le plus (Pareto).
+  Chaque défaut coûte **50 points** (coût de la non-qualité), détaillé en fin de partie.
   Il n'y a pas de pièces, de carburant ni de météo à gérer. Tous les joueurs d'une même journée ont le même vent, pour un classement équitable.
-  Réglage vérifié au bot : 18 à 30 défauts par partie, et fiabiliser les récidivistes rapporte environ 15 % de points de plus que courir d'une panne à l'autre.
+  Rythme posé, vérifié au bot : 11 à 18 défauts par partie, concentrés sur 5 éoliennes exposées ; fiabiliser les récidivistes rapporte
+  environ 10 % de points de plus que courir d'une panne à l'autre.
+  **Pour choisir « j'y vais ou pas ? »** : au survol d'une éolienne (et dans son menu), une info-bulle donne son état, les MW perdus
+  avec le vent qu'il fait là-bas, l'urgence (🔴 / 🟠 / 🟢 « peut attendre »), le temps avant l'arrêt de sécurité et le trajet.
+  L'énergie se voit filer le long des câbles vers l'OSS ; le bateau commente (« Aïe aïe aïe, erreur sur D04 ! », « Go la team ! »,
+  « Hey les gars… café ? » quand personne ne donne d'ordre).
 - **🧭 Carrière, pour ceux qui accrochent.** Des journées de 3 minutes, reprises avec son nom. Chaque soir, l'électricité vendue,
   moins les pièces, le carburant et les rotors remplacés, donne un budget pour améliorer le bateau à la base.
   Une mécanique s'ajoute chaque jour :
