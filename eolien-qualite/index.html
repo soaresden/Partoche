@@ -1009,7 +1009,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.24'
+  version: '2026.25'
 };
 
 const PARAMS = {
@@ -1513,7 +1513,9 @@ function hacher53(str) {
 }
 const signer = d => hacher53('QW26·Courseulles·⚓·' + JSON.stringify([d.login, d.parties, d.carriere]));
 // contrôle de vraisemblance : un score hors de portée du jeu est écarté
-const plausible = x => x.score >= 0 && (x.mode === 'rapide' ? x.score <= 7500 && x.temps >= 120 : x.score <= 9000 && x.temps >= 120);
+// (le Sprint durait 90 s avant la version 2026.16 : ses parties restent valables avec au moins 60 s de jeu)
+const versionMineure = v => +((String(v || '').match(/^\d+\.(\d+)/) || [, 0])[1]);
+const plausible = x => x.score >= 0 && (x.mode === 'rapide' ? x.score <= 7500 && x.temps >= (versionMineure(x.version) >= 16 ? 120 : 60) : x.score <= 9000 && x.temps >= 120);
 const DEMO_LOGIN = 'demo-diagnostic';
 const nomFichier = login => 'joueur-' + login.replace(/[^a-z0-9._-]/gi, '_') + '.json';
 
@@ -1676,7 +1678,7 @@ function majEtatDonnees() {
   const el = $('etatDonnees'); if (!el) return;
   const e = donnees.etat, nom = echapper(donnees.nom || '');
   el.className = 'etat-donnees ' + (e === 'ok' || e === 'sp' ? 'ok' : 'alerte');
-  el.innerHTML = e === 'sp' ? t('donneesSp', { login: echapper(joueur.login), n: new Set(BD.parties.map(cleDe)).size }) : e === 'sp-charge' ? t('donneesSpCharge')
+  el.innerHTML = e === 'sp' ? t('donneesSp', { login: echapper(joueur.login), n: new Set(BD.parties.filter(x => !x.suspect).map(cleDe)).size }) : e === 'sp-charge' ? t('donneesSpCharge')
     : e === 'ok' ? t('donneesOk', { nom }) : e === 'relier' ? t('donneesRelier', { nom }) : e === 'erreur' ? t('donneesErreur', { err: echapper(donnees.erreur) })
     : e === 'indispo' ? t('donneesIndispo') : e === 'apercu' ? t('donneesApercuCourt') : t('donneesLocal');
   if (e === 'apercu') {   // le mode d'emploi du favori, ouvert une fois tout seul puis à la demande

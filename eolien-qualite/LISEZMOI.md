@@ -26,7 +26,10 @@ SharePoint**, avec le compte de la personne : le jeu sait qui joue et peut enreg
      Copiez-le dans le panneau organisateur (champ « Lien de partage… », bouton 🔓) : un joueur sans accès verra alors
      « 🔓 Activer mon accès », puis « Réessayer », et ses parties jouées entre-temps sont enregistrées.
 4. Partagez le lien du dossier (ou de `index.html`).
-5. Si une ancienne copie d'`index.html` traîne dans votre OneDrive personnel, supprimez-la : les anciens favoris tomberont alors
+5. **Reprendre les scores de l'ancien dossier** (OneDrive personnel) : dans l'ancien `donnees`, sélectionnez les fichiers
+   `joueur-….json` › **Copier vers** › le dossier `donnees` du site d'équipe. Les signatures ne dépendent pas de l'emplacement :
+   ces scores (y compris ceux de l'ancien Sprint de 90 s) réapparaissent tels quels dans les classements.
+6. Si une ancienne copie d'`index.html` traîne dans votre OneDrive personnel, supprimez-la : les anciens favoris tomberont alors
    sur une erreur, et chacun installera le nouveau favori.
 
 **Pour jouer (participants)**
