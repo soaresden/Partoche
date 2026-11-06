@@ -19,8 +19,12 @@ SharePoint**, avec le compte de la personne : le jeu sait qui joue et peut enreg
 1. `index.html` est dans le dossier OneDrive `QualityWeek2026`. Son chemin est réglé dans `CONFIG.sharepoint.dossier` :
    mettez-le à jour si vous déplacez le dossier.
 2. Créez dans ce dossier un sous-dossier **`donnees`**. Le premier joueur le crée sinon, s'il en a le droit.
-3. Partagez **`QualityWeek2026` en lecture** et **`donnees` en modification** avec les participants
-   (par exemple « Personnes d'EDF disposant du lien »).
+3. Partagez **`QualityWeek2026` en lecture** et **`donnees` en modification** avec les participants. Deux façons :
+   - **Recommandé : « Personnes spécifiques »** sur `donnees` : ajoutez les collègues ou un groupe (l'équipe Teams, une liste de diffusion),
+     droit « Peut modifier ». L'accès est immédiat.
+   - **Par lien** « Personnes d'EDF disposant du lien » + « Peut modifier » : SharePoint n'active l'accès qu'une fois que chacun a ouvert ce lien.
+     Copiez-le dans le panneau organisateur (champ « Lien de partage… », bouton 🔓) : un joueur sans accès verra alors
+     « 🔓 Activer mon accès », puis « Réessayer », et ses parties jouées entre-temps sont enregistrées.
 4. Partagez le lien vers `index.html`. Si vous le partagez par **Teams**, précisez de l'ouvrir dans **Edge** (« … » › Ouvrir dans le navigateur) :
    Teams n'a pas de barre de favoris. L'écran d'accueil du lien le rappelle, en français et en anglais (bouton FR / EN).
 
