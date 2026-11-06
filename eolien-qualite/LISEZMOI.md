@@ -105,7 +105,7 @@ les joueurs ne peuvent pas les modifier.
   avec le vent qu'il fait là-bas, l'urgence (🔴 / 🟠 / 🟢 « peut attendre »), le temps avant l'arrêt de sécurité et le trajet.
   L'énergie se voit filer le long des câbles vers l'OSS ; le bateau commente (« Aïe aïe aïe, erreur sur D04 ! », « Go la team ! »,
   « Hey les gars… café ? » quand personne ne donne d'ordre), glisse des blagues (« Pareto, c'est pas un footballeur ⚽ »)
-  et chante des airs de marins traditionnels (« Il était un petit navire 🎵 », « Hardi les gars, vire au guindeau 🎵 »).
+  et chante des airs de marins traditionnels (« Il était un petit navire 🎵 », « Thunder… THUNDERSTRUCK ⚡ »), avec des jeux de mots (« On est bien câblés ! », « Ça va être raccord 🔌 »).
 - **🧭 Carrière, pour ceux qui accrochent.** Des journées de 3 minutes, reprises avec son nom. Chaque soir, l'électricité vendue,
   moins les pièces, le carburant et les rotors remplacés, donne un budget pour améliorer le bateau à la base.
   Une mécanique s'ajoute chaque jour :
