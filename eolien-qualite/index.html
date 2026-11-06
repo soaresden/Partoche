@@ -68,6 +68,10 @@
   .kits-hud b { font-size: 24px; color: var(--jaune); }
   .kits-hud small { font-size: 12px; color: var(--doux); line-height: 1.1; max-width: 70px; }
   .kits-hud.vide b { color: #ff8a8a; }
+  #guide { position: fixed; z-index: 8; width: min(380px, calc(100vw - 16px)); padding: 14px 16px 10px; border-radius: 16px; background: #fff; color: #0c2f5c;
+    box-shadow: 0 14px 40px rgba(0,0,0,.45), 0 0 0 3px #ffd23f; font-size: 17px; line-height: 1.45; animation: entre .3s ease-out; }
+  #guide b { color: #0255a1; }
+  #guide .lien { color: #5a7290; font-size: 12.5px; margin-top: 6px; }
   /* file d'ordres façon « Diner Dash » */
   #file { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); display: flex; gap: 8px; align-items: center;
     padding: 8px 10px; max-width: calc(100vw - 24px); }
@@ -616,6 +620,7 @@
 <div id="file" class="chip" hidden></div>
 <div id="menu" hidden></div>
 <div id="astuce" class="chip"></div>
+<div id="guide" hidden><div id="guideTxt"></div><button class="lien" id="guidePasser" type="button" data-i18n="guidePasser"></button></div>
 <div id="briefing" hidden>
   <div class="br-titre" id="brTitre"></div>
   <div class="br-aide" id="brAide"></div>
@@ -1004,7 +1009,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.23'
+  version: '2026.24'
 };
 
 const PARAMS = {
@@ -1087,7 +1092,7 @@ const I18N = {
     sousTitre: 'La qualité, moteur de la performance',
     intro: 'Cette année, la qualité se joue en mer : gardez les 64 éoliennes du parc en mouvement… et découvrez pourquoi traiter les causes rapporte plus que d\'éteindre les incendies.',
     marque: 'Semaine mondiale de la qualité 2026', marqueSous: '9 – 13 novembre · Journée mondiale de la qualité le jeudi 12',
-    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'Les petits films du jeu, à regarder quand vous voulez.', animCtvTitre: '🚤 Le CTV appareille', animCtvTxt: 'Au lever du jour à Ouistreham : chargement des pièces, briefing, une mouette affamée… et cap sur le parc.', animFin: '🎉 Bonne Semaine de la qualité !', chSur: 'Avant d\'appareiller', chTitre: 'Une petite animation pour commencer ?', chPasser: 'Passer, jouer tout de suite ⏭', chCompte: 'Le CTV appareille dans {s} s…', chDefaut: 'par défaut', anFiabTitre: '🛡️ Réparer ou fiabiliser ?', anFiabTxt: 'Deux éoliennes, le même défaut qui revient. À gauche on répare encore et encore ; à droite on traite la cause.', anFiabFin: 'Traiter la cause, ça paie !', anFiabSous: 'Réparer, c\'est utile. Éviter que ça revienne, c\'est la performance.', anFiabGauche: '🔧 On répare…', anFiabDroite: '🛡️ On fiabilise', anFiabJours: ['Lundi', 'Mardi', 'Mercredi'], anFiabWave: 'WAVE · LL partagée', anFiabCourbe: '💸 Coût de la non-qualité, cumulé', anFiabLeg: [[0, 'Lundi · deux éoliennes exposées, le même défaut qui revient…'], [1.5, '1er défaut : on répare des deux côtés, on observe'], [4.5, '2e défaut : la cause est confirmée. À droite, on fiabilise'], [7.5, 'À gauche, on se contente de réparer… et ça recommence'], [10.2, 'Mardi · à gauche, rebelote. À droite, rien à signaler'], [16, 'Le technicien de gauche fatigue, la courbe du coût grimpe'], [19.2, 'Mercredi · à droite, on a même le temps de partager l\'expérience dans WAVE'], [23, 'À gauche : neuf interventions en trois jours'], [27.6, 'Même éolienne, même défaut : deux façons de faire']], anRexTitre: '⚓ J\'ai vu ça, je capitalise', anRexTxt: 'Un technicien repère un joint qui suinte et le partage dans WAVE. Le lendemain, un collègue le retrouve… et trois défauts sont évités ailleurs.', anRexFin: 'J\'ai vu ça, je capitalise', anRexSous: 'Une leçon partagée, c\'est un défaut évité ailleurs.', anRexVu: 'J\'ai vu ça…', anRexCapi: '… je capitalise !', anRexOu: 'Courseulles · C04 · bride de la pièce de transition', anRexCrit: 'criticité : moyenne', anRexQuoi: 'Joint de bride qui suinte. Cause probable : couple de serrage trop faible au montage. Recommandation : contrôler le couple sur toutes les brides du même lot.', anRexDoublon: '🔎 Doublons : aucune LL sur ce sujet ✓', anRexCircuit: 'Le circuit d\'une LL', anRexEtapes: [['📥', 'Dépôt'], ['🔍', 'Tri Qualité'], ['✅', 'Approbation'], ['📚', 'LL Database']], anRexTitreLL: 'Joint de bride qui suinte : couple trop faible', anRexLendemain: 'Le lendemain, à la base…', anRexCherche: 'bride', anRexAuteur: 'technicien CTV', anRexComs: [['Responsable Qualité', 'Merci ! LL intégrée au plan de contrôle ✔'], ['Chef d\'Équipe CTV', 'Même lot sur B07, D02 et E05 : on contrôle demain matin 👍'], ['Superviseur SCADA', 'Je mets une alerte sur ces brides en attendant 📡']], anRexEvites: '🛡️ 3 défauts évités grâce à une LL', anRexAutres: ['Courseulles', 'Provence Grand Large'], anRexLeg: [[0, 'C04 · un technicien remarque un joint de bride qui suinte'], [3.4, 'Photo : j\'ai vu ça…'], [5.2, 'Dans WAVE : I want to create a LL'], [8, 'Ce qui s\'est passé, la cause, la recommandation'], [11.6, 'Envoyée : en attente du contrôle Qualité'], [13, 'Tri Qualité, approbation, validation : la LL rejoint la base'], [18.6, 'Le lendemain, un collègue cherche « bride »…'], [21.4, '👍 Les pouces montent, les commentaires arrivent'], [26.2, 'Même lot ailleurs : on contrôle avant la panne'], [28.6, 'Et la leçon voyage vers les autres parcs']], anJourTitre: '🌅 Une journée au parc', anJourTxt: 'De l\'aube à la nuit en accéléré : le vent qui varie, les dauphins, le CTV, les feux des nacelles… et la fête.', anJourFin: '🎆 Joyeuse Semaine de la qualité !', anJourSous: 'Le parc ne dort jamais', anJourLeg: [[0, '06:00 · le parc se réveille'], [1.5, 'Le vent forcit : les rotors accélèrent'], [3.1, 'Visite des dauphins 🐬'], [4.4, 'Le CTV part en tournée'], [7, '18:00 · le vent tombe, le soleil aussi'], [8.6, 'La nuit, les feux rouges des nacelles veillent'], [10.1, '… et c\'est la fête de la qualité ! 🎆']],
+    tabAccueil: 'Accueil', tabJouer: 'Comment jouer', tabPiliers: 'Les 4 piliers', tabTheme: 'Le jeu & la qualité', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'Les petits films du jeu, à regarder quand vous voulez.', animCtvTitre: '🚤 Le CTV appareille', animCtvTxt: 'Au lever du jour à Ouistreham : chargement des pièces, briefing, une mouette affamée… et cap sur le parc.', animFin: '🎉 Bonne Semaine de la qualité !', guide1: '⚠️ <b>{id}</b> a un défaut : elle tourne au ralenti (40 %).<br><b>👆 Clique dessus</b> pour donner un ordre.', guide2: '👉 Choisis <b>Réparer</b>.<br>Au 1er défaut, on répare et on observe.', guide3: '📋 Ton ordre est dans la <b>barre en bas</b>.<br>Le bateau y va <b>tout seul</b> 🚤 : regarde !', guide4: '✅ <b>{id}</b> est réparée, elle repart à 100 %.<br>Les défauts reviennent souvent sur les mêmes éoliennes : <b>surveille-la</b> 👀', guidePasser: 'Passer le guide', chSur: 'Avant d\'appareiller', chTitre: 'Une petite animation pour commencer ?', chPasser: 'Passer, jouer tout de suite ⏭', chCompte: 'Le CTV appareille dans {s} s…', chDefaut: 'par défaut', anFiabTitre: '🛡️ Réparer ou fiabiliser ?', anFiabTxt: 'Deux éoliennes, le même défaut qui revient. À gauche on répare encore et encore ; à droite on traite la cause.', anFiabFin: 'Traiter la cause, ça paie !', anFiabSous: 'Réparer, c\'est utile. Éviter que ça revienne, c\'est la performance.', anFiabGauche: '🔧 On répare…', anFiabDroite: '🛡️ On fiabilise', anFiabJours: ['Lundi', 'Mardi', 'Mercredi'], anFiabWave: 'WAVE · LL partagée', anFiabCourbe: '💸 Coût de la non-qualité, cumulé', anFiabLeg: [[0, 'Lundi · deux éoliennes exposées, le même défaut qui revient…'], [1.5, '1er défaut : on répare des deux côtés, on observe'], [4.5, '2e défaut : la cause est confirmée. À droite, on fiabilise'], [7.5, 'À gauche, on se contente de réparer… et ça recommence'], [10.2, 'Mardi · à gauche, rebelote. À droite, rien à signaler'], [16, 'Le technicien de gauche fatigue, la courbe du coût grimpe'], [19.2, 'Mercredi · à droite, on a même le temps de partager l\'expérience dans WAVE'], [23, 'À gauche : neuf interventions en trois jours'], [27.6, 'Même éolienne, même défaut : deux façons de faire']], anRexTitre: '⚓ J\'ai vu ça, je capitalise', anRexTxt: 'Un technicien repère un joint qui suinte et le partage dans WAVE. Le lendemain, un collègue le retrouve… et trois défauts sont évités ailleurs.', anRexFin: 'J\'ai vu ça, je capitalise', anRexSous: 'Une leçon partagée, c\'est un défaut évité ailleurs.', anRexVu: 'J\'ai vu ça…', anRexCapi: '… je capitalise !', anRexOu: 'Courseulles · C04 · bride de la pièce de transition', anRexCrit: 'criticité : moyenne', anRexQuoi: 'Joint de bride qui suinte. Cause probable : couple de serrage trop faible au montage. Recommandation : contrôler le couple sur toutes les brides du même lot.', anRexDoublon: '🔎 Doublons : aucune LL sur ce sujet ✓', anRexCircuit: 'Le circuit d\'une LL', anRexEtapes: [['📥', 'Dépôt'], ['🔍', 'Tri Qualité'], ['✅', 'Approbation'], ['📚', 'LL Database']], anRexTitreLL: 'Joint de bride qui suinte : couple trop faible', anRexLendemain: 'Le lendemain, à la base…', anRexCherche: 'bride', anRexAuteur: 'technicien CTV', anRexComs: [['Responsable Qualité', 'Merci ! LL intégrée au plan de contrôle ✔'], ['Chef d\'Équipe CTV', 'Même lot sur B07, D02 et E05 : on contrôle demain matin 👍'], ['Superviseur SCADA', 'Je mets une alerte sur ces brides en attendant 📡']], anRexEvites: '🛡️ 3 défauts évités grâce à une LL', anRexAutres: ['Courseulles', 'Provence Grand Large'], anRexLeg: [[0, 'C04 · un technicien remarque un joint de bride qui suinte'], [3.4, 'Photo : j\'ai vu ça…'], [5.2, 'Dans WAVE : I want to create a LL'], [8, 'Ce qui s\'est passé, la cause, la recommandation'], [11.6, 'Envoyée : en attente du contrôle Qualité'], [13, 'Tri Qualité, approbation, validation : la LL rejoint la base'], [18.6, 'Le lendemain, un collègue cherche « bride »…'], [21.4, '👍 Les pouces montent, les commentaires arrivent'], [26.2, 'Même lot ailleurs : on contrôle avant la panne'], [28.6, 'Et la leçon voyage vers les autres parcs']], anJourTitre: '🌅 Une journée au parc', anJourTxt: 'De l\'aube à la nuit en accéléré : le vent qui varie, les dauphins, le CTV, les feux des nacelles… et la fête.', anJourFin: '🎆 Joyeuse Semaine de la qualité !', anJourSous: 'Le parc ne dort jamais', anJourLeg: [[0, '06:00 · le parc se réveille'], [1.5, 'Le vent forcit : les rotors accélèrent'], [3.1, 'Visite des dauphins 🐬'], [4.4, 'Le CTV part en tournée'], [7, '18:00 · le vent tombe, le soleil aussi'], [8.6, 'La nuit, les feux rouges des nacelles veillent'], [10.1, '… et c\'est la fête de la qualité ! 🎆']],
     jours: 'jours', heures: 'heures', minutes: 'min', secondes: 's',
     legendeTitre: 'Repères à l\'écran',
     l1: '<b>Bulle orange</b> : éolienne en défaut, <b>bridée à 40 %</b>. Laissée trop longtemps, elle passe en <b>arrêt de sécurité</b> (bulle rouge), puis peut prendre feu 🔥 et exploser 💥, ce qui coupe le string en aval.',
@@ -1234,7 +1239,7 @@ const I18N = {
     sousTitre: 'Quality as the engine of performance',
     intro: 'This year, quality plays out at sea: keep the 64 turbines of the wind farm turning… and discover why fixing root causes pays off more than fighting fires.',
     marque: 'World Quality Week 2026', marqueSous: '9 – 13 November · World Quality Day on Thursday 12th',
-    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'The game\'s short films, to watch whenever you like.', animCtvTitre: '🚤 The CTV sets sail', animCtvTxt: 'Daybreak in Ouistreham: loading parts, safety briefing, a hungry seagull… and off to the farm.', animFin: '🎉 Happy World Quality Week!', chSur: 'Before sailing', chTitre: 'A short animation to start?', chPasser: 'Skip, play now ⏭', chCompte: 'The CTV sets sail in {s} s…', chDefaut: 'default', anFiabTitre: '🛡️ Repair or reinforce?', anFiabTxt: 'Two turbines, the same fault coming back. On the left we repair again and again; on the right we treat the cause.', anFiabFin: 'Treating the cause pays off!', anFiabSous: 'Repairing is useful. Stopping it coming back is performance.', anFiabGauche: '🔧 We repair…', anFiabDroite: '🛡️ We reinforce', anFiabJours: ['Monday', 'Tuesday', 'Wednesday'], anFiabWave: 'WAVE · LL shared', anFiabCourbe: '💸 Cost of poor quality, cumulative', anFiabLeg: [[0, 'Monday · two exposed turbines, the same fault coming back…'], [1.5, '1st fault: both sides repair and watch'], [4.5, '2nd fault: the cause is confirmed. On the right, we reinforce'], [7.5, 'On the left, we just repair… and here it goes again'], [10.2, 'Tuesday · on the left, again. On the right, all quiet'], [16, 'The left technician tires, the cost curve climbs'], [19.2, 'Wednesday · on the right, there is even time to share the lesson in WAVE'], [23, 'On the left: nine interventions in three days'], [27.6, 'Same turbine, same fault: two ways of working']], anRexTitre: '⚓ I saw it, I share it', anRexTxt: 'A technician spots a weeping seal and shares it in WAVE. The next day a colleague finds it… and three faults are avoided elsewhere.', anRexFin: 'I saw it, I share it', anRexSous: 'A shared lesson is a fault avoided elsewhere.', anRexVu: 'I saw it…', anRexCapi: '… I share it!', anRexOu: 'Courseulles · C04 · transition piece flange', anRexCrit: 'criticality: medium', anRexQuoi: 'Weeping flange seal. Probable cause: bolt torque too low at assembly. Recommendation: check the torque on all flanges from the same batch.', anRexDoublon: '🔎 Duplicates: no LL on this topic ✓', anRexCircuit: 'The journey of an LL', anRexEtapes: [['📥', 'Submitted'], ['🔍', 'Quality check'], ['✅', 'Approval'], ['📚', 'LL Database']], anRexTitreLL: 'Weeping flange seal: torque too low', anRexLendemain: 'The next day, at the base…', anRexCherche: 'flange', anRexAuteur: 'CTV technician', anRexComs: [['Quality Manager', 'Thanks! LL added to the inspection plan ✔'], ['CTV Crew Lead', 'Same batch on B07, D02 and E05: checking tomorrow morning 👍'], ['SCADA Supervisor', 'Setting an alert on those flanges meanwhile 📡']], anRexEvites: '🛡️ 3 faults avoided thanks to one LL', anRexAutres: ['Courseulles', 'Provence Grand Large'], anRexLeg: [[0, 'C04 · a technician notices a weeping flange seal'], [3.4, 'Photo: I saw it…'], [5.2, 'In WAVE: I want to create a LL'], [8, 'What happened, the cause, the recommendation'], [11.6, 'Submitted: pending Quality check'], [13, 'Quality check, approval, validation: the LL joins the database'], [18.6, 'The next day, a colleague searches "flange"…'], [21.4, '👍 Thumbs up and comments roll in'], [26.2, 'Same batch elsewhere: checked before it fails'], [28.6, 'And the lesson travels to the other farms']], anJourTitre: '🌅 A day at the farm', anJourTxt: 'From dawn to night in fast-forward: shifting wind, dolphins, the CTV, nacelle lights… and a party.', anJourFin: '🎆 Happy World Quality Week!', anJourSous: 'The farm never sleeps', anJourLeg: [[0, '6 am · the farm wakes up'], [1.5, 'The wind picks up: rotors speed up'], [3.1, 'Dolphins drop by 🐬'], [4.4, 'The CTV sets off on its round'], [7, '6 pm · the wind drops, so does the sun'], [8.6, 'At night, the nacelles\' red lights keep watch'], [10.1, '… and it\'s quality party time! 🎆']],
+    tabAccueil: 'Home', tabJouer: 'How to play', tabPiliers: 'The 4 pillars', tabTheme: 'Game & quality', tabAnim: 'Animations', animTitre: 'Animations', animChapeau: 'The game\'s short films, to watch whenever you like.', animCtvTitre: '🚤 The CTV sets sail', animCtvTxt: 'Daybreak in Ouistreham: loading parts, safety briefing, a hungry seagull… and off to the farm.', animFin: '🎉 Happy World Quality Week!', guide1: '⚠️ <b>{id}</b> has a fault: it runs at reduced power (40%).<br><b>👆 Click it</b> to give an order.', guide2: '👉 Choose <b>Repair</b>.<br>On the 1st fault, repair and watch.', guide3: '📋 Your order is in the <b>bar at the bottom</b>.<br>The boat goes there <b>on its own</b> 🚤: watch!', guide4: '✅ <b>{id}</b> is repaired, back to 100%.<br>Faults often come back on the same turbines: <b>keep an eye on it</b> 👀', guidePasser: 'Skip the guide', chSur: 'Before sailing', chTitre: 'A short animation to start?', chPasser: 'Skip, play now ⏭', chCompte: 'The CTV sets sail in {s} s…', chDefaut: 'default', anFiabTitre: '🛡️ Repair or reinforce?', anFiabTxt: 'Two turbines, the same fault coming back. On the left we repair again and again; on the right we treat the cause.', anFiabFin: 'Treating the cause pays off!', anFiabSous: 'Repairing is useful. Stopping it coming back is performance.', anFiabGauche: '🔧 We repair…', anFiabDroite: '🛡️ We reinforce', anFiabJours: ['Monday', 'Tuesday', 'Wednesday'], anFiabWave: 'WAVE · LL shared', anFiabCourbe: '💸 Cost of poor quality, cumulative', anFiabLeg: [[0, 'Monday · two exposed turbines, the same fault coming back…'], [1.5, '1st fault: both sides repair and watch'], [4.5, '2nd fault: the cause is confirmed. On the right, we reinforce'], [7.5, 'On the left, we just repair… and here it goes again'], [10.2, 'Tuesday · on the left, again. On the right, all quiet'], [16, 'The left technician tires, the cost curve climbs'], [19.2, 'Wednesday · on the right, there is even time to share the lesson in WAVE'], [23, 'On the left: nine interventions in three days'], [27.6, 'Same turbine, same fault: two ways of working']], anRexTitre: '⚓ I saw it, I share it', anRexTxt: 'A technician spots a weeping seal and shares it in WAVE. The next day a colleague finds it… and three faults are avoided elsewhere.', anRexFin: 'I saw it, I share it', anRexSous: 'A shared lesson is a fault avoided elsewhere.', anRexVu: 'I saw it…', anRexCapi: '… I share it!', anRexOu: 'Courseulles · C04 · transition piece flange', anRexCrit: 'criticality: medium', anRexQuoi: 'Weeping flange seal. Probable cause: bolt torque too low at assembly. Recommendation: check the torque on all flanges from the same batch.', anRexDoublon: '🔎 Duplicates: no LL on this topic ✓', anRexCircuit: 'The journey of an LL', anRexEtapes: [['📥', 'Submitted'], ['🔍', 'Quality check'], ['✅', 'Approval'], ['📚', 'LL Database']], anRexTitreLL: 'Weeping flange seal: torque too low', anRexLendemain: 'The next day, at the base…', anRexCherche: 'flange', anRexAuteur: 'CTV technician', anRexComs: [['Quality Manager', 'Thanks! LL added to the inspection plan ✔'], ['CTV Crew Lead', 'Same batch on B07, D02 and E05: checking tomorrow morning 👍'], ['SCADA Supervisor', 'Setting an alert on those flanges meanwhile 📡']], anRexEvites: '🛡️ 3 faults avoided thanks to one LL', anRexAutres: ['Courseulles', 'Provence Grand Large'], anRexLeg: [[0, 'C04 · a technician notices a weeping flange seal'], [3.4, 'Photo: I saw it…'], [5.2, 'In WAVE: I want to create a LL'], [8, 'What happened, the cause, the recommendation'], [11.6, 'Submitted: pending Quality check'], [13, 'Quality check, approval, validation: the LL joins the database'], [18.6, 'The next day, a colleague searches "flange"…'], [21.4, '👍 Thumbs up and comments roll in'], [26.2, 'Same batch elsewhere: checked before it fails'], [28.6, 'And the lesson travels to the other farms']], anJourTitre: '🌅 A day at the farm', anJourTxt: 'From dawn to night in fast-forward: shifting wind, dolphins, the CTV, nacelle lights… and a party.', anJourFin: '🎆 Happy World Quality Week!', anJourSous: 'The farm never sleeps', anJourLeg: [[0, '6 am · the farm wakes up'], [1.5, 'The wind picks up: rotors speed up'], [3.1, 'Dolphins drop by 🐬'], [4.4, 'The CTV sets off on its round'], [7, '6 pm · the wind drops, so does the sun'], [8.6, 'At night, the nacelles\' red lights keep watch'], [10.1, '… and it\'s quality party time! 🎆']],
     jours: 'days', heures: 'hrs', minutes: 'min', secondes: 'sec',
     legendeTitre: 'On-screen cues',
     l1: '<b>Orange bubble</b>: turbine fault, <b>derated to 40%</b>. Left too long, it goes into <b>safety shutdown</b> (red bubble), then may catch fire 🔥 and explode 💥, cutting the string downstream.',
@@ -2020,6 +2025,7 @@ function majMeteo(dt) {
    Pannes et production
    ===================================================================== */
 function risque(e) {
+  if (partie.mode === 'rapide' && partie.t < 10) return 0;   // départ calme : pas de panne pendant les 10 premières secondes (hors guide)
   const rampe = 1 + M.rampe * partie.t / (3 * partie.dureeShift);
   const base = e.fragile ? M.risqueFragile : M.risqueNormal;
   const meteo = zonesEn(e.x, e.y).some(z => z.type === 'grain') ? 2 : 1;
@@ -2042,7 +2048,7 @@ function exploser(e) {
 function tomberEnPanne(e, type) {
   if (type === undefined) type = Math.random() < .75 ? e.faiblesse : Math.floor(Math.random() * 6);
   const recidive = e.dernierePanne === type && type !== CABLE;
-  e.marche = false; e.alerte = 0; e.nbPannes++; e.histo++; e.panne = type; e.dernierePanne = type; e.depuisPanne = 0;
+  e.marche = false; e.alerte = 0; e.nbPannes++; e.histo++; e.panne = type; e.dernierePanne = type; e.depuisPanne = 0; e.pingT = horloge;
   partie.pannes++; if (e.fragile) partie.pannesFragiles++;
   partie.journal.push({ h: heureJeu(), s: partie.shift, id: e.id, quoi: 'panne' });
   if (M.coutDefaut) { partie.points -= M.coutDefaut; partie.copq = (partie.copq || 0) + M.coutDefaut; texte(e.x + 34, e.y - 40, '−' + M.coutDefaut, '#ff9aa5', 13); }
@@ -2155,6 +2161,7 @@ function ajouterOrdres(e, types) {
     partie.file.push({ id: ++idOrdre, type, e });
   }
   sons.ordre(); majFile();
+  if (partie.guide && partie.guide.etape === 2 && e === partie.guide.e && dejaPrevu(e, 'rep')) guideEtape(3);
 }
 function ajouterBase() {
   if (dejaPrevu(null, 'base')) return;
@@ -2226,6 +2233,7 @@ function terminerOrdre(o) {
   partie.shiftStats.comboMax = Math.max(partie.shiftStats.comboMax, partie.combo);
   if (M.pieces) partie.stock -= coutOrdre(o);
   if (e) partie.journal.push({ h: heureJeu(), s: partie.shift, id: e.id, quoi: o.type });
+  if (partie.guide && partie.guide.etape === 3 && e === partie.guide.e && o.type === 'rep') setTimeout(() => guideEtape(4), 400);
   if (o.type === 'rep') {
     partie.piecesRep += coutOrdre(o);
     if (e.detruite) { e.detruite = false; partie.remplacements++; texte(e.x, e.y - 86, t('rotorNeuf'), '#9cf5c9', 15); }
@@ -2310,8 +2318,11 @@ function majPartie(dt) {
     const e = eoliennes.filter(x => x.fragile && x.niveau === 0).concat(eoliennes)
       .slice(0, 20).reduce((a, b) => (dist(a.x, a.y, BASE.x, BASE.y) < dist(b.x, b.y, BASE.x, BASE.y) ? a : b));
     tomberEnPanne(e);
-    if (partie.mode === 'rapide' || partie.jour === 1) montrerAstuce(t('tutoPanne', { id: e.id }), 7);
+    if (partie.guide) { partie.guide.e = e; guideEtape(1); }   // première partie : on fige le jeu et on montre quoi faire
+    else if (partie.mode === 'rapide' || partie.jour === 1) montrerAstuce(t('tutoPanne', { id: e.id }), 7);
   }
+  // guide : la même éolienne retombe, pour découvrir la fiabilisation (la pause du coach s'ouvre)
+  if (partie.guide && partie.guide.etape === 5 && partie.t > partie.guide.t5 + 5 && partie.guide.e.marche && partie.guide.e.niveau === 0) { partie.guide.etape = 6; tomberEnPanne(partie.guide.e); }
   if (partie.pic && !astuces.pic) { astuces.pic = true; bandeau(t('bandeauPic'), 3.5); }
   if (partie.tShift >= partie.dureeShift) finShift();
   if (etat === 'jeu') majFileProgression();
@@ -2357,6 +2368,7 @@ $('btnPlanifier').addEventListener('click', () => prendreReleve(true));
 
 function lancerJournee() {
   nouvellePartie(modeChoisi);
+  partie.guide = partie.mode === 'rapide' && !stock.get('eq_guide') ? { etape: 0 } : null;   // le guide : une fois par navigateur
   etat = 'regles';   // la journée ne démarre qu'après la carte des règles
   for (const id of ['ecranAccueil', 'ecranFin', 'ecranReleve', 'ecranBase', 'hud', 'file']) $(id).hidden = true;
   const carr = partie.mode === 'carriere', j = partie.jour;
@@ -2469,6 +2481,34 @@ function fermerCoach(types) {
 }
 $('coFiab').addEventListener('click', () => fermerCoach(['rep', 'fiab']));
 $('coRep').addEventListener('click', () => fermerCoach(['rep']));
+
+/* Le guide de la première partie : pas à pas, au rythme du joueur */
+function guideEtape(n) {
+  const g = partie.guide; if (!g) return;
+  g.etape = n; montrerAstuce('');
+  const bulle = $('guide'), id = g.e ? g.e.id : '';
+  if (n === 1) { etat = 'guide'; fermerMenu(); }
+  if (n === 3) etat = 'jeu';
+  if (n === 4) setTimeout(() => { if (partie && partie.guide === g && g.etape === 4) { g.etape = 5; g.t5 = partie.t; bulle.hidden = true; } }, 5500);
+  if (n >= 5) { bulle.hidden = true; return; }
+  $('guideTxt').innerHTML = t('guide' + n, { id });
+  bulle.dataset.etape = n; bulle.hidden = false; placerGuide();
+}
+function placerGuide() {
+  const g = partie && partie.guide, bulle = $('guide'); if (!g || bulle.hidden) return;
+  const r = bulle.getBoundingClientRect();
+  if (g.etape === 3) { bulle.style.left = (innerWidth - r.width) / 2 + 'px'; bulle.style.top = (innerHeight - r.height - 110) + 'px'; return; }
+  if (g.etape === 2) { const m = $('menu').getBoundingClientRect(); bulle.style.left = clamp(m.left, 8, innerWidth - r.width - 8) + 'px'; bulle.style.top = clamp(m.top - r.height - 12, 8, innerHeight - r.height - 8) + 'px'; return; }
+  const sp = versEcran(g.e.x, g.e.y - 40);
+  bulle.style.left = clamp(sp.x - r.width / 2, 8, innerWidth - r.width - 8) + 'px';
+  bulle.style.top = clamp(sp.y - r.height - 90, 8, innerHeight - r.height - 8) + 'px';
+}
+function finirGuide() {
+  stock.set('eq_guide', '1');
+  if (partie && partie.guide) { partie.guide.etape = 9; $('guide').hidden = true; if (etat === 'guide') { etat = 'jeu'; fermerMenu(); } }
+}
+$('guidePasser').addEventListener('click', finirGuide);
+addEventListener('resize', placerGuide);
 
 async function demarrer() {
   const p = $('pseudo').value.trim().slice(0, 24);
@@ -2634,6 +2674,7 @@ $('rpFermer').addEventListener('click', () => { $('ecranRapport').hidden = true;
 $('ecranRapport').addEventListener('click', e => { if (e.target === $('ecranRapport')) $('ecranRapport').hidden = true; });
 
 function terminer() {
+  if (partie.guide) finirGuide();
   etat = 'fin';
   sons.fin();
   $('hud').hidden = true; $('file').hidden = true; montrerAstuce(''); $('bandeau').classList.remove('on');
@@ -3406,6 +3447,7 @@ cv.addEventListener('pointermove', e => {
 cv.addEventListener('pointerdown', e => {
   versMonde(e); initAudio();
   if (etat === 'briefing') { const eo = eolienneSous(souris.x, souris.y); if (eo) basculerBriefing(eo); return; }
+  if (etat === 'guide') { if (partie.guide.etape === 1 && eolienneSous(souris.x, souris.y) === partie.guide.e) { ouvrirMenu(partie.guide.e); guideEtape(2); } return; }
   if (etat !== 'jeu') return;
   if (surOSS(souris.x, souris.y)) { ouvrirMenuOSS(); return; }
   const eo = eolienneSous(souris.x, souris.y);
@@ -3811,9 +3853,11 @@ function dessinerEolienne(e, survol, rangs) {
   const { x, y } = e, hy = y - 44, tourne = e.marche && !e.coupe;
   ctx.textAlign = 'center';
   ctx.fillStyle = 'rgba(0,20,35,.25)'; ctx.beginPath(); ctx.ellipse(x + 18, y + 3, 22, 4, -.15, 0, 6.28); ctx.fill();
-  if (!e.marche && (e.arret || e.detruite || e.panne === CABLE)) {
-    const pul = .5 + .5 * Math.sin(horloge * 8);
-    ctx.fillStyle = `rgba(255,77,94,${.2 + .22 * pul})`; ctx.beginPath(); ctx.ellipse(x, y + 1, 20 + pul * 5, 8 + pul * 2, 0, 0, 6.28); ctx.fill();
+  if (!e.marche) {   // éolienne en défaut : un halo qui pulse au pied (orange : bridée ; rouge : arrêtée)
+    const pul = .5 + .5 * Math.sin(horloge * 8), grave = e.arret || e.detruite || e.panne === CABLE;
+    ctx.fillStyle = grave ? `rgba(255,77,94,${.25 + .25 * pul})` : `rgba(255,160,40,${.22 + .22 * pul})`;
+    ctx.beginPath(); ctx.ellipse(x, y + 1, 24 + pul * 6, 9 + pul * 2.5, 0, 0, 6.28); ctx.fill();
+    ctx.strokeStyle = grave ? 'rgba(255,77,94,.8)' : 'rgba(255,170,50,.85)'; ctx.lineWidth = 2; ctx.stroke();
   }
   const or = e.niveau > 0;   // fiabilisée : l'éolienne passe à l'or
   if (or) {
@@ -3872,11 +3916,16 @@ function dessinerEolienne(e, survol, rangs) {
     ctx.fillStyle = '#1b1b1b'; ctx.font = '700 9.5px Inter, sans-serif'; ctx.fillText('×' + compte, x + 18, y + 15);
   }
   if (!e.marche) {
-    const by = hy - 34 + Math.sin(horloge * 5 + e.x) * 2.5;
+    const by = hy - 38 + Math.sin(horloge * 5 + e.x) * 3.5, depuis = horloge - (e.pingT || -9);
+    if (depuis < 1.8) for (let k = 0; k < 3; k++) {   // une panne qui apparaît : des ondes qui s'élargissent
+      const u = (depuis - k * .25) / 1.2; if (u < 0 || u > 1) continue;
+      ctx.strokeStyle = `rgba(255,170,50,${1 - u})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, by, 16 + u * 46, 0, 6.28); ctx.stroke();
+    }
     ctx.fillStyle = e.detruite ? '#4a4a50' : e.feu ? '#ff7a1a' : e.panne === CABLE ? '#ff8c1a' : e.arret ? '#ff4d5e' : '#f5a623';
-    ctx.beginPath(); ctx.arc(x, by, 12, 0, 6.28); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(x - 4, by + 9); ctx.lineTo(x, by + 16); ctx.lineTo(x + 4, by + 9); ctx.fill();
-    ctx.font = '13px sans-serif'; ctx.fillText(e.detruite ? '💥' : e.feu ? '🔥' : PANNES[e.panne].ico, x, by + 5);
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, by, 15, 0, 6.28); ctx.fill(); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x - 5, by + 12); ctx.lineTo(x, by + 20); ctx.lineTo(x + 5, by + 12); ctx.fill();
+    ctx.font = '16px sans-serif'; ctx.fillText(e.detruite ? '💥' : e.feu ? '🔥' : PANNES[e.panne].ico, x, by + 6);
     if (partie.mode === 'carriere' && e.depuisPanne > partie.dureeShift / 6) { ctx.font = '600 10px Inter, sans-serif'; ctx.fillStyle = '#ffb3ba'; ctx.fillText(dureeTxt(e.depuisPanne), x + 34, by + 4); }
   } else if (e.alerte > 0) {
     const by = hy - 34, pul = .6 + .4 * Math.sin(horloge * 10);
@@ -3978,6 +4027,17 @@ function dessinerHier() {   // le briefing s'appuie sur le journal d'hier : où 
   ctx.restore();
 }
 
+function dessinerGuide(e) {   // tout s'assombrit, sauf l'éolienne à soigner ; une main montre où cliquer
+  ctx.save();
+  const g = ctx.createRadialGradient(e.x, e.y - 30, 40, e.x, e.y - 30, 150);
+  g.addColorStop(0, 'rgba(0,10,25,0)'); g.addColorStop(1, 'rgba(0,10,25,.62)');
+  ctx.fillStyle = g; ctx.fillRect(-200, -200, W + 400, H + 400);
+  ctx.strokeStyle = 'rgba(255,210,63,' + (.6 + .4 * Math.sin(horloge * 6)) + ')'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.arc(e.x, e.y - 30, 52 + Math.sin(horloge * 6) * 4, 0, 6.28); ctx.stroke();
+  if (partie.guide.etape === 1) { ctx.font = '44px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('👆', e.x + 30, e.y + 50 + Math.sin(horloge * 7) * 8); }
+  ctx.restore();
+}
+
 function dessiner() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.fillStyle = '#083854'; ctx.fillRect(0, 0, cv.width, cv.height);
@@ -4002,6 +4062,7 @@ function dessiner() {
   dessinerParticules();
   dessinerOSSPremierPlan(survol === OSS_CIBLE, rangs.get(OSS_CIBLE) || []);
   if (etat === 'briefing') dessinerHier();
+  if (partie && partie.guide && partie.guide.e && (partie.guide.etape === 1 || partie.guide.etape === 2)) dessinerGuide(partie.guide.e);
   dessinerMouettes();
   if (partie) for (const z of partie.zones) if (z.age < z.prev) dessinerZoneMeteo(z);
   lumiere(partie ? heureJeu() : 10);
@@ -4337,7 +4398,7 @@ $('adVider').addEventListener('click', () => {
 let avant = performance.now();
 function boucle(maintenant) {
   const dt = Math.min(.05, (maintenant - avant) / 1000); avant = maintenant;
-  if (etat === 'jeu') { majPartie(dt); if (etat === 'jeu') majHud(); }
+  if (etat === 'jeu') { majPartie(dt * (partie.guide && (partie.guide.etape === 3 || partie.guide.etape === 4) ? .6 : 1)); if (etat === 'jeu') majHud(); }   // au ralenti pendant le guide
   majCommun(dt);
   if ($('ecranAccueil').hidden) dessiner();
   requestAnimationFrame(boucle);
