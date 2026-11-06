@@ -16,17 +16,18 @@ qui n'a le droit ni d'écrire ni de parler à SharePoint. Le favori charge le je
 SharePoint**, avec le compte de la personne : le jeu sait qui joue et peut enregistrer son score.
 
 **Mise en place (organisateur)**
-1. `index.html` est dans le dossier OneDrive `QualityWeek2026`. Son chemin est réglé dans `CONFIG.sharepoint.dossier` :
-   mettez-le à jour si vous déplacez le dossier.
-2. Créez dans ce dossier un sous-dossier **`donnees`**. Le premier joueur le crée sinon, s'il en a le droit.
-3. Partagez **`QualityWeek2026` en lecture** et **`donnees` en modification** avec les participants. Deux façons :
-   - **Recommandé : « Personnes spécifiques »** sur `donnees` : ajoutez les collègues ou un groupe (l'équipe Teams, une liste de diffusion),
-     droit « Peut modifier ». L'accès est immédiat.
+1. `index.html` est dans le dossier **QualityWeek2026 du site d'équipe EDFRE_Offshore_COUrseulles**. Le lien de partage de ce dossier
+   est réglé dans `CONFIG.sharepoint.lienDossier` (et le site dans `origine`) : le favori ouvre ce lien quand on clique
+   en dehors du site, puis lit le chemin du dossier dans l'adresse de la page. Aucun chemin à saisir à la main.
+2. Le sous-dossier **`donnees`** est créé par le premier joueur s'il n'existe pas (ou créez-le vous-même).
+3. Les membres du site peuvent en général déjà modifier. Sinon, donnez le droit **« Peut modifier » sur `donnees`** :
+   - **Recommandé : « Personnes spécifiques »** : ajoutez les collègues ou un groupe (l'équipe Teams, une liste de diffusion). L'accès est immédiat.
    - **Par lien** « Personnes d'EDF disposant du lien » + « Peut modifier » : SharePoint n'active l'accès qu'une fois que chacun a ouvert ce lien.
      Copiez-le dans le panneau organisateur (champ « Lien de partage… », bouton 🔓) : un joueur sans accès verra alors
      « 🔓 Activer mon accès », puis « Réessayer », et ses parties jouées entre-temps sont enregistrées.
-4. Partagez le lien vers `index.html`. Si vous le partagez par **Teams**, précisez de l'ouvrir dans **Edge** (« … » › Ouvrir dans le navigateur) :
-   Teams n'a pas de barre de favoris. L'écran d'accueil du lien le rappelle, en français et en anglais (bouton FR / EN).
+4. Partagez le lien du dossier (ou de `index.html`).
+5. Si une ancienne copie d'`index.html` traîne dans votre OneDrive personnel, supprimez-la : les anciens favoris tomberont alors
+   sur une erreur, et chacun installera le nouveau favori.
 
 **Pour jouer (participants)**
 1. Ouvrir le lien partagé : l'aperçu affiche un **mode d'emploi** avec un gros bouton jaune « ⬆ Glissez-moi dans la barre des favoris ».
