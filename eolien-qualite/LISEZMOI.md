@@ -52,7 +52,10 @@ relancez cette commande si vous changez `CONFIG.sharepoint.dossier` ou `origine`
 
 **Données et anti-triche**
 - Chaque joueur écrit **uniquement son fichier** : `donnees/joueur-<adresse e-mail>.json` (ses parties, sa carrière, son temps de jeu).
-- Chaque fichier est **signé**. Un fichier modifié à la main ne passe plus le contrôle : ses scores sont écartés des classements
+- Les fichiers de scores sont **chiffrés** (AES-GCM) : on ne voit qu'une suite illisible (`QW26$…`), et la moindre retouche les rend
+  inutilisables. Les anciens fichiers en clair restent lus et sont chiffrés au prochain enregistrement. Pour lire un fichier :
+  le bouton « Télécharger les JSON » du panneau organisateur (en clair), ou `node outils/lire-scores.js joueur-….json`.
+- Chaque fichier est aussi **signé**. Un fichier modifié à la main ne passe plus le contrôle : ses scores sont écartés des classements
   et apparaissent grisés avec ⚠ dans le panneau organisateur. Les scores impossibles (trop élevés, partie trop courte) sont écartés aussi.
 - SharePoint garde l'historique des versions et l'auteur de chaque modification.
 - Limite honnête : un développeur déterminé pourrait recalculer une signature. Pour un jeu interne, c'est largement suffisant.

@@ -1016,7 +1016,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.26'
+  version: '2026.27'
 };
 
 const PARAMS = {
@@ -1458,13 +1458,35 @@ async function idbEcrire(k, v) {
 }
 const dansUnApercu = () => { try { return window.top !== window || location.origin === 'null' && location.protocol !== 'file:'; } catch (e) { return true; } };
 
+/* Fichiers de scores chiffrés (AES-GCM) : illisibles à l'œil nu, et la moindre retouche les rend inutilisables.
+   Les anciens fichiers en clair restent lus ; ils sont chiffrés au prochain enregistrement. */
+const CLE_FICHIERS = 'QW26·Courseulles·⚓·fichiers·2026';
+let cleAes = null;
+async function cleChiffrement() {
+  if (!cleAes) cleAes = await crypto.subtle.importKey('raw', await crypto.subtle.digest('SHA-256', new TextEncoder().encode(CLE_FICHIERS)), 'AES-GCM', false, ['encrypt', 'decrypt']);
+  return cleAes;
+}
+const versB64 = buf => { const o = new Uint8Array(buf); let s = ''; for (let i = 0; i < o.length; i += 8192) s += String.fromCharCode.apply(null, o.subarray(i, i + 8192)); return btoa(s); };
+const deB64 = b => Uint8Array.from(atob(b), c => c.charCodeAt(0));
+async function chiffrer(obj) {
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, await cleChiffrement(), new TextEncoder().encode(JSON.stringify(obj)));
+  return 'QW26$' + versB64(iv) + '$' + versB64(ct);
+}
+async function dechiffrer(txt) {
+  txt = (txt || '').trim();
+  if (!txt.startsWith('QW26$')) return JSON.parse(txt || 'null');   // ancien format, en clair
+  const [, iv, ct] = txt.split('$');
+  return JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: deB64(iv) }, await cleChiffrement(), deB64(ct))));
+}
+
 async function lireJSON(nom) {
-  try { return JSON.parse(await (await (await donnees.dossier.getFileHandle(nom)).getFile()).text() || 'null'); }
+  try { return await dechiffrer(await (await (await donnees.dossier.getFileHandle(nom)).getFile()).text()); }
   catch (e) { if (e.name === 'NotFoundError') return null; throw e; }
 }
 async function ecrireJSON(nom, data) {
   const w = await (await donnees.dossier.getFileHandle(nom, { create: true })).createWritable();
-  await w.write(JSON.stringify(data, null, 1)); await w.close();
+  await w.write(await chiffrer(data)); await w.close();
 }
 
 /* ---------- Lien partagé : jeu chargé par le favori dans une page SharePoint ----------
@@ -1495,10 +1517,10 @@ async function spJeton() {
   return SP.digest;
 }
 const spListe = async () => (await (await spFetch(`/_api/web/GetFolderByServerRelativeUrl('${spChemin(SP.donnees)}')/Files?$select=Name`)).json()).value;
-const spLire = async nom => JSON.parse(await (await spFetch(`/_api/web/GetFileByServerRelativeUrl('${spChemin(SP.donnees + '/' + nom)}')/$value`, { headers: { Accept: '*/*' } })).text());
+const spLire = async nom => dechiffrer(await (await spFetch(`/_api/web/GetFileByServerRelativeUrl('${spChemin(SP.donnees + '/' + nom)}')/$value`, { headers: { Accept: '*/*' } })).text());
 async function spEcrire(nom, data) {
   await spFetch(`/_api/web/GetFolderByServerRelativeUrl('${spChemin(SP.donnees)}')/Files/add(url='${spChemin(nom)}',overwrite=true)`,
-    { method: 'POST', headers: { 'X-RequestDigest': await spJeton(), 'Content-Type': 'application/json;charset=utf-8' }, body: JSON.stringify(data, null, 1) });
+    { method: 'POST', headers: { 'X-RequestDigest': await spJeton(), 'Content-Type': 'text/plain;charset=utf-8' }, body: await chiffrer(data) });
 }
 async function spSupprimer(nom) {
   await spFetch(`/_api/web/GetFileByServerRelativeUrl('${spChemin(SP.donnees + '/' + nom)}')`, { method: 'POST', headers: { 'X-RequestDigest': await spJeton(), 'X-HTTP-Method': 'DELETE', 'IF-MATCH': '*' } });
