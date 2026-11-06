@@ -971,7 +971,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.18'
+  version: '2026.19'
 };
 
 const PARAMS = {
@@ -3801,9 +3801,11 @@ function dessinerEolienne(e, survol, rangs) {
     g.addColorStop(0, 'rgba(255,40,40,1)'); g.addColorStop(1, 'rgba(255,40,40,0)');
     ctx.fillStyle = g; ctx.fillRect(x - 9, hy - 12, 16, 16);
   }
-  ctx.font = '600 9.5px Inter, sans-serif'; ctx.fillStyle = or ? '#ffd23f' : 'rgba(255,255,255,.65)'; ctx.fillText(e.id, x, y + 14);
+  // bateau accosté au boat landing : on n'écrit rien dessous (nom, badge), pour garder la scène lisible
+  const accoste = bateau.visible !== false && Math.hypot(bateau.x - x - 2, bateau.y - y - 22) < 48;
+  ctx.font = '600 9.5px Inter, sans-serif'; ctx.fillStyle = or ? '#ffd23f' : 'rgba(255,255,255,.65)'; if (!accoste) ctx.fillText(e.id, x, y + 14);
   const compte = M.scada >= 1 && partie && partie.mode === 'carriere' ? e.histo : e.nbPannes;
-  if (compte >= 2) {   // historique visible : les récidivistes se repèrent
+  if (compte >= 2 && !accoste) {   // historique visible : les récidivistes se repèrent
     ctx.fillStyle = e.niveau ? 'rgba(61,220,151,.9)' : 'rgba(255,140,60,.95)';
     ctx.beginPath(); ctx.roundRect(x + 7, y + 5, 22, 13, 6); ctx.fill();
     ctx.fillStyle = '#1b1b1b'; ctx.font = '700 9.5px Inter, sans-serif'; ctx.fillText('×' + compte, x + 18, y + 15);
