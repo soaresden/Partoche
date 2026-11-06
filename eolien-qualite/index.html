@@ -181,6 +181,19 @@
   ol.liste .p small { color: #c6d4ee; margin-left: 6px; font-size: 12px; }
   ol.liste .s { font-weight: 700; color: var(--jaune); font-variant-numeric: tabular-nums; white-space: nowrap; }
   ol.liste .s small { font-weight: 500; color: #c6d4ee; font-size: 11px; }
+  /* podium : les trois premiers, nom en or, argent, bronze qui brille */
+  ol.liste li.podium .nom { font-weight: 800; background: linear-gradient(100deg, var(--m1) 30%, var(--m2) 48%, var(--m1) 66%) 0 0 / 260% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent; animation: brille 2.8s linear infinite; }
+  ol.liste li.or { --m1: #f2b705; --m2: #fff3b0; background: linear-gradient(90deg, rgba(255,210,63,.32), rgba(255,210,63,.06)); box-shadow: inset 0 0 0 1px rgba(242,183,5,.6); }
+  ol.liste li.argent { --m1: #b9c4d2; --m2: #ffffff; background: linear-gradient(90deg, rgba(190,202,216,.38), rgba(190,202,216,.06)); box-shadow: inset 0 0 0 1px rgba(160,176,196,.6); }
+  ol.liste li.bronze { --m1: #e08a4c; --m2: #ffd2a8; background: linear-gradient(90deg, rgba(205,127,50,.28), rgba(205,127,50,.05)); box-shadow: inset 0 0 0 1px rgba(205,127,50,.55); }
+  #ecranAccueil ol.liste li.or { --m1: #b88a00; --m2: #f7c62f; }   /* sur l'accueil clair : des teintes plus soutenues */
+  #ecranAccueil ol.liste li.argent { --m1: #66768a; --m2: #a9b6c6; }
+  #ecranAccueil ol.liste li.bronze { --m1: #9c5426; --m2: #d9894f; }
+  ol.liste li.podium .r { font-size: 20px; animation: medaille 2.4s ease-in-out infinite; }
+  ol.liste li.argent .r { animation-delay: -.8s; } ol.liste li.bronze .r { animation-delay: -1.6s; }
+  @keyframes medaille { 0%, 100% { transform: rotate(-8deg) scale(1); } 50% { transform: rotate(8deg) scale(1.15); } }
+  @media (prefers-reduced-motion: reduce) { ol.liste li.podium .nom, ol.liste li.podium .r { animation: none; } }
   ol.liste li.vide { display: block; color: #c6d4ee; font-size: 14px; padding: 12px 4px; text-align: center; background: none; }
 
   .surtitre { color: var(--c-jaune); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
@@ -289,7 +302,7 @@
   #ecranAccueil .classements h4 small { color: var(--pc-gris); }
   #ecranAccueil .onglets button { border-color: var(--pc-ligne); color: var(--pc-gris); }
   #ecranAccueil .onglets button.actif { background: var(--pc-cyan); border-color: var(--pc-cyan); color: #fff; }
-  #ecranAccueil ol.liste li { background: var(--pc-fond); }
+  #ecranAccueil ol.liste li:not(.podium) { background: var(--pc-fond); }
   #ecranAccueil ol.liste .r, #ecranAccueil ol.liste .p small, #ecranAccueil ol.liste .s small { color: var(--pc-gris); }
   #ecranAccueil ol.liste .s { color: var(--pc-bleu); }
   #ecranAccueil ol.liste li.moi { background: #e4f5fd; outline-color: var(--pc-cyan); }
@@ -622,9 +635,9 @@
   <nav class="onglets-acc" id="ongletsAcc">
     <button type="button" class="actif" data-tab="pAccueil" style="--c: var(--c-bleu)"><i class="pt"></i><span data-i18n="tabAccueil"></span></button>
     <button type="button" data-tab="pJouer" style="--c: var(--c-rouge)"><i class="pt"></i><span data-i18n="tabJouer"></span></button>
+    <button type="button" data-tab="pAnim" style="--c: #00a9e9"><i class="pt"></i><span data-i18n="tabAnim"></span></button>
     <button type="button" data-tab="pPiliers" style="--c: var(--c-vert)"><i class="pt"></i><span data-i18n="tabPiliers"></span></button>
     <button type="button" data-tab="pTheme" style="--c: var(--c-jaune)"><i class="pt"></i><span data-i18n="tabTheme"></span></button>
-    <button type="button" data-tab="pAnim" style="--c: #00a9e9"><i class="pt"></i><span data-i18n="tabAnim"></span></button>
   </nav>
   <main class="panneaux">
     <div class="guirlande" id="guirlande" aria-hidden="true"></div>
@@ -653,10 +666,6 @@
       <div class="bloc classements">
         <h3 data-i18n="lbTitre"></h3>
         <h4><span>⚡ Sprint 3 min</span><small data-i18n="lbSprintSous"></small></h4>
-        <div class="onglets" data-cible="listeSprint" data-cle="p">
-          <button data-v="jour" class="actif" data-i18n="ongletJour"></button>
-          <button data-v="tout" data-i18n="ongletTout"></button>
-        </div>
         <ol class="liste" id="listeSprint"><li class="vide">…</li></ol>
         <h4><span data-i18n="lbCarriere"></span><small data-i18n="lbCarriereSous"></small></h4>
         <ol class="liste" id="listeCarriere"><li class="vide">…</li></ol>
@@ -871,10 +880,6 @@
     </div>
     <div class="carte classements">
       <h3 id="fTitreLb"></h3>
-      <div class="onglets" data-cible="listeFin" data-cle="p" id="fOnglets">
-        <button data-v="jour" class="actif" data-i18n="ongletJour"></button>
-        <button data-v="tout" data-i18n="ongletTout"></button>
-      </div>
       <ol class="liste" id="listeFin"><li class="vide">…</li></ol>
       <div class="encadre merci"><b data-i18n="merciTitre"></b> <span data-i18n="merciTxt"></span>
         <a class="autre-jeu" href="https://soaresden.github.io/EDF-COUGame/" target="_blank" rel="noopener">
@@ -972,7 +977,7 @@ const CONFIG = {
   prixRemplacement: 60,   // k€ : rotor à remplacer après une explosion
   incendies: true,    // false : une éolienne négligée s'arrête, sans feu ni explosion
   stockOSS: 4,        // pièces disponibles au dépôt de l'OSS à chaque shift
-  version: '2026.20'
+  version: '2026.22'
 };
 
 const PARAMS = {
@@ -1169,7 +1174,7 @@ const I18N = {
     fSur: 'Fin de journée · 22:00 · {mode}',
     fDetail: '⚡ {mwh} MWh produits, de quoi alimenter ≈ <b>{foyers}</b> foyers pendant une journée', fPic: ' · 🏙️ +{n} pic', fCombos: ' · 🔁 +{n} combos',
     statRep: '🔧 réparations', statFiab: '🛡️ fiabilisations', statCombo: '🔁 meilleur combo', statDispo: '⚡ disponibilité',
-    envoi: 'Envoi du score…', rangTxt: '<b>{a}</b> sur {b} aujourd\'hui · <b>{c}</b> sur {d} au général', rangCarriere: 'Carrière sauvegardée ✔',
+    envoi: 'Envoi du score…', rangTxt: '<b>{a}</b> sur {b} au classement Sprint', rangCarriere: 'Carrière sauvegardée ✔',
     errSpam: 'Score non enregistré : deux parties trop rapprochées.', errHorsLigneScore: 'Classement hors ligne : score gardé sur ce poste.',
     pareto: '📊 <b>Pareto</b> : {f} éoliennes sur 64 ({pc} %) ont concentré <b>{part} %</b> des défauts. Vous en avez fiabilisé <b>{n}</b>.',
     paretoVide: 'Aucun défaut aujourd\'hui : rien à trier !', paretoAutres: 'autres', paretoLegFiab: 'fiabilisée', paretoLegExpo: 'plus exposée', paretoLegAutre: 'autre', paretoLegCumul: '% cumulé des défauts',
@@ -1316,7 +1321,7 @@ const I18N = {
     fSur: 'End of day · 10:00 pm · {mode}',
     fDetail: '⚡ {mwh} MWh generated, enough to power ≈ <b>{foyers}</b> homes for a day', fPic: ' · 🏙️ +{n} peak', fCombos: ' · 🔁 +{n} combos',
     statRep: '🔧 repairs', statFiab: '🛡️ reinforcements', statCombo: '🔁 best combo', statDispo: '⚡ availability',
-    envoi: 'Sending score…', rangTxt: '<b>{a}</b> of {b} today · <b>{c}</b> of {d} all time', rangCarriere: 'Career saved ✔',
+    envoi: 'Sending score…', rangTxt: '<b>{a}</b> of {b} on the Sprint leaderboard', rangCarriere: 'Career saved ✔',
     errSpam: 'Score not saved: two games too close together.', errHorsLigneScore: 'Leaderboard offline: score kept on this computer.',
     pareto: '📊 <b>Pareto</b>: {f} turbines out of 64 ({pc}%) accounted for <b>{part}%</b> of faults. You reinforced <b>{n}</b> of them.',
     paretoVide: 'No faults today: nothing to sort!', paretoAutres: 'others', paretoLegFiab: 'reinforced', paretoLegExpo: 'more exposed', paretoLegAutre: 'other', paretoLegCumul: 'cumulative % of faults',
@@ -1668,10 +1673,10 @@ function majEtatDonnees() {
 /* ---------- Classements, calculés à partir des parties ---------- */
 const jourIso = d => { const x = new Date(d); return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0'); };
 function avecRangs(liste, val) { let r = 0; return liste.map((x, i) => ({ ...x, rang: i && val(x) === val(liste[i - 1]) ? r : (r = i + 1) })); }
-function meilleursSprint(periode, sauf) {
-  const auj = jourIso(Date.now()), m = new Map();
+function meilleursSprint(sauf) {   // un seul classement Sprint : le meilleur score de chacun, toutes dates confondues
+  const m = new Map();
   for (const x of BD.parties) {
-    if (x.mode !== 'rapide' || x.suspect || (periode === 'jour' && jourIso(x.date) !== auj)) continue;
+    if (x.mode !== 'rapide' || x.suspect) continue;
     const k = cleDe(x); if (k === sauf) continue;
     const y = m.get(k); if (!y || x.score > y.score) m.set(k, x);
   }
@@ -1679,14 +1684,16 @@ function meilleursSprint(periode, sauf) {
 }
 const classementCarriere = () => Object.values(BD.carrieres).filter(c => !c.suspect).sort((a, b) => b.totalMWh - a.totalMWh || a.maj - b.maj);
 
-const tableaux = { listeSprint: { p: 'jour', mode: 'rapide', nb: 6 }, listeCarriere: { mode: 'carriere', nb: 5 }, listeFin: { p: 'jour', mode: 'rapide' } };
+const tableaux = { listeSprint: { mode: 'rapide', nb: 7 }, listeCarriere: { mode: 'carriere', nb: 5 }, listeFin: { mode: 'rapide' } };
 function chargerClassement(cible) {
   const ol = $(cible), tb = tableaux[cible], nb = tb.nb || 8;
   const ligne = (rang, pseudo, sous, valeur, unite) => {
     const li = document.createElement('li');
-    if (joueur.pseudo && cleNom(pseudo) === cleNom(joueur.pseudo)) li.className = 'moi';   // (approximation visuelle : même nom affiché)
+    if (joueur.pseudo && cleNom(pseudo) === cleNom(joueur.pseudo)) li.classList.add('moi');   // (approximation visuelle : même nom affiché)
+    if (rang <= 3) li.classList.add('podium', ['or', 'argent', 'bronze'][rang - 1]);   // les trois premiers : nom en or, argent, bronze, animé
     const r = document.createElement('span'); r.className = 'r'; r.textContent = ['🥇', '🥈', '🥉'][rang - 1] || rang;
-    const p = document.createElement('span'); p.className = 'p'; p.textContent = pseudo;
+    const p = document.createElement('span'); p.className = 'p';
+    const nom = document.createElement('span'); nom.className = 'nom'; nom.textContent = pseudo; p.append(nom);
     const sm = document.createElement('small'); sm.textContent = sous; p.append(sm);
     const s = document.createElement('span'); s.className = 's'; s.textContent = fmt(valeur) + ' ';
     const u = document.createElement('small'); u.textContent = unite; s.append(u);
@@ -1697,7 +1704,7 @@ function chargerClassement(cible) {
     ol.replaceChildren(...l.map(c => ligne(c.rang, c.pseudo, t('jourCourt', { n: c.jour }), c.totalMWh, 'MWh')));
     if (!l.length) ol.innerHTML = '<li class="vide">' + t('lbVideCarriere') + '</li>';
   } else {
-    const l = avecRangs(meilleursSprint(tb.p), x => x.score).slice(0, nb);
+    const l = avecRangs(meilleursSprint(), x => x.score).slice(0, nb);
     ol.replaceChildren(...l.map(x => ligne(x.rang, x.pseudo, '🛡️' + x.ameliorations, x.score, 'pts')));
     if (!l.length) ol.innerHTML = '<li class="vide">' + t('lbVide') + '</li>';
   }
@@ -1706,12 +1713,6 @@ function rafraichirClassements() {
   for (const c of ['listeSprint', 'listeCarriere']) chargerClassement(c);
   if (!$('ecranFin').hidden) chargerClassement('listeFin');
 }
-document.querySelectorAll('.onglets').forEach(o => o.addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  o.querySelectorAll('button').forEach(x => x.classList.toggle('actif', x === b));
-  tableaux[o.dataset.cible][o.dataset.cle] = b.dataset.v;
-  chargerClassement(o.dataset.cible);
-}));
 
 function enregistrerPartie(res) {
   const ligne = {
@@ -1723,8 +1724,8 @@ function enregistrerPartie(res) {
   BD.parties.push(ligne); BD.attente.push(ligne.id);
   if (res.mode === 'rapide') {
     const k = cleJoueur(), r = l => ({ rang: 1 + l.filter(x => x.score > res.score).length, n: l.length + 1 });
-    const a = r(meilleursSprint('jour', k)), b = r(meilleursSprint('tout', k));
-    $('fRang').innerHTML = t('rangTxt', { a: ordinal(a.rang), b: a.n, c: ordinal(b.rang), d: b.n });
+    const a = r(meilleursSprint(k));
+    $('fRang').innerHTML = t('rangTxt', { a: ordinal(a.rang), b: a.n });
   } else $('fRang').textContent = t('rangCarriere');
   enregistrer();
   chargerClassement('listeFin');
@@ -2642,8 +2643,7 @@ function terminer() {
   const enCarriere = res.mode === 'carriere';
   $('fCompte').hidden = !enCarriere; $('btnRejouer').hidden = enCarriere;
   $('btnBase').hidden = !enCarriere; $('btnJourSuivant').hidden = !enCarriere;
-  $('fOnglets').hidden = enCarriere;
-  tableaux.listeFin = enCarriere ? { mode: 'carriere' } : { p: 'jour', mode: 'rapide' };
+  tableaux.listeFin = enCarriere ? { mode: 'carriere' } : { mode: 'rapide' };
   $('fTitreLb').textContent = t(enCarriere ? 'lbFinCarriere' : 'lbFinSprint');
   if (enCarriere) bilanCarriere(res);
   setTimeout(() => { $('ecranFin').hidden = false; ouvrirRapport(true); }, 900);   // le compte rendu de la journée s'affiche d'abord
